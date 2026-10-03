@@ -1,2 +1,2 @@
 # TINGESO-SIGA_IPT-Monolitic
-Repositorio del proyecto de TINGESO 2/2026
+Repositorio de la aplicación para el proyecto de Tingeso SIGA IPT
