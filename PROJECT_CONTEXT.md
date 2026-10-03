@@ -60,21 +60,33 @@ SIGA IPT (Sistema Integrado de Gestión Académica) es una aplicación web monol
   2. *Cierre de período académico (Épica 7)*.
   3. *Oferta académica y creación de secciones (Épica 5)*.
 
-### 2.5 Despliegue y CI/CD
-- **Estrategia por Fases:** Desarrollo y validación local de las épicas primero; despliegue a la nube (AWS) en la etapa de madurez final.
-- **Contenedores y Docker Compose:**
+### 2.5 Estrategia de Entorno, Despliegue y CI/CD
+
+#### 2.5.1 Entorno de Desarrollo (Estrategia Híbrida - Recomendada)
+Para maximizar la velocidad de desarrollo (*Developer Experience*), evitar problemas de latencia/rendimiento con volúmenes montados en Windows y conservar configuraciones persistentes, se utiliza un enfoque híbrido durante la construcción de las épicas:
+- **Infraestructura en Docker (`docker-compose.dev.yml`):**
+  - **PostgreSQL (puerto 5432):** Contenedor oficial con volumen persistente (`pgdata`), evitando instalaciones locales y garantizando persistencia de datos entre reinicios.
+  - **Keycloak (puerto 8080):** Contenedor oficial con persistencia en BD o volumen para la configuración del Realm (`siga-ipt-realm`), clientes (`frontend-client`, `backend-api`) y usuarios de prueba con sus roles (`ADMIN`, `TEACHER`, `STUDENT`). Se configura una única vez al inicio y queda disponible de forma permanente.
+- **Código de Aplicación en Local (Fast Feedback Loop):**
+  - **Frontend:** Ejecución directa mediante `npm run dev` (Vite) en `localhost:5173`. Permite Hot Module Replacement (HMR) instantáneo en milisegundos sin latencia ni bloqueos de sincronización de archivos de Windows/Docker.
+  - **Backend:** Ejecución directa mediante Spring Boot (`./mvnw spring-boot:run` o vía IDE en `localhost:8081`) apuntando a la base de datos y Keycloak levantados en Docker (`localhost:5432` y `localhost:8080`).
+  - **Tests y Coberura JaCoCo:** Ejecución local inmediata (`./mvnw test`) utilizando base de datos en memoria H2 para feedback ultra rápido en cada iteración de desarrollo.
+
+#### 2.5.2 Fase Final: Empaquetado, Producción y CI/CD
+Una vez implementadas y validadas las 7 épicas y alcanzado el umbral de cobertura ($\ge 90\%$):
+- **Contenedores y Docker Compose de Producción (`docker-compose.yml`):**
   - Base de datos: PostgreSQL con volumen persistente.
   - Backend: 3 réplicas explícitas (`backend-1`, `backend-2`, `backend-3`).
-  - Balanceador de Carga: Nginx en puerto 80 como punto de entrada único (sirviendo Frontend en `/` y balanceando peticiones `/api/` hacia el upstream de réplicas de backend).
-  - Frontend: 1 instancia.
-  - Keycloak en la misma red de Docker.
+  - Balanceador de Carga: Nginx en puerto 80 como punto de entrada único (sirviendo Frontend en `/` y balanceando peticiones `/api/` en round-robin hacia el upstream de réplicas de backend).
+  - Frontend: 1 instancia empaquetada lista para producción.
+  - Keycloak en la misma red interna de Docker.
   - Configuración vía variables de entorno (`.env`).
 - **Pipeline de Entrega Continua (CD):** GitHub Actions automatizado:
   1. Checkout de código.
   2. Ejecución de pruebas unitarias y de integración del backend.
   3. Build de imágenes Docker de frontend y backend.
-  4. Publicación en Docker Hub mediante **GitHub Secrets** (`DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`).
-- **Despliegue en Producción:** Manual vía Docker Compose en instancia EC2 de AWS.
+  4. Publicación de imágenes en Docker Hub mediante **GitHub Secrets** (`DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`).
+- **Despliegue en Producción:** Manual vía Docker Compose en instancia EC2 de AWS conectada a Docker Hub.
 
 ---
 
