@@ -35,6 +35,10 @@ SIGA IPT (Sistema Integrado de Gestión Académica) es una aplicación web monol
 - **Navegación y Rutas:** `react-router-dom` con componentes de rutas protegidas (`ProtectedRoute`) según el rol autenticado.
 - **Cliente HTTP:** Axios centralizado en `Frontend/src/services/http-common.js`, con interceptores para inyectar el header `Authorization: Bearer <token>` y capturar errores 401/403.
 - **Librería de UI:** Componentes prediseñados listos para usar (MUI o Bootstrap, evaluando compatibilidad con React 19).
+- **Paleta de Colores Institucional:**
+  - Primario / Barras de navegación: `#2947c0` (Azul)
+  - Fondo de vistas y tarjetas: `#fffefe` (Blanco)
+  - Acentos, alertas y estados: `#fe0103` (Rojo) y `#f5f523` (Amarillo)
 - **Convención de Idioma:** Código fuente en inglés.
 
 ### 2.3 Autenticación y Autorización (IAM)
@@ -51,6 +55,9 @@ SIGA IPT (Sistema Integrado de Gestión Académica) es una aplicación web monol
   - **Enlace Token $\leftrightarrow$ Base de Datos:** Se utiliza el **RUN** del usuario (presente en el claim `preferred_username` del JWT).
   - **Entidades de Dominio:** `Student` y `Teacher` se modelan como entidades JPA separadas en PostgreSQL (sin contraseñas).
   - **Administrador Académico:** Reside exclusivamente en Keycloak con sus credenciales y perfil (nombre, RUN, correo, rol `ADMIN`), sin necesidad de una tabla propia en PostgreSQL.
+- **Estrategia de Aprovisionamiento en Keycloak:**
+  - **Usuarios de prueba iniciales:** Preconfigurados e importados en el arranque de Docker mediante `realm-export.json` (`admin`, docente y estudiante de prueba).
+  - **Nuevos estudiantes registrados por Admin:** Aprovisionamiento automático desde el backend (`StudentService`) mediante `keycloak-admin-client`, creando la cuenta con `username` = RUN, correo institucional autogenerado, contraseña inicial y rol `STUDENT`.
 
 ### 2.4 Testing y Calidad de Código
 - **Herramienta de Cobertura:** **JaCoCo** configurado en Maven para auditar una cobertura de líneas de código $\ge 90\%$ en la capa `service`.
@@ -93,9 +100,25 @@ Una vez implementadas y validadas las 7 épicas y alcanzado el umbral de cobertu
 ## 3. Resumen de Reglas de Negocio Clave (Épicas 1 a 7)
 
 1. **Gestión de Estudiantes (Épica 1):**
-   - Datos: RUN (único), nombre completo, correo (único), carrera, plan vigente.
-   - Estados: `REGULAR` (inicial por defecto), `POSTERGACIÓN`, `RETIRO TEMPORAL`, `EGRESADO` (automático en cierre), `ELIMINADO` (automático al reprobar por 2da vez).
-   - Estudiantes con inscripciones o historial no pueden eliminarse físicamente.
+   - **Atributos de `Student`:**
+     - `run`: Único, validado con dígito verificador (Módulo 11), almacenado en formato limpio con guion (ej. `12345678-9`).
+     - Nombres separados: `firstName`, `paternalLastName`, `maternalLastName` (con helper `getFullName()` para vistas y reportes).
+     - `email`: Único, autogenerado por el sistema con formato `nombre.apellidoPaterno@sigaipt.cl` y validado por expresión regular.
+     - `career` y `studyPlan`: Relación `@ManyToOne` (se inicializa con carga básica de las 3 carreras y planes del Apéndice A).
+     - `academicStatus`: ENUM (`REGULAR`, `POSTERGACION`, `RETIRO_TEMPORAL`, `EGRESADO`, `ELIMINADO`). Inicializado automáticamente en `REGULAR`.
+   - **Reglas de Modificación y Estados:**
+     - El Administrador Académico solo puede cambiar estados entre `REGULAR`, `POSTERGACION` y `RETIRO_TEMPORAL`.
+     - `EGRESADO` y `ELIMINADO` no pueden asignarse manualmente; se asignan de forma automática durante el cierre de semestre.
+     - La carrera y el plan de estudios solo se pueden modificar si el estudiante NO posee inscripciones ni historial académico.
+   - **Reglas de Eliminación:**
+     - Prohibida la eliminación física si el alumno tiene ramos inscritos o historial académico.
+     - El borrado físico (`DELETE /api/students/{run}`) solo se permite si el alumno no registra inscripciones ni historial previo.
+   - **Matriz de Acceso y Visibilidad:**
+     - `STUDENT`: Solo puede consultar su **propia información e historial académico** (filtrado por su RUN extraído del JWT).
+     - `TEACHER`: Puede acceder a la información de contacto/datos de estudiantes en estado `REGULAR` inscritos en sus secciones asignadas (vía botón en la lista del curso). No tiene acceso al historial académico de los alumnos.
+     - `ADMIN`: Vista global con buscador de todos los estudiantes, edición de datos permitidos y cambio de estados habilitados. Acceso al historial académico.
+   - **Vistas del Frontend:**
+     - Vista de detalle de estudiante con botones hacia "Asignaturas Cursadas" y "Calificaciones" (preparadas como enlaces/placeholders para futuras épicas).
 2. **Carreras y Planes de Estudio (Épica 2):**
    - Carreras: código único, nombre, descripción, duración 4 semestres, estado `ACTIVA`/`INACTIVA`.
    - Planes: solo uno vigente por carrera a la vez. Al activar un plan nuevo, el anterior pasa automáticamente a `NO VIGENTE`.
