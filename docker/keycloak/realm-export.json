@@ -1,0 +1,107 @@
+{
+  "realm": "siga-ipt-realm",
+  "displayName": "SIGA IPT",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "ADMIN",
+        "description": "Administrador Academico"
+      },
+      {
+        "name": "TEACHER",
+        "description": "Docente"
+      },
+      {
+        "name": "STUDENT",
+        "description": "Estudiante"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "siga-frontend",
+      "name": "SIGA IPT Frontend React Client",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "rootUrl": "http://localhost:5173",
+      "baseUrl": "http://localhost:5173",
+      "redirectUris": [
+        "http://localhost:5173/*"
+      ],
+      "webOrigins": [
+        "*"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      }
+    },
+    {
+      "clientId": "siga-backend",
+      "name": "SIGA IPT Backend Resource Server",
+      "enabled": true,
+      "bearerOnly": true
+    }
+  ],
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "email": "admin@sigaipt.cl",
+      "firstName": "Administrador",
+      "lastName": "Academico",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "username": "11111111-1",
+      "enabled": true,
+      "email": "pedro.gonzalez@sigaipt.cl",
+      "firstName": "Pedro",
+      "lastName": "Gonzalez",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "docente123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "TEACHER"
+      ]
+    },
+    {
+      "username": "22222222-2",
+      "enabled": true,
+      "email": "ana.rojas@sigaipt.cl",
+      "firstName": "Ana",
+      "lastName": "Rojas",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "alumno123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "STUDENT"
+      ]
+    }
+  ]
+}
