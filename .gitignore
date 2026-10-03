@@ -1,0 +1,29 @@
+# Environment variables & secrets (CRITICAL)
+.env
+.env.local
+.env.*.local
+*.env
+!.env.example
+
+# Docker & local data
+pgdata/
+siga_pgdata_dev/
+
+# Operating System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Build artifacts & dependencies (global backup)
+**/target/
+**/node_modules/
+**/dist/
+
+# IDEs & Editors
+.idea/
+*.iml
+.vscode/
