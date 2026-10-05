@@ -242,7 +242,7 @@ const StudentListPage = () => {
                     </td>
                     <td>
                       <span className={`badge px-2 py-1 rounded-pill ${getStatusBadgeClass(st.academicStatus)}`}>
-                        {st.academicStatus}
+                        {st.academicStatus === "RETIRO_TEMPORAL" ? "RETIRO TEMPORAL" : st.academicStatus}
                       </span>
                     </td>
                     <td className="text-end">
@@ -358,9 +358,9 @@ const StudentListPage = () => {
                       value={editFormData.academicStatus}
                       onChange={(e) => setEditFormData({ ...editFormData, academicStatus: e.target.value })}
                     >
-                      <option value="REGULAR">REGULAR</option>
-                      <option value="POSTERGACION">POSTERGACION</option>
-                      <option value="RETIRO_TEMPORAL">RETIRO_TEMPORAL</option>
+                      <option value="REGULAR">Regular</option>
+                      <option value="POSTERGACION">Postergación</option>
+                      <option value="RETIRO_TEMPORAL">Retiro Temporal</option>
                     </select>
                     <div className="form-text small text-danger">
                       * Estados EGRESADO y ELIMINADO están protegidos y solo se asignan en cierre de semestre.

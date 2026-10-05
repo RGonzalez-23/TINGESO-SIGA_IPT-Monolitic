@@ -95,7 +95,7 @@ const StudentProfilePage = () => {
                 <div className="col-6">
                   <span className="text-muted small d-block">Estado Académico:</span>
                   <span className={`badge ${getStatusBadgeClass(student.academicStatus)}`}>
-                    {student.academicStatus}
+                    {student.academicStatus === "RETIRO_TEMPORAL" ? "RETIRO TEMPORAL" : student.academicStatus}
                   </span>
                 </div>
                 <div className="col-12">

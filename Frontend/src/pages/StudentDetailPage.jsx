@@ -82,7 +82,7 @@ const StudentDetailPage = () => {
                 Ficha Personal y Matrícula
               </span>
               <span className={`badge px-3 py-1 rounded-pill ${getStatusBadgeClass(student.academicStatus)}`}>
-                {student.academicStatus}
+                {student.academicStatus === "RETIRO_TEMPORAL" ? "RETIRO TEMPORAL" : student.academicStatus}
               </span>
             </div>
             <div className="card-body p-4">
@@ -168,7 +168,7 @@ const StudentDetailPage = () => {
                     >
                       <div>
                         <div className="fw-bold fs-6">
-                          <i className="bi bi-collection-fill text-primary me-2"></i>
+                          <i className="bi bi-collection-fill me-2"></i>
                           Asignaturas Cursadas
                         </div>
                         <small className="text-muted">Revisar avance curricular, asignaturas inscritas y aprobadas</small>
@@ -187,7 +187,7 @@ const StudentDetailPage = () => {
                     >
                       <div>
                         <div className="fw-bold fs-6">
-                          <i className="bi bi-card-checklist text-primary me-2"></i>
+                          <i className="bi bi-card-checklist me-2"></i>
                           Calificaciones Finales
                         </div>
                         <small className="text-muted">Escala de 1,0 a 7,0 y condición de aprobación (≥ 4,0)</small>
