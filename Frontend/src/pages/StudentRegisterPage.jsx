@@ -92,12 +92,13 @@ const StudentRegisterPage = () => {
       };
 
       const response = await StudentDataService.create(payload);
-      setSuccess(`¡Estudiante registrado con éxito con correo ${response.data.email}!`);
+      setSuccess(`¡Estudiante registrado con éxito! Correo: ${response.data.email}. Cuenta creada en Keycloak con contraseña temporal 'Siga2026!' (solicitará cambio al primer inicio de sesión).`);
       setTimeout(() => {
         navigate(`/students/${response.data.run}`);
-      }, 1500);
+      }, 2500);
     } catch (err) {
-      setError(err.response?.data || 'Error al registrar el estudiante en el sistema.');
+      const msg = typeof err.response?.data === 'string' ? err.response.data : (err.response?.data?.message || 'Error al registrar el estudiante en el sistema.');
+      setError(msg);
     } finally {
       setLoading(false);
     }

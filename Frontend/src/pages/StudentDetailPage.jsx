@@ -1,15 +1,24 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import StudentDataService from '../services/student.service';
+import UserService from '../services/user.service';
 import { useAuth } from '../context/AuthContext';
 
 const StudentDetailPage = () => {
   const { run } = useParams();
-  const { isTeacher } = useAuth();
+  const { isAdmin, isTeacher } = useAuth();
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [modalMessage, setModalMessage] = useState(null);
+
+  // Admin password reset modal state
+  const [showPwdModal, setShowPwdModal] = useState(false);
+  const [adminNewPassword, setAdminNewPassword] = useState('Siga2026!');
+  const [isTemporary, setIsTemporary] = useState(true);
+  const [pwdLoading, setPwdLoading] = useState(false);
+  const [pwdSuccess, setPwdSuccess] = useState(null);
+  const [pwdError, setPwdError] = useState(null);
 
   const loadStudent = useCallback(async () => {
     try {
@@ -27,6 +36,32 @@ const StudentDetailPage = () => {
   useEffect(() => {
     loadStudent();
   }, [loadStudent]);
+
+  const handleAdminResetPassword = async (e) => {
+    e.preventDefault();
+    setPwdSuccess(null);
+    setPwdError(null);
+
+    if (adminNewPassword.length < 6) {
+      setPwdError('La nueva contraseña debe tener al menos 6 caracteres.');
+      return;
+    }
+
+    try {
+      setPwdLoading(true);
+      await UserService.changePassword(student.run, adminNewPassword, isTemporary);
+      setPwdSuccess('¡Contraseña restablecida con éxito en Keycloak!');
+      setTimeout(() => {
+        setShowPwdModal(false);
+        setPwdSuccess(null);
+      }, 1800);
+    } catch (err) {
+      const msg = err.response?.data?.error || err.response?.data?.message || 'Error al restablecer la contraseña en Keycloak.';
+      setPwdError(msg);
+    } finally {
+      setPwdLoading(false);
+    }
+  };
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
@@ -64,12 +99,27 @@ const StudentDetailPage = () => {
 
   return (
     <div className="container py-4">
-      {/* Breadcrumb / Back button */}
+      {/* Breadcrumb / Back button & Actions */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <Link to="/students" className="btn btn-outline-secondary btn-sm">
           <i className="bi bi-arrow-left me-1"></i> Volver a la lista
         </Link>
-        <span className="badge bg-light text-dark border font-monospace">RUN: {student.run}</span>
+        <div className="d-flex align-items-center gap-2">
+          {isAdmin && (
+            <button
+              type="button"
+              className="btn btn-outline-primary btn-sm fw-semibold"
+              onClick={() => {
+                setShowPwdModal(true);
+                setPwdSuccess(null);
+                setPwdError(null);
+              }}
+            >
+              <i className="bi bi-key-fill me-1"></i> Restablecer Contraseña (Keycloak)
+            </button>
+          )}
+          <span className="badge bg-light text-dark border font-monospace">RUN: {student.run}</span>
+        </div>
       </div>
 
       <div className="row g-4">
@@ -82,7 +132,7 @@ const StudentDetailPage = () => {
                 Ficha Personal y Matrícula
               </span>
               <span className={`badge px-3 py-1 rounded-pill ${getStatusBadgeClass(student.academicStatus)}`}>
-                {student.academicStatus === "RETIRO_TEMPORAL" ? "RETIRO TEMPORAL" : student.academicStatus}
+                {student.academicStatus === 'RETIRO_TEMPORAL' ? 'RETIRO TEMPORAL' : student.academicStatus}
               </span>
             </div>
             <div className="card-body p-4">
@@ -206,6 +256,93 @@ const StudentDetailPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal Admin Password Reset */}
+      {showPwdModal && (
+        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content siga-card">
+              <div className="modal-header">
+                <h5 className="modal-title fw-bold" style={{ color: 'var(--siga-primary)' }}>
+                  <i className="bi bi-key-fill me-2"></i> Restablecer Contraseña (Keycloak)
+                </h5>
+                <button type="button" className="btn-close" onClick={() => setShowPwdModal(false)}></button>
+              </div>
+              <form onSubmit={handleAdminResetPassword}>
+                <div className="modal-body py-4">
+                  <p className="text-muted small mb-3">
+                    Estás actualizando la contraseña para el estudiante <strong>{student.fullName}</strong> (RUN: <code>{student.run}</code>) en el servidor de autenticación Keycloak.
+                  </p>
+
+                  {pwdSuccess && (
+                    <div className="alert alert-success py-2 small mb-3">
+                      <i className="bi bi-check-circle-fill me-2"></i>
+                      {pwdSuccess}
+                    </div>
+                  )}
+
+                  {pwdError && (
+                    <div className="alert alert-danger py-2 small mb-3">
+                      <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                      {pwdError}
+                    </div>
+                  )}
+
+                  <div className="mb-3">
+                    <label className="form-label small fw-semibold">Nueva Contraseña</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={adminNewPassword}
+                      onChange={(e) => setAdminNewPassword(e.target.value)}
+                      placeholder="Mínimo 6 caracteres"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      id="temporaryCheck"
+                      checked={isTemporary}
+                      onChange={(e) => setIsTemporary(e.target.checked)}
+                    />
+                    <label className="form-check-label small" htmlFor="temporaryCheck">
+                      Exigir al estudiante cambiarla en su próximo inicio de sesión (contraseña temporal)
+                    </label>
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary btn-sm"
+                    onClick={() => setShowPwdModal(false)}
+                    disabled={pwdLoading}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-primary btn-sm fw-semibold"
+                    style={{ backgroundColor: 'var(--siga-primary)' }}
+                    disabled={pwdLoading}
+                  >
+                    {pwdLoading ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                        Guardando...
+                      </>
+                    ) : (
+                      'Guardar Contraseña'
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal Placeholder */}
       {modalMessage && (

@@ -1,13 +1,21 @@
 import { useState, useEffect, useCallback } from 'react';
 import StudentDataService from '../services/student.service';
+import UserService from '../services/user.service';
 import { useAuth } from '../context/AuthContext';
 
 const StudentProfilePage = () => {
-  const { currentUserRun } = useAuth();
+  const { currentUserRun, user } = useAuth();
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [modalMessage, setModalMessage] = useState(null);
+
+  // Password change state
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [pwdLoading, setPwdLoading] = useState(false);
+  const [pwdSuccess, setPwdSuccess] = useState(null);
+  const [pwdError, setPwdError] = useState(null);
 
   const loadMyProfile = useCallback(async () => {
     try {
@@ -25,6 +33,35 @@ const StudentProfilePage = () => {
   useEffect(() => {
     loadMyProfile();
   }, [loadMyProfile]);
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    setPwdSuccess(null);
+    setPwdError(null);
+
+    if (newPassword.length < 6) {
+      setPwdError('La nueva contraseña debe tener al menos 6 caracteres.');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPwdError('Las contraseñas no coinciden. Por favor verifica.');
+      return;
+    }
+
+    try {
+      setPwdLoading(true);
+      await UserService.changePassword(currentUserRun, newPassword, false);
+      setPwdSuccess('¡Contraseña actualizada exitosamente en Keycloak!');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err) {
+      const msg = err.response?.data?.error || err.response?.data?.message || 'Error al actualizar la contraseña.';
+      setPwdError(msg);
+    } finally {
+      setPwdLoading(false);
+    }
+  };
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
@@ -65,13 +102,14 @@ const StudentProfilePage = () => {
           <i className="bi bi-person-x-fill fs-2 text-warning d-block mb-2"></i>
           <h5>No hay estudiante asociado al RUN {currentUserRun}</h5>
           <p className="text-muted small mb-3">
-            Puedes cambiar a rol <strong>ADMIN</strong> en la barra superior para registrar un nuevo estudiante con ese RUN o con otro de tu preferencia.
+            Usuario autenticado en Keycloak: <strong>{user?.name}</strong> ({currentUserRun})
           </p>
         </div>
       ) : (
         <div className="row g-4">
+          {/* Columna Izquierda: Ficha Académica */}
           <div className="col-lg-6">
-            <div className="siga-card p-4">
+            <div className="siga-card p-4 mb-4">
               <div className="d-flex align-items-center mb-3">
                 <div
                   className="rounded-circle d-flex align-items-center justify-content-center text-white me-3"
@@ -95,7 +133,7 @@ const StudentProfilePage = () => {
                 <div className="col-6">
                   <span className="text-muted small d-block">Estado Académico:</span>
                   <span className={`badge ${getStatusBadgeClass(student.academicStatus)}`}>
-                    {student.academicStatus === "RETIRO_TEMPORAL" ? "RETIRO TEMPORAL" : student.academicStatus}
+                    {student.academicStatus === 'RETIRO_TEMPORAL' ? 'RETIRO TEMPORAL' : student.academicStatus}
                   </span>
                 </div>
                 <div className="col-12">
@@ -114,8 +152,77 @@ const StudentProfilePage = () => {
                 </div>
               </div>
             </div>
+
+            {/* Tarjeta de Seguridad / Cambio de Contraseña */}
+            <div className="siga-card p-4">
+              <h5 className="fw-bold mb-3" style={{ color: 'var(--siga-primary)' }}>
+                <i className="bi bi-shield-lock-fill me-2"></i> Seguridad: Cambiar mi Contraseña
+              </h5>
+              <p className="text-muted small mb-3">
+                Actualiza tu contraseña de acceso a Keycloak. El cambio se aplicará de inmediato.
+              </p>
+
+              {pwdSuccess && (
+                <div className="alert alert-success py-2 small mb-3" role="alert">
+                  <i className="bi bi-check-circle-fill me-2"></i>
+                  {pwdSuccess}
+                </div>
+              )}
+
+              {pwdError && (
+                <div className="alert alert-danger py-2 small mb-3" role="alert">
+                  <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                  {pwdError}
+                </div>
+              )}
+
+              <form onSubmit={handlePasswordChange}>
+                <div className="mb-3">
+                  <label className="form-label small fw-semibold">Nueva Contraseña</label>
+                  <input
+                    type="password"
+                    className="form-control form-control-sm"
+                    placeholder="Mínimo 6 caracteres"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label small fw-semibold">Confirmar Nueva Contraseña</label>
+                  <input
+                    type="password"
+                    className="form-control form-control-sm"
+                    placeholder="Repite la contraseña"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="btn btn-primary btn-sm fw-semibold"
+                  style={{ backgroundColor: 'var(--siga-primary)' }}
+                  disabled={pwdLoading}
+                >
+                  {pwdLoading ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                      Actualizando...
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-key-fill me-1"></i> Actualizar Contraseña
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
           </div>
 
+          {/* Columna Derecha: Historial Curricular */}
           <div className="col-lg-6">
             <div className="siga-card p-4">
               <h5 className="fw-bold mb-3" style={{ color: 'var(--siga-primary)' }}>
