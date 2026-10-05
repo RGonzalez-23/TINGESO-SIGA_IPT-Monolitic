@@ -5,6 +5,7 @@ import cl.usach.tingeso.service.CareerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,10 +28,12 @@ public class CareerController {
 
     /**
      * Retrieves all active careers.
+     * Accessible by authenticated users (ADMIN, TEACHER, STUDENT).
      *
      * @return 200 OK with list of active careers
      */
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER', 'STUDENT')")
     public ResponseEntity<List<CareerResponseDTO>> getActiveCareers() {
         return ResponseEntity.ok(careerService.getActiveCareers());
     }

@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,10 +40,12 @@ public class StudentController {
 
     /**
      * Retrieves all registered students.
+     * Accessible by ADMIN and TEACHER.
      *
      * @return 200 OK with list of students, or 500 on unexpected error
      */
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
     public ResponseEntity<?> getAllStudents() {
         try {
             List<StudentResponseDTO> students = studentService.getAllStudents();
@@ -56,11 +59,13 @@ public class StudentController {
 
     /**
      * Retrieves a student by their unique RUN.
+     * Accessible by ADMIN, TEACHER, or the STUDENT themselves.
      *
      * @param run National identification number
      * @return 200 OK with student data, 404 if not found, or 400 on invalid format
      */
     @GetMapping("/{run}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER') or (hasRole('STUDENT') and #run == authentication.name)")
     public ResponseEntity<?> getStudentByRun(@PathVariable String run) {
         try {
             StudentResponseDTO student = studentService.getStudentByRun(run);
@@ -75,11 +80,13 @@ public class StudentController {
 
     /**
      * Registers a new student in the system.
+     * Accessible only by ADMIN.
      *
      * @param dto student registration payload
      * @return 201 Created with student response data, or 400 Bad Request on business validation errors
      */
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> registerStudent(@Valid @RequestBody StudentRegistrationDTO dto) {
         try {
             StudentResponseDTO created = studentService.registerStudent(dto);
@@ -99,12 +106,14 @@ public class StudentController {
 
     /**
      * Updates student information.
+     * Accessible only by ADMIN.
      *
      * @param run student RUN
      * @param dto update payload
      * @return 200 OK with updated data, 404 if not found, or 400 on validation failure
      */
     @PutMapping("/{run}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateStudent(@PathVariable String run, @Valid @RequestBody StudentUpdateDTO dto) {
         try {
             StudentResponseDTO updated = studentService.updateStudent(run, dto);
@@ -123,11 +132,13 @@ public class StudentController {
 
     /**
      * Physically deletes a student if they have no enrollments or academic history.
+     * Accessible only by ADMIN.
      *
      * @param run student RUN to delete
      * @return 204 No Content on success, 400 if blocked by business rule, or 404 if not found
      */
     @DeleteMapping("/{run}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteStudent(@PathVariable String run) {
         try {
             studentService.deleteStudent(run);
