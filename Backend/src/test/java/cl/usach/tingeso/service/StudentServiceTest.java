@@ -50,6 +50,9 @@ class StudentServiceTest {
     @Mock
     private StudyPlanRepository studyPlanRepository;
 
+    @Mock
+    private KeycloakUserService keycloakUserService;
+
     @InjectMocks
     private StudentService studentService;
 
