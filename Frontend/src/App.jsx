@@ -1,24 +1,59 @@
-
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
+import WelcomePage from './pages/WelcomePage';
 import StudentListPage from './pages/StudentListPage';
 import StudentRegisterPage from './pages/StudentRegisterPage';
 import StudentDetailPage from './pages/StudentDetailPage';
 import StudentProfilePage from './pages/StudentProfilePage';
 
-// Protected Route Component based on User Role
+// Protected Route Component based on User Authentication and Role
 const ProtectedRoute = ({ allowedRoles, children }) => {
-  const { currentRole } = useAuth();
-  if (!allowedRoles.includes(currentRole)) {
-    return <Navigate to="/" replace />;
+  const { authenticated, roles, login } = useAuth();
+
+  if (!authenticated) {
+    return (
+      <div className="container py-5 text-center">
+        <div className="card shadow-sm border-0 p-5 mx-auto" style={{ maxWidth: '500px' }}>
+          <i className="bi bi-shield-lock-fill text-warning display-4 mb-3"></i>
+          <h4 className="fw-bold mb-2">Autenticación Requerida</h4>
+          <p className="text-muted small mb-4">
+            Debes iniciar sesión con tu cuenta institucional en Keycloak para acceder a este módulo.
+          </p>
+          <button onClick={login} className="btn btn-primary fw-bold" style={{ backgroundColor: '#2947c0' }}>
+            <i className="bi bi-box-arrow-in-right me-2"></i>
+            Iniciar Sesión con Keycloak
+          </button>
+        </div>
+      </div>
+    );
   }
+
+  const hasAccess = allowedRoles.some((role) => roles.includes(role));
+  if (!hasAccess) {
+    return (
+      <div className="container py-5 text-center">
+        <div className="card shadow-sm border-0 p-5 mx-auto" style={{ maxWidth: '500px' }}>
+          <i className="bi bi-slash-circle-fill text-danger display-4 mb-3"></i>
+          <h4 className="fw-bold mb-2 text-danger">Acceso Denegado</h4>
+          <p className="text-muted small mb-3">
+            Tu cuenta no posee los privilegios requeridos para acceder a este módulo.
+          </p>
+          <Navigate to="/" replace />
+        </div>
+      </div>
+    );
+  }
+
   return children;
 };
 
 // Root Redirect based on active Role
 const HomeRedirect = () => {
-  const { isStudent } = useAuth();
+  const { authenticated, isStudent } = useAuth();
+  if (!authenticated) {
+    return <WelcomePage />;
+  }
   return isStudent ? <Navigate to="/profile" replace /> : <Navigate to="/students" replace />;
 };
 

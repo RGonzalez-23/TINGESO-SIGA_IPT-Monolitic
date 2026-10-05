@@ -2,8 +2,15 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
-  const { switchRole, isAdmin, isTeacher, isStudent } = useAuth();
+  const { authenticated, user, isAdmin, isTeacher, isStudent, login, logout } = useAuth();
   const location = useLocation();
+
+  const getRoleBadge = () => {
+    if (isAdmin) return <span className="badge bg-warning text-dark fw-bold">ADMIN</span>;
+    if (isTeacher) return <span className="badge bg-info text-dark fw-bold">DOCENTE</span>;
+    if (isStudent) return <span className="badge bg-success fw-bold">ESTUDIANTE</span>;
+    return null;
+  };
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark siga-navbar sticky-top">
@@ -27,7 +34,7 @@ const Navbar = () => {
 
         <div className="collapse navbar-collapse" id="navbarContent">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-            {(isAdmin || isTeacher) && (
+            {authenticated && (isAdmin || isTeacher) && (
               <li className="nav-item">
                 <Link
                   className={`nav-link ${location.pathname === '/students' ? 'active fw-bold' : ''}`}
@@ -39,7 +46,7 @@ const Navbar = () => {
               </li>
             )}
 
-            {isAdmin && (
+            {authenticated && isAdmin && (
               <li className="nav-item">
                 <Link
                   className={`nav-link ${location.pathname === '/students/new' ? 'active fw-bold' : ''}`}
@@ -51,7 +58,7 @@ const Navbar = () => {
               </li>
             )}
 
-            {isStudent && (
+            {authenticated && isStudent && (
               <li className="nav-item">
                 <Link
                   className={`nav-link ${location.pathname === '/profile' ? 'active fw-bold' : ''}`}
@@ -64,34 +71,40 @@ const Navbar = () => {
             )}
           </ul>
 
-          {/* Dev Role Switcher */}
-          <div className="d-flex align-items-center">
-            <span className="text-light me-2 small d-none d-md-inline">
-              <i className="bi bi-shield-lock-fill me-1"></i> Rol Activo:
-            </span>
-            <div className="btn-group btn-group-sm" role="group">
+          {/* User Auth Info & Actions */}
+          <div className="d-flex align-items-center gap-3">
+            {authenticated ? (
+              <>
+                <div className="d-flex flex-column text-end d-none d-sm-block text-white">
+                  <div className="d-flex align-items-center justify-content-end gap-2">
+                    <span className="fw-semibold small">{user?.name}</span>
+                    {getRoleBadge()}
+                  </div>
+                  <span className="text-light-50 small" style={{ fontSize: '0.75rem' }}>
+                    RUN: {user?.run}
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  className="btn btn-outline-light btn-sm d-flex align-items-center gap-1"
+                  onClick={logout}
+                  title="Cerrar sesión en Keycloak"
+                >
+                  <i className="bi bi-box-arrow-right"></i>
+                  <span className="d-none d-md-inline">Cerrar Sesión</span>
+                </button>
+              </>
+            ) : (
               <button
                 type="button"
-                className={`btn ${isAdmin ? 'btn-warning text-dark fw-bold' : 'btn-outline-light'}`}
-                onClick={() => switchRole('ADMIN')}
+                className="btn btn-warning btn-sm fw-bold d-flex align-items-center gap-1 text-dark"
+                onClick={login}
               >
-                ADMIN
+                <i className="bi bi-box-arrow-in-right"></i>
+                <span>Iniciar Sesión</span>
               </button>
-              <button
-                type="button"
-                className={`btn ${isTeacher ? 'btn-warning text-dark fw-bold' : 'btn-outline-light'}`}
-                onClick={() => switchRole('TEACHER')}
-              >
-                DOCENTE
-              </button>
-              <button
-                type="button"
-                className={`btn ${isStudent ? 'btn-warning text-dark fw-bold' : 'btn-outline-light'}`}
-                onClick={() => switchRole('STUDENT', '22222222-2')}
-              >
-                ALUMNO
-              </button>
-            </div>
+            )}
           </div>
         </div>
       </div>
