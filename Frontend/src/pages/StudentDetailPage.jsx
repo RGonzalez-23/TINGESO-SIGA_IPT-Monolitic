@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import StudentDataService from '../services/student.service';
+import CareerDataService from '../services/career.service';
 import UserService from '../services/user.service';
 import { useAuth } from '../context/AuthContext';
 
@@ -8,17 +9,26 @@ const StudentDetailPage = () => {
   const { run } = useParams();
   const { isAdmin, isTeacher } = useAuth();
   const [student, setStudent] = useState(null);
+  const [careers, setCareers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
   const [modalMessage, setModalMessage] = useState(null);
 
-  // Admin password reset modal state
-  const [showPwdModal, setShowPwdModal] = useState(false);
-  const [adminNewPassword, setAdminNewPassword] = useState('Siga2026!');
-  const [isTemporary, setIsTemporary] = useState(true);
-  const [pwdLoading, setPwdLoading] = useState(false);
-  const [pwdSuccess, setPwdSuccess] = useState(null);
-  const [pwdError, setPwdError] = useState(null);
+  // Edit Student Modal state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    firstName: '',
+    paternalLastName: '',
+    maternalLastName: '',
+    careerCode: '',
+    academicStatus: 'REGULAR',
+  });
+  // Password change inside edit modal
+  const [newPassword, setNewPassword] = useState('');
+  const [isTemporaryPassword, setIsTemporaryPassword] = useState(true);
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [editError, setEditError] = useState(null);
 
   const loadStudent = useCallback(async () => {
     try {
@@ -33,33 +43,69 @@ const StudentDetailPage = () => {
     }
   }, [run]);
 
+  const loadCareers = useCallback(async () => {
+    try {
+      const response = await CareerDataService.getAll();
+      setCareers(response.data);
+    } catch (err) {
+      console.error('Error loading careers:', err);
+    }
+  }, []);
+
   useEffect(() => {
     loadStudent();
-  }, [loadStudent]);
+    if (isAdmin) {
+      loadCareers();
+    }
+  }, [loadStudent, loadCareers, isAdmin]);
 
-  const handleAdminResetPassword = async (e) => {
+  const openEditModal = () => {
+    if (!student) return;
+    setEditFormData({
+      firstName: student.firstName,
+      paternalLastName: student.paternalLastName,
+      maternalLastName: student.maternalLastName,
+      careerCode: student.careerCode,
+      academicStatus: student.academicStatus,
+    });
+    setNewPassword('');
+    setIsTemporaryPassword(true);
+    setEditError(null);
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateSubmit = async (e) => {
     e.preventDefault();
-    setPwdSuccess(null);
-    setPwdError(null);
+    setEditError(null);
 
-    if (adminNewPassword.length < 6) {
-      setPwdError('La nueva contraseña debe tener al menos 6 caracteres.');
+    // If password was entered, validate minimum length
+    if (newPassword && newPassword.length < 6) {
+      setEditError('La nueva contraseña debe tener al menos 6 caracteres.');
       return;
     }
 
     try {
-      setPwdLoading(true);
-      await UserService.changePassword(student.run, adminNewPassword, isTemporary);
-      setPwdSuccess('¡Contraseña restablecida con éxito en Keycloak!');
-      setTimeout(() => {
-        setShowPwdModal(false);
-        setPwdSuccess(null);
-      }, 1800);
+      setSavingEdit(true);
+
+      // 1. Update student academic information
+      await StudentDataService.update(student.run, editFormData);
+
+      // 2. If password provided, update Keycloak password
+      let pwdMsg = '';
+      if (newPassword) {
+        await UserService.changePassword(student.run, newPassword, isTemporaryPassword);
+        pwdMsg = ' y contraseña actualizada en Keycloak';
+      }
+
+      setIsEditModalOpen(false);
+      setSuccessMessage(`¡Estudiante ${student.run} modificado con éxito${pwdMsg}!`);
+      setTimeout(() => setSuccessMessage(null), 4000);
+      loadStudent();
     } catch (err) {
-      const msg = err.response?.data?.error || err.response?.data?.message || 'Error al restablecer la contraseña en Keycloak.';
-      setPwdError(msg);
+      const msg = err.response?.data?.error || err.response?.data?.message || err.response?.data || 'Error al actualizar el estudiante.';
+      setEditError(msg);
     } finally {
-      setPwdLoading(false);
+      setSavingEdit(false);
     }
   };
 
@@ -99,7 +145,7 @@ const StudentDetailPage = () => {
 
   return (
     <div className="container py-4">
-      {/* Breadcrumb / Back button & Actions */}
+      {/* Top Header & Action Buttons */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <Link to="/students" className="btn btn-outline-secondary btn-sm">
           <i className="bi bi-arrow-left me-1"></i> Volver a la lista
@@ -108,19 +154,25 @@ const StudentDetailPage = () => {
           {isAdmin && (
             <button
               type="button"
-              className="btn btn-outline-primary btn-sm fw-semibold"
-              onClick={() => {
-                setShowPwdModal(true);
-                setPwdSuccess(null);
-                setPwdError(null);
-              }}
+              className="btn btn-warning btn-sm fw-bold d-flex align-items-center gap-1 shadow-sm text-dark"
+              onClick={openEditModal}
+              title="Modificar datos y contraseña del estudiante"
             >
-              <i className="bi bi-key-fill me-1"></i> Restablecer Contraseña (Keycloak)
+              <i className="bi bi-pencil-square"></i>
+              <span>Modificar Estudiante</span>
             </button>
           )}
           <span className="badge bg-light text-dark border font-monospace">RUN: {student.run}</span>
         </div>
       </div>
+
+      {successMessage && (
+        <div className="alert alert-success alert-dismissible fade show" role="alert">
+          <i className="bi bi-check-circle-fill me-2"></i>
+          {successMessage}
+          <button type="button" className="btn-close" onClick={() => setSuccessMessage(null)}></button>
+        </div>
+      )}
 
       <div className="row g-4">
         {/* Left Column: Personal and Academic Info */}
@@ -257,84 +309,168 @@ const StudentDetailPage = () => {
         </div>
       </div>
 
-      {/* Modal Admin Password Reset */}
-      {showPwdModal && (
+      {/* Edit Student Modal (Including Keycloak Password Update) */}
+      {isEditModalOpen && (
         <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-dialog modal-dialog-centered modal-lg">
             <div className="modal-content siga-card">
-              <div className="modal-header">
-                <h5 className="modal-title fw-bold" style={{ color: 'var(--siga-primary)' }}>
-                  <i className="bi bi-key-fill me-2"></i> Restablecer Contraseña (Keycloak)
-                </h5>
-                <button type="button" className="btn-close" onClick={() => setShowPwdModal(false)}></button>
-              </div>
-              <form onSubmit={handleAdminResetPassword}>
-                <div className="modal-body py-4">
-                  <p className="text-muted small mb-3">
-                    Estás actualizando la contraseña para el estudiante <strong>{student.fullName}</strong> (RUN: <code>{student.run}</code>) en el servidor de autenticación Keycloak.
-                  </p>
+              <form onSubmit={handleUpdateSubmit}>
+                <div className="modal-header">
+                  <h5 className="modal-title fw-bold" style={{ color: 'var(--siga-primary)' }}>
+                    <i className="bi bi-pencil-square me-2"></i>
+                    Modificar Estudiante ({student.run})
+                  </h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() => setIsEditModalOpen(false)}
+                    disabled={savingEdit}
+                  ></button>
+                </div>
 
-                  {pwdSuccess && (
-                    <div className="alert alert-success py-2 small mb-3">
-                      <i className="bi bi-check-circle-fill me-2"></i>
-                      {pwdSuccess}
-                    </div>
-                  )}
-
-                  {pwdError && (
+                <div className="modal-body p-4">
+                  {editError && (
                     <div className="alert alert-danger py-2 small mb-3">
                       <i className="bi bi-exclamation-triangle-fill me-2"></i>
-                      {pwdError}
+                      {editError}
                     </div>
                   )}
 
+                  {/* Section 1: Personal Information */}
+                  <h6 className="fw-bold text-dark mb-3 border-bottom pb-2">
+                    <i className="bi bi-person-fill text-primary me-2"></i>
+                    Información Personal y Académica
+                  </h6>
+
                   <div className="mb-3">
-                    <label className="form-label small fw-semibold">Nueva Contraseña</label>
+                    <label className="form-label small fw-semibold">Nombres</label>
                     <input
                       type="text"
                       className="form-control"
-                      value={adminNewPassword}
-                      onChange={(e) => setAdminNewPassword(e.target.value)}
-                      placeholder="Mínimo 6 caracteres"
+                      value={editFormData.firstName}
+                      onChange={(e) => setEditFormData({ ...editFormData, firstName: e.target.value })}
                       required
                     />
                   </div>
 
-                  <div className="form-check">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      id="temporaryCheck"
-                      checked={isTemporary}
-                      onChange={(e) => setIsTemporary(e.target.checked)}
-                    />
-                    <label className="form-check-label small" htmlFor="temporaryCheck">
-                      Exigir al estudiante cambiarla en su próximo inicio de sesión (contraseña temporal)
-                    </label>
+                  <div className="row mb-3">
+                    <div className="col-md-6">
+                      <label className="form-label small fw-semibold">Apellido Paterno</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={editFormData.paternalLastName}
+                        onChange={(e) => setEditFormData({ ...editFormData, paternalLastName: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-6">
+                      <label className="form-label small fw-semibold">Apellido Materno</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={editFormData.maternalLastName}
+                        onChange={(e) => setEditFormData({ ...editFormData, maternalLastName: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="row mb-3">
+                    <div className="col-md-6">
+                      <label className="form-label small fw-semibold">Carrera</label>
+                      <select
+                        className="form-select"
+                        value={editFormData.careerCode}
+                        onChange={(e) => setEditFormData({ ...editFormData, careerCode: e.target.value })}
+                      >
+                        {careers.map((c) => (
+                          <option key={c.code} value={c.code}>
+                            {c.code} - {c.name}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="form-text small">
+                        * Solo modificable si no registra inscripciones ni historial.
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <label className="form-label small fw-semibold">Estado Académico (Admin)</label>
+                      <select
+                        className="form-select"
+                        value={editFormData.academicStatus}
+                        onChange={(e) => setEditFormData({ ...editFormData, academicStatus: e.target.value })}
+                      >
+                        <option value="REGULAR">Regular</option>
+                        <option value="POSTERGACION">Postergación</option>
+                        <option value="RETIRO_TEMPORAL">Retiro Temporal</option>
+                      </select>
+                      <div className="form-text small text-danger">
+                        * EGRESADO y ELIMINADO están protegidos para cierre de semestre.
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Section 2: Keycloak Password Change */}
+                  <h6 className="fw-bold text-dark mt-4 mb-3 border-bottom pb-2">
+                    <i className="bi bi-shield-lock-fill text-warning me-2"></i>
+                    Cambio de Contraseña en Keycloak (Opcional)
+                  </h6>
+
+                  <p className="text-muted small mb-2">
+                    Si deseas actualizar la contraseña del estudiante en Keycloak, escríbela a continuación. Si no deseas cambiarla, déjala en blanco.
+                  </p>
+
+                  <div className="row g-2 align-items-center">
+                    <div className="col-md-7">
+                      <label className="form-label small fw-semibold mb-1">Nueva Contraseña</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Dejar en blanco para no modificar"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                      />
+                    </div>
+                    <div className="col-md-5 pt-md-3">
+                      <div className="form-check mt-md-2">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          id="editTemporaryCheck"
+                          checked={isTemporaryPassword}
+                          disabled={!newPassword}
+                          onChange={(e) => setIsTemporaryPassword(e.target.checked)}
+                        />
+                        <label className="form-check-label small" htmlFor="editTemporaryCheck">
+                          Exigir cambio en el próximo inicio de sesión
+                        </label>
+                      </div>
+                    </div>
                   </div>
                 </div>
+
                 <div className="modal-footer">
                   <button
                     type="button"
                     className="btn btn-outline-secondary btn-sm"
-                    onClick={() => setShowPwdModal(false)}
-                    disabled={pwdLoading}
+                    onClick={() => setIsEditModalOpen(false)}
+                    disabled={savingEdit}
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
-                    className="btn btn-primary btn-sm fw-semibold"
-                    style={{ backgroundColor: 'var(--siga-primary)' }}
-                    disabled={pwdLoading}
+                    className="btn btn-siga-primary btn-sm fw-semibold"
+                    disabled={savingEdit}
                   >
-                    {pwdLoading ? (
+                    {savingEdit ? (
                       <>
                         <span className="spinner-border spinner-border-sm me-2" role="status"></span>
-                        Guardando...
+                        Guardando Cambios...
                       </>
                     ) : (
-                      'Guardar Contraseña'
+                      'Guardar Cambios'
                     )}
                   </button>
                 </div>

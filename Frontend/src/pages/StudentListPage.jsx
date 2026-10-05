@@ -1,29 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import StudentDataService from '../services/student.service';
-import CareerDataService from '../services/career.service';
 import { useAuth } from '../context/AuthContext';
 
 const StudentListPage = () => {
   const { isAdmin, isTeacher } = useAuth();
   const [students, setStudents] = useState([]);
-  const [careers, setCareers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
-
-  // Edit Modal State
-  const [selectedStudent, setSelectedStudent] = useState(null);
-  const [editFormData, setEditFormData] = useState({
-    firstName: '',
-    paternalLastName: '',
-    maternalLastName: '',
-    careerCode: '',
-    academicStatus: 'REGULAR',
-  });
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const loadStudents = useCallback(async () => {
     try {
@@ -38,19 +25,9 @@ const StudentListPage = () => {
     }
   }, []);
 
-  const loadCareers = useCallback(async () => {
-    try {
-      const response = await CareerDataService.getActiveCareers();
-      setCareers(response.data);
-    } catch (err) {
-      console.error('Error loading careers:', err);
-    }
-  }, []);
-
   useEffect(() => {
     loadStudents();
-    loadCareers();
-  }, [loadStudents, loadCareers]);
+  }, [loadStudents]);
 
   const handleDelete = async (run) => {
     if (!window.confirm(`¿Estás seguro de eliminar físicamente al estudiante con RUN ${run}?`)) {
@@ -62,30 +39,6 @@ const StudentListPage = () => {
       loadStudents();
     } catch (err) {
       alert(err.response?.data || 'Error al eliminar el estudiante.');
-    }
-  };
-
-  const openEditModal = (student) => {
-    setSelectedStudent(student);
-    setEditFormData({
-      firstName: student.firstName || '',
-      paternalLastName: student.paternalLastName || '',
-      maternalLastName: student.maternalLastName || '',
-      careerCode: student.careerCode || '',
-      academicStatus: student.academicStatus || 'REGULAR',
-    });
-    setIsEditModalOpen(true);
-  };
-
-  const handleUpdateSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await StudentDataService.update(selectedStudent.run, editFormData);
-      setIsEditModalOpen(false);
-      setSuccessMessage(`Estudiante ${selectedStudent.run} actualizado con éxito.`);
-      loadStudents();
-    } catch (err) {
-      alert(err.response?.data || 'Error al actualizar el estudiante.');
     }
   };
 
@@ -242,37 +195,28 @@ const StudentListPage = () => {
                     </td>
                     <td>
                       <span className={`badge px-2 py-1 rounded-pill ${getStatusBadgeClass(st.academicStatus)}`}>
-                        {st.academicStatus === "RETIRO_TEMPORAL" ? "RETIRO TEMPORAL" : st.academicStatus}
+                        {st.academicStatus === 'RETIRO_TEMPORAL' ? 'RETIRO TEMPORAL' : st.academicStatus}
                       </span>
                     </td>
                     <td className="text-end">
-                      <div className="btn-group btn-group-sm">
+                      <div className="d-flex justify-content-end gap-1">
                         <Link
                           to={`/students/${st.run}`}
-                          className="btn btn-outline-primary"
+                          className="btn btn-sm btn-outline-primary fw-semibold d-flex align-items-center gap-1"
                           title="Ver Ficha y Opciones"
                         >
                           <i className="bi bi-eye-fill"></i>
+                          <span>Ver Ficha y Opciones</span>
                         </Link>
                         {isAdmin && (
-                          <>
-                            <button
-                              type="button"
-                              className="btn btn-outline-secondary"
-                              onClick={() => openEditModal(st)}
-                              title="Modificar Estudiante"
-                            >
-                              <i className="bi bi-pencil-fill"></i>
-                            </button>
-                            <button
-                              type="button"
-                              className="btn btn-outline-danger"
-                              onClick={() => handleDelete(st.run)}
-                              title="Eliminar Físicamente"
-                            >
-                              <i className="bi bi-trash-fill"></i>
-                            </button>
-                          </>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-danger"
+                            onClick={() => handleDelete(st.run)}
+                            title="Eliminar Físicamente"
+                          >
+                            <i className="bi bi-trash-fill"></i>
+                          </button>
                         )}
                       </div>
                     </td>
@@ -283,107 +227,6 @@ const StudentListPage = () => {
           </table>
         </div>
       </div>
-
-      {/* Edit Modal */}
-      {isEditModalOpen && (
-        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content siga-card">
-              <form onSubmit={handleUpdateSubmit}>
-                <div className="modal-header">
-                  <h5 className="modal-title fw-bold" style={{ color: 'var(--siga-primary)' }}>
-                    <i className="bi bi-pencil-square me-2"></i>
-                    Modificar Estudiante ({selectedStudent?.run})
-                  </h5>
-                  <button
-                    type="button"
-                    className="btn-close"
-                    onClick={() => setIsEditModalOpen(false)}
-                  ></button>
-                </div>
-                <div className="modal-body">
-                  <div className="mb-3">
-                    <label className="form-label small fw-semibold">Nombres</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={editFormData.firstName}
-                      onChange={(e) => setEditFormData({ ...editFormData, firstName: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="row mb-3">
-                    <div className="col">
-                      <label className="form-label small fw-semibold">Apellido Paterno</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={editFormData.paternalLastName}
-                        onChange={(e) => setEditFormData({ ...editFormData, paternalLastName: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="col">
-                      <label className="form-label small fw-semibold">Apellido Materno</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={editFormData.maternalLastName}
-                        onChange={(e) => setEditFormData({ ...editFormData, maternalLastName: e.target.value })}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label small fw-semibold">Carrera</label>
-                    <select
-                      className="form-select"
-                      value={editFormData.careerCode}
-                      onChange={(e) => setEditFormData({ ...editFormData, careerCode: e.target.value })}
-                    >
-                      {careers.map((c) => (
-                        <option key={c.code} value={c.code}>
-                          {c.code} - {c.name}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="form-text small">
-                      * Solo se puede cambiar si el estudiante no tiene inscripciones ni historial.
-                    </div>
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label small fw-semibold">Estado Académico (Admin)</label>
-                    <select
-                      className="form-select"
-                      value={editFormData.academicStatus}
-                      onChange={(e) => setEditFormData({ ...editFormData, academicStatus: e.target.value })}
-                    >
-                      <option value="REGULAR">Regular</option>
-                      <option value="POSTERGACION">Postergación</option>
-                      <option value="RETIRO_TEMPORAL">Retiro Temporal</option>
-                    </select>
-                    <div className="form-text small text-danger">
-                      * Estados EGRESADO y ELIMINADO están protegidos y solo se asignan en cierre de semestre.
-                    </div>
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() => setIsEditModalOpen(false)}
-                  >
-                    Cancelar
-                  </button>
-                  <button type="submit" className="btn btn-siga-primary">
-                    Guardar Cambios
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
