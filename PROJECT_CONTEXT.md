@@ -146,6 +146,92 @@ Una vez implementadas y validadas las 7 épicas y alcanzado el umbral de cobertu
 
 ---
 
-## 4. Instrucción para Continuar Sesión en Otra Computadora
+## 4. Estado de Avance y Entregables
+
+| Módulo / Épica | Backend | Cobertura JaCoCo | Frontend | Estado General |
+| :--- | :---: | :---: | :---: | :---: |
+| **Infraestructura Dev** | PostgreSQL 16 + Keycloak 24 en Docker | N/A | Vite + Bootstrap | **COMPLETADO** |
+| **Épica 1: Gestión de Estudiantes** | Endpoints REST, Validación RUN, Email auto | **97.98%** (97/99 líneas) | Listado, Registro, Ficha, Perfil | **COMPLETADO Y VALIDADO** |
+| **Seguridad & IAM: Integración Keycloak** | Spring Security + OAuth2 Resource Server | Pendiente | `keycloak-js` + AuthContext real | **SIGUIENTE PASO INMEDIATO** |
+| **Épica 2: Carreras y Planes** | Entidades base creadas | Pendiente | Pendiente | **EN COLA** |
+| **Épica 3: Asignaturas y Prerrequisitos** | Pendiente | Pendiente | Pendiente | **PENDIENTE** |
+| **Épica 4: Gestión de Docentes** | Pendiente | Pendiente | Pendiente | **PENDIENTE** |
+| **Épica 5: Oferta Académica y Secciones** | Pendiente | Pendiente | Pendiente | **PENDIENTE** |
+| **Épica 6: Inscripción Académica** | Pendiente | Pendiente | Pendiente | **PENDIENTE** |
+| **Épica 7: Calificaciones y Cierre** | Pendiente | Pendiente | Pendiente | **PENDIENTE** |
+
+### Resumen de lo Implementado en Épica 1:
+- **Backend:**
+  - Entidades: `StudentEntity`, `CareerEntity`, `StudyPlanEntity`, `AcademicStatus`.
+  - Repositorios: `StudentRepository`, `CareerRepository`, `StudyPlanRepository`.
+  - Precarga de datos: `DataInitializerConfig` (3 carreras y planes vigentes del Apéndice A).
+  - DTOs: `StudentRegistrationDTO`, `StudentUpdateDTO`, `StudentResponseDTO`, `CareerResponseDTO`.
+  - Servicios: `StudentService`, `CareerService`.
+  - Controladores REST: `StudentController` (`/api/students`), `CareerController` (`/api/careers`).
+  - Pruebas unitarias: `StudentServiceTest` (19 tests) y `CareerServiceTest` (1 test) con Mockito/JUnit 5. Cobertura: **97.98%**.
+- **Frontend:**
+  - Cliente HTTP: `http-common.js` con Axios e interceptores base.
+  - Contexto de Autenticación: `AuthContext.jsx` con conmutador de roles simulado para pruebas de desarrollo (`ADMIN`, `TEACHER`, `STUDENT`).
+  - Navegación: `Navbar.jsx` y `App.jsx` con rutas protegidas (`ProtectedRoute`).
+  - Vistas: `StudentListPage.jsx` (búsqueda y filtros), `StudentRegisterPage.jsx` (validación RUN Módulo 11 en tiempo real y previsualización de correo), `StudentDetailPage.jsx` (ficha con botones de asignaturas cursadas y calificaciones), `StudentProfilePage.jsx` (vista personal del alumno).
+
+---
+
+## 5. Hoja de Ruta Próxima Sesión: Integración de Seguridad y Autenticación con Keycloak
+
+Antes de continuar con la **Épica 2 (Carreras y Planes)**, conectaremos el flujo de autenticación real con Keycloak para que el sistema opere con login real, JWT emitidos por el servidor de identidad y control de acceso basado en roles (RBAC):
+
+### 5.1 Estado Actual de Keycloak (Docker Dev)
+- Contenedor activo: `siga-keycloak-dev` en puerto `8080`.
+- Realm configurado en `realm-export.json`: `siga-ipt-realm`.
+- Clientes creados:
+  - `siga-frontend`: Cliente público para la SPA (Web Origins `http://localhost:5173`, Standard Flow enabled).
+  - `siga-backend`: Cliente Resource Server para el backend API en puerto `8081`.
+- Roles definidos: `ADMIN`, `TEACHER`, `STUDENT`.
+- Usuarios de prueba aprovisionados:
+  - Administrador: `admin` (password: `admin123`, rol `ADMIN`).
+  - Docente: `11111111-1` (password: `docente123`, rol `TEACHER`).
+  - Estudiante: `22222222-2` (password: `alumno123`, rol `STUDENT`).
+
+### 5.2 Tareas Backend (Spring Boot 4-capas)
+1. **Dependencias Maven:**
+   - Agregar `spring-boot-starter-oauth2-resource-server` y `spring-boot-starter-security` en `Backend/pom.xml`.
+2. **Configuración de Properties:**
+   - En `application.properties`:
+     ```properties
+     spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:8080/realms/siga-ipt-realm
+     spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost:8080/realms/siga-ipt-realm/protocol/openid-connect/certs
+     ```
+3. **Clase `SecurityConfig.java` (`cl.usach.tingeso.config`):**
+   - Habilitar `@EnableWebSecurity` y `@EnableMethodSecurity`.
+   - Configuración de CORS permitiendo `http://localhost:5173`.
+   - Configurar `JwtAuthenticationConverter` para extraer los roles de Keycloak ubicados en `realm_access.roles` y mapearlos como `ROLE_ADMIN`, `ROLE_TEACHER`, `ROLE_STUDENT`.
+   - Reglas de autorización en endpoints `/api/students/**`:
+     - `POST`, `PUT`, `DELETE`, `PATCH`: Exclusivo para `ROLE_ADMIN`.
+     - `GET /api/students`: `ROLE_ADMIN` y `ROLE_TEACHER`.
+     - `GET /api/students/{run}`: `ROLE_ADMIN`, `ROLE_TEACHER` y `ROLE_STUDENT` (validando que el estudiante autenticado solo consulte su propio RUN con `@PreAuthorize`).
+     - Swagger UI (`/swagger-ui/**`, `/v3/api-docs/**`): Acceso público (`permitAll()`).
+4. **Validación de Tests JaCoCo:**
+   - Asegurar que `mvn test` mantenga cobertura $\ge 90\%$ usando `@WithMockUser` o simulando `SecurityContext` sin requerir conexión activa a Keycloak durante la ejecución de pruebas.
+
+### 5.3 Tareas Frontend (React + Vite)
+1. **Instalación de Dependencia:**
+   - `npm install keycloak-js` en el directorio `Frontend`.
+2. **Instancia de Keycloak (`Frontend/src/services/keycloak.js`):**
+   - Inicializar cliente apuntando a `http://localhost:8080`, realm `siga-ipt-realm`, clientId `siga-frontend`.
+3. **Migración de `AuthContext.jsx`:**
+   - Reemplazar el conmutador mock por la inicialización real de Keycloak (`keycloak.init({ onLoad: 'check-sso', checkLoginIframe: false })`).
+   - Extraer del token decodificado: `username` (RUN), nombre, correo y roles asignados (`isAdmin`, `isTeacher`, `isStudent`).
+   - Funciones `login()` y `logout()` vinculadas a los métodos nativos de Keycloak.
+4. **Sincronización con `http-common.js`:**
+   - Configurar interceptor de solicitud en Axios para adjuntar el JWT activo: `Authorization: Bearer ${keycloak.token}`.
+   - Refrescar automáticamente el token si está próximo a expirar (`keycloak.updateToken(30)`).
+5. **Ajuste en `Navbar.jsx`:**
+   - Mostrar datos del usuario autenticado (RUN, Nombre, Rol) y botón de cierre de sesión (Logout de Keycloak).
+   - Botón de "Iniciar Sesión" si no está autenticado.
+
+---
+
+## 6. Instrucción para Continuar la Próxima Sesión
 Al iniciar una nueva sesión en Antigravity desde otra computadora tras clonar/hacer `git pull`:
-> *"Lee el archivo `PROJECT_CONTEXT.md` para cargar todo el contexto y decisiones de arquitectura del proyecto SIGA IPT, y retomemos el trabajo desde [indicar Épica o tarea actual]."*
+> *"Lee el archivo `PROJECT_CONTEXT.md` para cargar todo el contexto, arquitectura y estado de avance de SIGA IPT. Procedamos a configurar la autenticación e integración con Keycloak tanto en el backend como en el frontend según la sección 5."*
