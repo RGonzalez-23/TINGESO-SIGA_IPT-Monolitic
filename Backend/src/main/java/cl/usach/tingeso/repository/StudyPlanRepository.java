@@ -29,4 +29,21 @@ public interface StudyPlanRepository extends JpaRepository<StudyPlanEntity, Long
      * @return list of study plans
      */
     List<StudyPlanEntity> findByCareer_Code(String careerCode);
+
+    /**
+     * Counts the study plans associated with a given career code.
+     *
+     * @param careerCode the unique code of the career
+     * @return count of study plans
+     */
+    long countByCareer_Code(String careerCode);
+
+    /**
+     * Checks if a study plan already exists for a career with the same code.
+     *
+     * @param careerCode the unique code of the career
+     * @param code the code/version of the study plan
+     * @return true if exists, false otherwise
+     */
+    boolean existsByCareer_CodeAndCode(String careerCode, String code);
 }

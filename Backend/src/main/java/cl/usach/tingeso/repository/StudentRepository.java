@@ -54,4 +54,20 @@ public interface StudentRepository extends JpaRepository<StudentEntity, String> 
      * @return list of matching students
      */
     List<StudentEntity> findByCareer_Code(String careerCode);
+
+    /**
+     * Counts students enrolled in a specific career code.
+     *
+     * @param careerCode unique career code
+     * @return count of enrolled students
+     */
+    long countByCareer_Code(String careerCode);
+
+    /**
+     * Counts students enrolled in a specific study plan.
+     *
+     * @param studyPlanId ID of the study plan
+     * @return count of enrolled students
+     */
+    long countByStudyPlan_Id(Long studyPlanId);
 }
