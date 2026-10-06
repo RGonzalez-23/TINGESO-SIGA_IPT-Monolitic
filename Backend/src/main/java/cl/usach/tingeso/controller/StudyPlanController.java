@@ -1,11 +1,10 @@
 package cl.usach.tingeso.controller;
 
-import cl.usach.tingeso.dto.CareerRegistrationDTO;
-import cl.usach.tingeso.dto.CareerResponseDTO;
-import cl.usach.tingeso.dto.CareerUpdateDTO;
+import cl.usach.tingeso.dto.StudyPlanRegistrationDTO;
+import cl.usach.tingeso.dto.StudyPlanResponseDTO;
 import cl.usach.tingeso.exception.BusinessRuleException;
 import cl.usach.tingeso.exception.ResourceNotFoundException;
-import cl.usach.tingeso.service.CareerService;
+import cl.usach.tingeso.service.StudyPlanService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,54 +25,50 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * CareerController exposes REST endpoints for career management and queries.
+ * StudyPlanController exposes REST endpoints for study plan lifecycle management.
  * Layer: Controller.
  */
 @RestController
-@RequestMapping("/api/careers")
+@RequestMapping("/api/study-plans")
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 @Slf4j
-public class CareerController {
+public class StudyPlanController {
 
-    private final CareerService careerService;
+    private final StudyPlanService studyPlanService;
 
     /**
-     * Retrieves careers.
-     * If activeOnly=true is requested, returns only active careers.
-     * Otherwise returns all careers.
+     * Retrieves all study plans for a given career code.
+     * Accessible by authenticated users (ADMIN, TEACHER, STUDENT).
      *
-     * @param activeOnly optional filter parameter
-     * @return 200 OK with list of careers
+     * @param careerCode the unique code of the career
+     * @return 200 OK with list of study plans
      */
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER', 'STUDENT')")
-    public ResponseEntity<List<CareerResponseDTO>> getCareers(
-            @RequestParam(name = "activeOnly", required = false, defaultValue = "false") boolean activeOnly) {
-        if (activeOnly) {
-            return ResponseEntity.ok(careerService.getActiveCareers());
-        }
-        return ResponseEntity.ok(careerService.getAllCareers());
+    public ResponseEntity<List<StudyPlanResponseDTO>> getPlansByCareer(
+            @RequestParam(name = "careerCode") String careerCode) {
+        return ResponseEntity.ok(studyPlanService.getPlansByCareer(careerCode));
     }
 
     /**
-     * Retrieves a single career by its unique code.
+     * Retrieves a single study plan by ID.
      *
-     * @param code unique code of the career
-     * @return 200 OK with career data, or 404 if not found
+     * @param id study plan ID
+     * @return 200 OK with study plan data, or 404 if not found
      */
-    @GetMapping("/{code}")
+    @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER', 'STUDENT')")
-    public ResponseEntity<?> getCareerByCode(@PathVariable String code) {
+    public ResponseEntity<?> getStudyPlanById(@PathVariable Long id) {
         try {
-            return ResponseEntity.ok(careerService.getCareerByCode(code));
+            return ResponseEntity.ok(studyPlanService.getStudyPlanById(id));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
     /**
-     * Registers a new career and its initial study plan.
+     * Registers a new study plan for a career.
      * Accessible only by ADMIN.
      *
      * @param dto registration payload
@@ -81,65 +76,66 @@ public class CareerController {
      */
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> registerCareer(@Valid @RequestBody CareerRegistrationDTO dto) {
+    public ResponseEntity<?> createStudyPlan(@Valid @RequestBody StudyPlanRegistrationDTO dto) {
         try {
-            CareerResponseDTO created = careerService.registerCareer(dto);
+            StudyPlanResponseDTO created = studyPlanService.createStudyPlan(dto);
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (BusinessRuleException e) {
-            log.warn("Business rule violation registering career: {}", e.getMessage());
+            log.warn("Business rule violation creating study plan: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            log.error("Unexpected error registering career: {}", e.getMessage());
+            log.error("Unexpected error creating study plan: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Unexpected error: " + e.getMessage());
         }
     }
 
     /**
-     * Updates an existing career.
+     * Activates a study plan as the current active plan for its career.
      * Accessible only by ADMIN.
      *
-     * @param code unique code of the career
-     * @param dto update payload
-     * @return 200 OK with updated career, 404 if not found, or 400 on error
+     * @param id study plan ID to activate
+     * @return 200 OK with activated study plan, 404 if not found, or 400 on error
      */
-    @PutMapping("/{code}")
+    @PutMapping("/{id}/activate")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> updateCareer(@PathVariable String code, @Valid @RequestBody CareerUpdateDTO dto) {
+    public ResponseEntity<?> activateStudyPlan(@PathVariable Long id) {
         try {
-            CareerResponseDTO updated = careerService.updateCareer(code, dto);
-            return ResponseEntity.ok(updated);
+            StudyPlanResponseDTO activated = studyPlanService.activateStudyPlan(id);
+            return ResponseEntity.ok(activated);
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (BusinessRuleException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            log.error("Unexpected error updating career {}: {}", code, e.getMessage());
+            log.error("Unexpected error activating study plan {}: {}", id, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Unexpected error: " + e.getMessage());
         }
     }
 
     /**
-     * Deletes a career if it has no associated study plans or enrolled students.
+     * Deletes a study plan if it has no enrolled students.
      * Accessible only by ADMIN.
      *
-     * @param code unique code of the career
+     * @param id study plan ID to delete
      * @return 204 No Content on success, 400 if blocked by business rule, or 404 if not found
      */
-    @DeleteMapping("/{code}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> deleteCareer(@PathVariable String code) {
+    public ResponseEntity<?> deleteStudyPlan(@PathVariable Long id) {
         try {
-            careerService.deleteCareer(code);
+            studyPlanService.deleteStudyPlan(id);
             return ResponseEntity.noContent().build();
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (BusinessRuleException e) {
-            log.warn("Business rule violation deleting career {}: {}", code, e.getMessage());
+            log.warn("Business rule violation deleting study plan {}: {}", id, e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            log.error("Unexpected error deleting career {}: {}", code, e.getMessage());
+            log.error("Unexpected error deleting study plan {}: {}", id, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Unexpected error: " + e.getMessage());
         }
