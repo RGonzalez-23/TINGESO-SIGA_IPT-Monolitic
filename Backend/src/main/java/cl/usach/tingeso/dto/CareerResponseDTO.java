@@ -18,4 +18,7 @@ public class CareerResponseDTO {
     private String description;
     private Integer durationSemesters;
     private Boolean isActive;
+    private String activeStudyPlanCode;
+    private Long totalStudyPlans;
+    private Long totalEnrolledStudents;
 }
