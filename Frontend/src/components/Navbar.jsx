@@ -34,6 +34,18 @@ const Navbar = () => {
 
         <div className="collapse navbar-collapse" id="navbarContent">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+            {authenticated && (
+              <li className="nav-item">
+                <Link
+                  className={`nav-link ${location.pathname === '/' ? 'active fw-bold' : ''}`}
+                  to="/"
+                >
+                  <i className="bi bi-house-door-fill me-1"></i>
+                  Inicio
+                </Link>
+              </li>
+            )}
+
             {authenticated && (isAdmin || isTeacher) && (
               <li className="nav-item">
                 <Link
@@ -42,6 +54,18 @@ const Navbar = () => {
                 >
                   <i className="bi bi-people-fill me-1"></i>
                   {isAdmin ? 'Gestión de Estudiantes' : 'Consulta de Alumnos'}
+                </Link>
+              </li>
+            )}
+
+            {authenticated && (
+              <li className="nav-item">
+                <Link
+                  className={`nav-link ${location.pathname === '/careers' ? 'active fw-bold' : ''}`}
+                  to="/careers"
+                >
+                  <i className="bi bi-journal-bookmark-fill me-1"></i>
+                  {isAdmin ? 'Carreras y Planes' : 'Oferta Académica'}
                 </Link>
               </li>
             )}

@@ -1,7 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
-import WelcomePage from './pages/WelcomePage';
+import HomePage from './pages/HomePage';
+import CareerManagementPage from './pages/CareerManagementPage';
 import StudentListPage from './pages/StudentListPage';
 import StudentRegisterPage from './pages/StudentRegisterPage';
 import StudentDetailPage from './pages/StudentDetailPage';
@@ -48,15 +49,6 @@ const ProtectedRoute = ({ allowedRoles, children }) => {
   return children;
 };
 
-// Root Redirect based on active Role
-const HomeRedirect = () => {
-  const { authenticated, isStudent } = useAuth();
-  if (!authenticated) {
-    return <WelcomePage />;
-  }
-  return isStudent ? <Navigate to="/profile" replace /> : <Navigate to="/students" replace />;
-};
-
 function App() {
   return (
     <AuthProvider>
@@ -65,7 +57,18 @@ function App() {
           <Navbar />
           <main className="flex-grow-1">
             <Routes>
-              <Route path="/" element={<HomeRedirect />} />
+              {/* Home dispatcher according to user role (Option B) */}
+              <Route path="/" element={<HomePage />} />
+
+              {/* Career and Study Plan Management: accessible to all authenticated, with edit restricted to ADMIN */}
+              <Route
+                path="/careers"
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN', 'TEACHER', 'STUDENT']}>
+                    <CareerManagementPage />
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Student Management: accessible to ADMIN and TEACHER */}
               <Route
