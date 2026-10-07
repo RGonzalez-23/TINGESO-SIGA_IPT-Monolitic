@@ -208,8 +208,13 @@ Una vez implementadas y validadas las 7 épicas y alcanzado el umbral de cobertu
     - [HomeStudent.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/HomeStudent.jsx): Dashboard del alumno con acceso a perfil académico, credenciales y oferta.
   - **Servicios:**
     - [career.service.js](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/services/career.service.js) y [study-plan.service.js](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/services/study-plan.service.js).
-  - **Vistas:**
-    - [CareerManagementPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/CareerManagementPage.jsx): Vista integral en `/careers` con tabla de carreras (código, nombre, duración de 4 semestres, plan vigente, estado activo/inactivo), modal de creación de carreras, modal de edición, y modal de gestión de planes de estudio (con activación inmediata de plan vigente y control de borrado seguro).
+  - **Vistas y Seguridad por Rol:**
+    - [CareerManagementPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/CareerManagementPage.jsx): Vista protegida exclusivamente para `ADMIN` y `TEACHER` en `/careers`. Los estudiantes no tienen acceso a esta vista ni a los endpoints correspondientes de carreras.
+    - [StudyPlanDetailPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/StudyPlanDetailPage.jsx): Vista dedicada en `/study-plans/:id` para la administración y consulta de planes de estudio individuales:
+      - `ADMIN`: Puede ver y administrar el plan (activar vigencia) y cuenta con la base lista para la malla curricular de 4 semestres.
+      - `TEACHER`: Puede consultar los planes de estudio en modo solo lectura.
+      - `STUDENT`: Solo puede acceder a su **propio plan de estudios asignado** a través del botón **"Mi malla"** en [HomeStudent.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/HomeStudent.jsx) o desde su perfil; si intenta acceder a otro plan por URL, el sistema restringe el acceso de forma segura.
+    - Desde [CareerManagementPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/CareerManagementPage.jsx), el botón "Planes" ahora permite acceder directamente a la vista individual del plan de estudios con el botón "Administrar / Ver Malla".
   - **Navegación:**
     - Actualizados [Navbar.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/components/Navbar.jsx) y [App.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/App.jsx).
   - **Calidad de Código Frontend:** 0 errores en ESLint (`npm run lint`), bundle verificado con `npm run build`.
@@ -226,7 +231,7 @@ Una vez implementadas y validadas las 7 épicas y alcanzado el umbral de cobertu
    - Entidad `SubjectEntity`, repositorio, DTOs, servicio y controlador con `@PreAuthorize`.
    - Pruebas unitarias asegurando JaCoCo $\ge 90\%$.
 3. **Frontend:**
-   - Servicio `subject.service.js` e integración de malla curricular interactiva en planes de estudio.
+   - Servicio `subject.service.js` e integración de la malla curricular con asignaturas y prerrequisitos en la vista [StudyPlanDetailPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/StudyPlanDetailPage.jsx).
 
 ---
 
