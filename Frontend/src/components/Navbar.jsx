@@ -58,7 +58,7 @@ const Navbar = () => {
               </li>
             )}
 
-            {authenticated && (
+            {authenticated && (isAdmin || isTeacher) && (
               <li className="nav-item">
                 <Link
                   className={`nav-link ${location.pathname === '/careers' ? 'active fw-bold' : ''}`}
@@ -66,18 +66,6 @@ const Navbar = () => {
                 >
                   <i className="bi bi-journal-bookmark-fill me-1"></i>
                   {isAdmin ? 'Carreras y Planes' : 'Oferta Académica'}
-                </Link>
-              </li>
-            )}
-
-            {authenticated && isAdmin && (
-              <li className="nav-item">
-                <Link
-                  className={`nav-link ${location.pathname === '/students/new' ? 'active fw-bold' : ''}`}
-                  to="/students/new"
-                >
-                  <i className="bi bi-person-plus-fill me-1"></i>
-                  Registrar Estudiante
                 </Link>
               </li>
             )}

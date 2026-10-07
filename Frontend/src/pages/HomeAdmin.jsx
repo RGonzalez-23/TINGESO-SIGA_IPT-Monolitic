@@ -59,13 +59,6 @@ const HomeAdmin = () => {
                   <i className="bi bi-list-ul"></i>
                   <span>Ver Estudiantes</span>
                 </Link>
-                <Link
-                  to="/students/new"
-                  className="btn btn-outline-primary fw-semibold px-3 py-2 rounded-3 d-flex align-items-center gap-2"
-                >
-                  <i className="bi bi-person-plus-fill"></i>
-                  <span>Nuevo Alumno</span>
-                </Link>
               </div>
             </div>
           </div>

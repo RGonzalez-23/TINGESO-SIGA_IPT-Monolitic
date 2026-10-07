@@ -49,7 +49,8 @@ const HomeTeacher = () => {
                 Visualiza el listado de alumnos por carrera técnica, verifica su estado académico y accede a fichas de consulta.
               </p>
               <div className="pt-2 border-top">
-                <Link to="/students" className="btn btn-info text-white fw-semibold px-4 py-2 rounded-3">
+                <Link to="/students" className="btn btn-info text-white fw-semibold px-4 py-2 rounded-3"
+                  style={{ backgroundColor: '#0e7490', borderColor: '#0e7490' }}>
                   <i className="bi bi-search me-2"></i>
                   Consultar Estudiantes
                 </Link>

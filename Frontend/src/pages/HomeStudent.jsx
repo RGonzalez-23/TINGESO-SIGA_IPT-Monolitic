@@ -22,7 +22,7 @@ const HomeStudent = () => {
             ¡Hola, {user?.name || 'Estudiante'}!
           </h1>
           <p className="lead mb-0 text-white-50 fs-6">
-            Bienvenido/a a tu portal de autoservicio académico en el Instituto Profesional de Tecnología (USACH).
+            Bienvenido/a a tu portal de autoservicio académico en el Instituto Profesional de Tecnología.
           </p>
         </div>
       </div>
@@ -51,34 +51,6 @@ const HomeStudent = () => {
                 <Link to="/profile" className="btn btn-success text-white fw-semibold px-4 py-2 rounded-3">
                   <i className="bi bi-arrow-right-circle me-2"></i>
                   Ir a Mi Perfil Académico
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-12 col-md-6">
-          <div className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-            <div className="card-body p-4 d-flex flex-column">
-              <div className="d-flex align-items-center justify-content-between mb-3">
-                <div
-                  className="rounded-3 p-3 d-flex align-items-center justify-content-center text-secondary"
-                  style={{ backgroundColor: '#f8fafc', width: '56px', height: '56px' }}
-                >
-                  <i className="bi bi-journal-check fs-3 text-secondary"></i>
-                </div>
-                <span className="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill fw-semibold">
-                  Planes Curriculares
-                </span>
-              </div>
-              <h4 className="fw-bold text-dark mb-2">Oferta Formativa IPT</h4>
-              <p className="text-muted small mb-4 flex-grow-1">
-                Conoce las carreras técnicas de nivel superior impartidas por el Instituto Profesional de Tecnología y su estructura de 4 semestres.
-              </p>
-              <div className="pt-2 border-top">
-                <Link to="/careers" className="btn btn-outline-secondary fw-semibold px-4 py-2 rounded-3">
-                  <i className="bi bi-journal-text me-2"></i>
-                  Ver Carreras
                 </Link>
               </div>
             </div>

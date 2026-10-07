@@ -274,7 +274,7 @@ const CareerManagementPage = () => {
             </span>
           </div>
           <p className="text-muted small mb-0">
-            Administración de programas técnicos de 2 años (4 semestres académicos) y planes curriculares del IPT &bull; USACH
+            Administración de programas técnicos de 4 semestres académicos y planes curriculares.
           </p>
         </div>
 
@@ -297,9 +297,8 @@ const CareerManagementPage = () => {
         >
           <div className="d-flex align-items-center gap-2">
             <i
-              className={`bi ${
-                alert.type === 'success' ? 'bi-check-circle-fill text-success' : 'bi-exclamation-triangle-fill text-danger'
-              } fs-5`}
+              className={`bi ${alert.type === 'success' ? 'bi-check-circle-fill text-success' : 'bi-exclamation-triangle-fill text-danger'
+                } fs-5`}
             ></i>
             <span>{alert.message}</span>
           </div>
@@ -499,18 +498,10 @@ const CareerManagementPage = () => {
 
               <div className="modal-body p-4">
                 <div className="d-flex justify-content-between align-items-center mb-3">
-                  <span className="small text-muted">
+                  <span className="small text-left">
                     Regla: Solo <strong>un plan de estudios puede estar vigente a la vez</strong>. Los estudiantes ya matriculados conservan su plan histórico.
                   </span>
-                  {isAdmin && (
-                    <button
-                      onClick={() => setShowCreatePlanModal(true)}
-                      className="btn btn-sm btn-primary fw-semibold d-flex align-items-center gap-1"
-                    >
-                      <i className="bi bi-plus-lg"></i>
-                      <span>Nuevo Plan</span>
-                    </button>
-                  )}
+
                 </div>
 
                 {loadingPlans ? (
@@ -543,11 +534,11 @@ const CareerManagementPage = () => {
                               {plan.isActive ? (
                                 <span className="badge bg-success fw-bold px-2 py-1 rounded-pill">
                                   <i className="bi bi-star-fill me-1"></i>
-                                  VIGENTE (ACTUAL)
+                                  VIGENTE
                                 </span>
                               ) : (
                                 <span className="badge bg-secondary bg-opacity-75 fw-normal px-2 py-1 rounded-pill">
-                                  NO VIGENTE (HISTÓRICO)
+                                  NO VIGENTE
                                 </span>
                               )}
                             </td>
@@ -590,8 +581,18 @@ const CareerManagementPage = () => {
                     </table>
                   </div>
                 )}
+                {isAdmin && (
+                  <div className="modal-footer justify-content-center">
+                    <button
+                      onClick={() => setShowCreatePlanModal(true)}
+                      className="btn btn-sm btn-primary fw-semibold d-flex align-items-center gap-1"
+                    >
+                      <i className="bi bi-plus-lg"></i>
+                      <span>Nuevo Plan</span>
+                    </button>
+                  </div>
+                )}
               </div>
-
               <div className="modal-footer border-0 bg-light rounded-bottom-4 py-2">
                 <button
                   type="button"
@@ -603,294 +604,301 @@ const CareerManagementPage = () => {
               </div>
             </div>
           </div>
-        </div>
-      )}
+        </div >
+      )
+      }
 
       {/* ================= MODAL: CREAR PLAN DE ESTUDIO ================= */}
-      {showCreatePlanModal && selectedCareer && (
-        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1060 }}>
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content border-0 shadow-lg rounded-4">
-              <div className="modal-header border-0 bg-light rounded-top-4 py-3">
-                <h5 className="modal-title fw-bold text-dark mb-0">
-                  Registrar Plan de Estudio para {selectedCareer.code}
-                </h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowCreatePlanModal(false)}
-                  aria-label="Cerrar"
-                ></button>
-              </div>
-              <form onSubmit={handleCreatePlan}>
-                <div className="modal-body p-4">
-                  <div className="mb-3">
-                    <label className="form-label fw-semibold text-secondary small">
-                      Código / Versión del Plan <span className="text-danger">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Ej: 2026.1 o 2026.2"
-                      value={planForm.code}
-                      onChange={(e) => setPlanForm({ ...planForm, code: e.target.value })}
-                      required
-                    />
-                    <div className="form-text small">
-                      Formato usual en el IPT: Año.Semestre (p.ej. 2026.1).
-                    </div>
-                  </div>
-
-                  <div className="form-check form-switch mb-3">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      role="switch"
-                      id="planActiveSwitch"
-                      checked={planForm.isActive}
-                      onChange={(e) => setPlanForm({ ...planForm, isActive: e.target.checked })}
-                    />
-                    <label className="form-check-label fw-semibold text-dark small" htmlFor="planActiveSwitch">
-                      Establecer como Plan Vigente de la carrera
-                    </label>
-                    <div className="form-text small">
-                      Al activarlo, el plan anterior pasará automáticamente a ser histórico, sin alterar a los alumnos ya matriculados.
-                    </div>
-                  </div>
-                </div>
-
-                <div className="modal-footer border-0 bg-light rounded-bottom-4 py-2">
+      {
+        showCreatePlanModal && selectedCareer && (
+          <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1060 }}>
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content border-0 shadow-lg rounded-4">
+                <div className="modal-header border-0 bg-light rounded-top-4 py-3">
+                  <h5 className="modal-title fw-bold text-dark mb-0">
+                    Registrar Plan de Estudio para {selectedCareer.code}
+                  </h5>
                   <button
                     type="button"
-                    className="btn btn-outline-secondary btn-sm"
+                    className="btn-close"
                     onClick={() => setShowCreatePlanModal(false)}
-                    disabled={submitting}
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn btn-primary btn-sm px-4 fw-semibold"
-                    disabled={submitting}
-                  >
-                    {submitting ? 'Guardando...' : 'Crear Plan'}
-                  </button>
+                    aria-label="Cerrar"
+                  ></button>
                 </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ================= MODAL: NUEVA CARRERA ================= */}
-      {showCreateCareerModal && (
-        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content border-0 shadow-lg rounded-4">
-              <div className="modal-header border-0 bg-light rounded-top-4 py-3">
-                <h5 className="modal-title fw-bold text-dark mb-0">
-                  <i className="bi bi-mortarboard-fill text-primary me-2"></i>
-                  Registrar Nueva Carrera Técnica
-                </h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowCreateCareerModal(false)}
-                  aria-label="Cerrar"
-                ></button>
-              </div>
-              <form onSubmit={handleCreateCareer}>
-                <div className="modal-body p-4">
-                  <div className="row g-3">
-                    <div className="col-md-5">
+                <form onSubmit={handleCreatePlan}>
+                  <div className="modal-body p-4">
+                    <div className="mb-3">
                       <label className="form-label fw-semibold text-secondary small">
-                        Código Único <span className="text-danger">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control font-monospace"
-                        placeholder="Ej: 10453"
-                        maxLength="20"
-                        value={careerForm.code}
-                        onChange={(e) => setCareerForm({ ...careerForm, code: e.target.value })}
-                        required
-                      />
-                    </div>
-
-                    <div className="col-md-7">
-                      <label className="form-label fw-semibold text-secondary small">
-                        Plan de Estudio Inicial <span className="text-danger">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control font-monospace"
-                        placeholder="Ej: 2026.1"
-                        maxLength="50"
-                        value={careerForm.initialPlanCode}
-                        onChange={(e) => setCareerForm({ ...careerForm, initialPlanCode: e.target.value })}
-                        required
-                      />
-                    </div>
-
-                    <div className="col-12">
-                      <label className="form-label fw-semibold text-secondary small">
-                        Nombre Oficial de la Carrera <span className="text-danger">*</span>
+                        Código / Versión del Plan <span className="text-danger">*</span>
                       </label>
                       <input
                         type="text"
                         className="form-control"
-                        placeholder="Ej: Técnico en Ciberseguridad"
+                        placeholder="Ej: 2026.1 o 2026.2"
+                        value={planForm.code}
+                        onChange={(e) => setPlanForm({ ...planForm, code: e.target.value })}
+                        required
+                      />
+                      <div className="form-text small">
+                        Formato usual en el IPT: Año.Semestre (p.ej. 2026.1).
+                      </div>
+                    </div>
+
+                    <div className="form-check form-switch mb-3">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        id="planActiveSwitch"
+                        checked={planForm.isActive}
+                        onChange={(e) => setPlanForm({ ...planForm, isActive: e.target.checked })}
+                      />
+                      <label className="form-check-label fw-semibold text-dark small" htmlFor="planActiveSwitch">
+                        Establecer como Plan Vigente de la carrera
+                      </label>
+                      <div className="form-text small">
+                        Al activarlo, el plan anterior pasará automáticamente a ser histórico, sin alterar a los alumnos ya matriculados.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="modal-footer border-0 bg-light rounded-bottom-4 py-2">
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary btn-sm"
+                      onClick={() => setShowCreatePlanModal(false)}
+                      disabled={submitting}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="btn btn-primary btn-sm px-4 fw-semibold"
+                      disabled={submitting}
+                    >
+                      {submitting ? 'Guardando...' : 'Crear Plan'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+      {/* ================= MODAL: NUEVA CARRERA ================= */}
+      {
+        showCreateCareerModal && (
+          <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content border-0 shadow-lg rounded-4">
+                <div className="modal-header border-0 bg-light rounded-top-4 py-3">
+                  <h5 className="modal-title fw-bold text-dark mb-0">
+                    <i className="bi bi-mortarboard-fill text-primary me-2"></i>
+                    Registrar Nueva Carrera Técnica
+                  </h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() => setShowCreateCareerModal(false)}
+                    aria-label="Cerrar"
+                  ></button>
+                </div>
+                <form onSubmit={handleCreateCareer}>
+                  <div className="modal-body p-4">
+                    <div className="row g-3">
+                      <div className="col-md-5">
+                        <label className="form-label fw-semibold text-secondary small">
+                          Código Único <span className="text-danger">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control font-monospace"
+                          placeholder="Ej: 10453"
+                          maxLength="20"
+                          value={careerForm.code}
+                          onChange={(e) => setCareerForm({ ...careerForm, code: e.target.value })}
+                          required
+                        />
+                      </div>
+
+                      <div className="col-md-7">
+                        <label className="form-label fw-semibold text-secondary small">
+                          Plan de Estudio Inicial <span className="text-danger">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control font-monospace"
+                          placeholder="Ej: 2026.1"
+                          maxLength="50"
+                          value={careerForm.initialPlanCode}
+                          onChange={(e) => setCareerForm({ ...careerForm, initialPlanCode: e.target.value })}
+                          required
+                        />
+                      </div>
+
+                      <div className="col-12">
+                        <label className="form-label fw-semibold text-secondary small">
+                          Nombre Oficial de la Carrera <span className="text-danger">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Ej: Técnico en Ciberseguridad"
+                          maxLength="150"
+                          value={careerForm.name}
+                          onChange={(e) => setCareerForm({ ...careerForm, name: e.target.value })}
+                          required
+                        />
+                      </div>
+
+                      <div className="col-12">
+                        <label className="form-label fw-semibold text-secondary small">
+                          Descripción del Perfil <span className="text-danger">*</span>
+                        </label>
+                        <textarea
+                          className="form-control"
+                          rows="3"
+                          placeholder="Breve reseña del perfil de egreso y objetivos del programa formativo..."
+                          maxLength="500"
+                          value={careerForm.description}
+                          onChange={(e) => setCareerForm({ ...careerForm, description: e.target.value })}
+                          required
+                        ></textarea>
+                      </div>
+
+                      <div className="col-12">
+                        <div className="p-3 bg-light rounded-3 border">
+                          <div className="d-flex align-items-center gap-2">
+                            <i className="bi bi-clock-history text-primary"></i>
+                            <span className="small fw-semibold text-dark">
+                              Duración del Programa: 4 semestres académicos (2 años)
+                            </span>
+                          </div>
+                          <p className="text-muted small mb-0 mt-1">
+                            Estándar curricular fijado para todas las carreras del Instituto Profesional de Tecnología (IPT).
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="modal-footer border-0 bg-light rounded-bottom-4 py-2">
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary btn-sm"
+                      onClick={() => setShowCreateCareerModal(false)}
+                      disabled={submitting}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="btn btn-primary btn-sm px-4 fw-semibold"
+                      disabled={submitting}
+                    >
+                      {submitting ? 'Registrando...' : 'Registrar Carrera'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+      {/* ================= MODAL: EDITAR CARRERA ================= */}
+      {
+        showEditCareerModal && selectedCareer && (
+          <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content border-0 shadow-lg rounded-4">
+                <div className="modal-header border-0 bg-light rounded-top-4 py-3">
+                  <h5 className="modal-title fw-bold text-dark mb-0">
+                    Editar Carrera &bull; {selectedCareer.code}
+                  </h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() => setShowEditCareerModal(false)}
+                    aria-label="Cerrar"
+                  ></button>
+                </div>
+                <form onSubmit={handleUpdateCareer}>
+                  <div className="modal-body p-4">
+                    <div className="mb-3">
+                      <label className="form-label fw-semibold text-secondary small">
+                        Nombre de la Carrera <span className="text-danger">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={editCareerForm.name}
                         maxLength="150"
-                        value={careerForm.name}
-                        onChange={(e) => setCareerForm({ ...careerForm, name: e.target.value })}
+                        onChange={(e) => setEditCareerForm({ ...editCareerForm, name: e.target.value })}
                         required
                       />
                     </div>
 
-                    <div className="col-12">
+                    <div className="mb-3">
                       <label className="form-label fw-semibold text-secondary small">
-                        Descripción del Perfil <span className="text-danger">*</span>
+                        Descripción <span className="text-danger">*</span>
                       </label>
                       <textarea
                         className="form-control"
                         rows="3"
-                        placeholder="Breve reseña del perfil de egreso y objetivos del programa formativo..."
+                        value={editCareerForm.description}
                         maxLength="500"
-                        value={careerForm.description}
-                        onChange={(e) => setCareerForm({ ...careerForm, description: e.target.value })}
+                        onChange={(e) => setEditCareerForm({ ...editCareerForm, description: e.target.value })}
                         required
                       ></textarea>
                     </div>
 
-                    <div className="col-12">
-                      <div className="p-3 bg-light rounded-3 border">
-                        <div className="d-flex align-items-center gap-2">
-                          <i className="bi bi-clock-history text-primary"></i>
-                          <span className="small fw-semibold text-dark">
-                            Duración del Programa: 4 semestres académicos (2 años)
-                          </span>
-                        </div>
-                        <p className="text-muted small mb-0 mt-1">
-                          Estándar curricular fijado para todas las carreras del Instituto Profesional de Tecnología (IPT).
-                        </p>
+                    <div className="form-check form-switch mb-2">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        id="careerActiveSwitch"
+                        checked={editCareerForm.isActive}
+                        onChange={(e) => setEditCareerForm({ ...editCareerForm, isActive: e.target.checked })}
+                      />
+                      <label className="form-check-label fw-semibold text-dark small" htmlFor="careerActiveSwitch">
+                        Carrera Activa (Admisión Habilitada)
+                      </label>
+                    </div>
+                    {!editCareerForm.isActive && (
+                      <div className="alert alert-warning py-2 px-3 small mb-0">
+                        <i className="bi bi-exclamation-triangle-fill me-1"></i>
+                        Una carrera inactiva no podrá admitir nuevos estudiantes durante el proceso de matrícula.
                       </div>
-                    </div>
+                    )}
                   </div>
-                </div>
 
-                <div className="modal-footer border-0 bg-light rounded-bottom-4 py-2">
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary btn-sm"
-                    onClick={() => setShowCreateCareerModal(false)}
-                    disabled={submitting}
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn btn-primary btn-sm px-4 fw-semibold"
-                    disabled={submitting}
-                  >
-                    {submitting ? 'Registrando...' : 'Registrar Carrera'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ================= MODAL: EDITAR CARRERA ================= */}
-      {showEditCareerModal && selectedCareer && (
-        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content border-0 shadow-lg rounded-4">
-              <div className="modal-header border-0 bg-light rounded-top-4 py-3">
-                <h5 className="modal-title fw-bold text-dark mb-0">
-                  Editar Carrera &bull; {selectedCareer.code}
-                </h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowEditCareerModal(false)}
-                  aria-label="Cerrar"
-                ></button>
+                  <div className="modal-footer border-0 bg-light rounded-bottom-4 py-2">
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary btn-sm"
+                      onClick={() => setShowEditCareerModal(false)}
+                      disabled={submitting}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="btn btn-primary btn-sm px-4 fw-semibold"
+                      disabled={submitting}
+                    >
+                      {submitting ? 'Guardando...' : 'Guardar Cambios'}
+                    </button>
+                  </div>
+                </form>
               </div>
-              <form onSubmit={handleUpdateCareer}>
-                <div className="modal-body p-4">
-                  <div className="mb-3">
-                    <label className="form-label fw-semibold text-secondary small">
-                      Nombre de la Carrera <span className="text-danger">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={editCareerForm.name}
-                      maxLength="150"
-                      onChange={(e) => setEditCareerForm({ ...editCareerForm, name: e.target.value })}
-                      required
-                    />
-                  </div>
-
-                  <div className="mb-3">
-                    <label className="form-label fw-semibold text-secondary small">
-                      Descripción <span className="text-danger">*</span>
-                    </label>
-                    <textarea
-                      className="form-control"
-                      rows="3"
-                      value={editCareerForm.description}
-                      maxLength="500"
-                      onChange={(e) => setEditCareerForm({ ...editCareerForm, description: e.target.value })}
-                      required
-                    ></textarea>
-                  </div>
-
-                  <div className="form-check form-switch mb-2">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      role="switch"
-                      id="careerActiveSwitch"
-                      checked={editCareerForm.isActive}
-                      onChange={(e) => setEditCareerForm({ ...editCareerForm, isActive: e.target.checked })}
-                    />
-                    <label className="form-check-label fw-semibold text-dark small" htmlFor="careerActiveSwitch">
-                      Carrera Activa (Admisión Habilitada)
-                    </label>
-                  </div>
-                  {!editCareerForm.isActive && (
-                    <div className="alert alert-warning py-2 px-3 small mb-0">
-                      <i className="bi bi-exclamation-triangle-fill me-1"></i>
-                      Una carrera inactiva no podrá admitir nuevos estudiantes durante el proceso de matrícula.
-                    </div>
-                  )}
-                </div>
-
-                <div className="modal-footer border-0 bg-light rounded-bottom-4 py-2">
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary btn-sm"
-                    onClick={() => setShowEditCareerModal(false)}
-                    disabled={submitting}
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn btn-primary btn-sm px-4 fw-semibold"
-                    disabled={submitting}
-                  >
-                    {submitting ? 'Guardando...' : 'Guardar Cambios'}
-                  </button>
-                </div>
-              </form>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 };
 
