@@ -23,6 +23,15 @@ public interface StudyPlanRepository extends JpaRepository<StudyPlanEntity, Long
     Optional<StudyPlanEntity> findByCareer_CodeAndIsActiveTrue(String careerCode);
 
     /**
+     * Finds a study plan by career code and study plan version/code.
+     *
+     * @param careerCode the unique code of the career
+     * @param code the code of the study plan
+     * @return Optional containing the study plan if found
+     */
+    Optional<StudyPlanEntity> findByCareer_CodeAndCode(String careerCode, String code);
+
+    /**
      * Retrieves all study plans associated with a given career code.
      *
      * @param careerCode the unique code of the career
