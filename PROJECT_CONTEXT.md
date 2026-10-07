@@ -186,36 +186,50 @@ Una vez implementadas y validadas las 7 épicas y alcanzado el umbral de cobertu
 
 ---
 
-## 5. Hoja de Ruta Próxima Sesión: Épica 2 (Gestión de Carreras y Planes de Estudio)
+### 4.2 Épica 2: Gestión de Carreras y Planes de Estudio (Completada)
+- **Backend Implementado y Validado:**
+  - **Entidades JPA:** [CareerEntity.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/entity/CareerEntity.java) y [StudyPlanEntity.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/entity/StudyPlanEntity.java).
+  - **Repositorios:** [CareerRepository.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/repository/CareerRepository.java) y [StudyPlanRepository.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/repository/StudyPlanRepository.java).
+  - **DTOs:** [CareerRegistrationDTO.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/dto/CareerRegistrationDTO.java), [CareerUpdateDTO.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/dto/CareerUpdateDTO.java), [CareerResponseDTO.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/dto/CareerResponseDTO.java), [StudyPlanRegistrationDTO.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/dto/StudyPlanRegistrationDTO.java), [StudyPlanResponseDTO.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/dto/StudyPlanResponseDTO.java).
+  - **Servicios:**
+    - [CareerService.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/service/CareerService.java): CRUD integral, validación de 4 semestres (2 años), unicidad de código, creación del plan inicial vigente y protección contra borrado físico si tiene planes o estudiantes asociados.
+    - [StudyPlanService.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/service/StudyPlanService.java): Control de planes por carrera, unicidad de código dentro de la carrera, transición atómica de vigencia (el plan anterior pasa a inactivo sin modificar a los estudiantes ya matriculados) y bloqueo de borrado de planes con alumnos inscritos.
+  - **Controladores REST:**
+    - [CareerController.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/controller/CareerController.java): Endpoints `/api/careers` con control `@PreAuthorize`.
+    - [StudyPlanController.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/controller/StudyPlanController.java): Endpoints `/api/study-plans` (`GET`, `POST`, `PUT /activate`, `DELETE`).
+  - **Pruebas y Cobertura:**
+    - 55/55 pruebas unitarias exitosas (0 fallos).
+    - Cobertura global de JaCoCo en la capa `service`: **92% de instrucciones** y **95% de líneas** (CareerService: 97%, StudyPlanService: 93%, StudentService: 95%).
+- **Frontend Implementado y Validado:**
+  - **Arquitectura de Home por Rol (Opción B):**
+    - [HomePage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/HomePage.jsx): Despachador en `/` según rol o [WelcomePage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/WelcomePage.jsx) si no está autenticado.
+    - [HomeAdmin.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/HomeAdmin.jsx): Panel de control con tarjetas interactivas de "Gestión de Estudiantes" y "Carreras y Planes de Estudio", resumen y directrices del IPT.
+    - [HomeTeacher.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/HomeTeacher.jsx): Dashboard del profesor para consulta de cursos y nóminas de alumnos.
+    - [HomeStudent.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/HomeStudent.jsx): Dashboard del alumno con acceso a perfil académico, credenciales y oferta.
+  - **Servicios:**
+    - [career.service.js](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/services/career.service.js) y [study-plan.service.js](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/services/study-plan.service.js).
+  - **Vistas:**
+    - [CareerManagementPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/CareerManagementPage.jsx): Vista integral en `/careers` con tabla de carreras (código, nombre, duración de 4 semestres, plan vigente, estado activo/inactivo), modal de creación de carreras, modal de edición, y modal de gestión de planes de estudio (con activación inmediata de plan vigente y control de borrado seguro).
+  - **Navegación:**
+    - Actualizados [Navbar.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/components/Navbar.jsx) y [App.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/App.jsx).
+  - **Calidad de Código Frontend:** 0 errores en ESLint (`npm run lint`), bundle verificado con `npm run build`.
 
-Una vez completada la infraestructura de autenticación y la gestión de estudiantes, la siguiente sesión iniciará el desarrollo completo de la **Épica 2**:
+---
 
-### 5.1 Reglas de Negocio a Implementar (Épica 2)
-1. **Carreras Técnicas:**
-   - Atributos: `code` (código único numérico), `name`, `description`, `duration` (fija en 4 semestres), `isActive` (booleano).
-   - Operaciones exclusivas para `ADMIN`:
-     - Crear nueva carrera.
-     - Modificar nombre, descripción y estado (`isActive`).
-     - Eliminación física: Solo permitida si la carrera NO tiene planes de estudio con asignaturas ni estudiantes matriculados.
-2. **Planes de Estudio:**
-   - Atributos: `code` (ej. `2021.3`, `2022.3`), `career` (relación `@ManyToOne`), `isActive` (booleano de vigencia).
-   - Regla de Vigencia Única: Solo puede existir **un plan de estudio vigente (`isActive = true`) por carrera a la vez**.
-   - Al activar un nuevo plan para una carrera, cualquier plan previamente vigente de esa misma carrera pasa automáticamente a `isActive = false` (no vigente).
-   - Los estudiantes conservan el plan de estudios asignado al momento de su matrícula (los alumnos antiguos no se cambian automáticamente de plan).
+## 5. Hoja de Ruta Próxima Sesión: Épica 3 (Gestión de Asignaturas y Malla Curricular)
 
-### 5.2 Plan de Trabajo Técnico
-1. **Backend:**
-   - DTOs: `CareerRegistrationDTO`, `CareerUpdateDTO`, `StudyPlanRegistrationDTO`, `StudyPlanResponseDTO`.
-   - Servicios: Ampliar `CareerService` con métodos CRUD y validaciones; implementar `StudyPlanService` gestionando la transición automática de vigencia.
-   - Controladores: Ampliar `CareerController` con endpoints `POST`, `PUT`, `DELETE` protegidos con `@PreAuthorize("hasRole('ADMIN')")`; crear `StudyPlanController` (`/api/study-plans`).
-   - Pruebas unitarias: `CareerServiceTest` y `StudyPlanServiceTest` garantizando cobertura JaCoCo $\ge 90\%$.
-2. **Frontend:**
-   - Servicio `career.service.js` y `study-plan.service.js`.
-   - Vistas: Pantalla de administración de Carreras y Planes de Estudio exclusiva para `ADMIN` (listado, creación, edición y activación de planes).
-   - Enlace en `Navbar.jsx` para acceso directo del Administrador.
+1. **Modelado de Dominio y Reglas de Negocio:**
+   - Asignaturas con código único, nombre, créditos SCT ($0 < SCT \le 7$), horas TEL (Teoría, Ejercicios, Laboratorio con suma $< 8$ hrs/semana), semestre de ubicación (1 al 4).
+   - Asociación a Planes de Estudio de la Carrera.
+   - Prerrequisitos de asignaturas (0 a 3 asignaturas del mismo plan en semestres estrictamente anteriores).
+2. **Backend:**
+   - Entidad `SubjectEntity`, repositorio, DTOs, servicio y controlador con `@PreAuthorize`.
+   - Pruebas unitarias asegurando JaCoCo $\ge 90\%$.
+3. **Frontend:**
+   - Servicio `subject.service.js` e integración de malla curricular interactiva en planes de estudio.
 
 ---
 
 ## 6. Instrucción para Continuar la Próxima Sesión
 Al iniciar una nueva sesión en Antigravity desde otra computadora tras clonar/hacer `git pull`:
-> *"Lee el archivo `PROJECT_CONTEXT.md` para cargar todo el contexto, arquitectura y estado de avance de SIGA IPT. Procedamos a desarrollar la Épica 2 (Gestión de Carreras y Planes de Estudio) siguiendo la sección 5."*
+> *"Lee el archivo `PROJECT_CONTEXT.md` para cargar todo el contexto, arquitectura y estado de avance de SIGA IPT. Procedamos a desarrollar la Épica 3 (Gestión de Asignaturas y Malla Curricular) siguiendo la sección 5."*
