@@ -260,6 +260,7 @@ public class StudentService {
                 .academicStatus(entity.getAcademicStatus())
                 .careerCode(entity.getCareer() != null ? entity.getCareer().getCode() : null)
                 .careerName(entity.getCareer() != null ? entity.getCareer().getName() : null)
+                .studyPlanId(entity.getStudyPlan() != null ? entity.getStudyPlan().getId() : null)
                 .studyPlanCode(entity.getStudyPlan() != null ? entity.getStudyPlan().getCode() : null)
                 .build();
     }

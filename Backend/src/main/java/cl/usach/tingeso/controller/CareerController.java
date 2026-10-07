@@ -47,7 +47,7 @@ public class CareerController {
      * @return 200 OK with list of careers
      */
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER', 'STUDENT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
     public ResponseEntity<List<CareerResponseDTO>> getCareers(
             @RequestParam(name = "activeOnly", required = false, defaultValue = "false") boolean activeOnly) {
         if (activeOnly) {
@@ -58,12 +58,13 @@ public class CareerController {
 
     /**
      * Retrieves a single career by its unique code.
+     * Accessible by ADMIN and TEACHER.
      *
      * @param code unique code of the career
      * @return 200 OK with career data, or 404 if not found
      */
     @GetMapping("/{code}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER', 'STUDENT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
     public ResponseEntity<?> getCareerByCode(@PathVariable String code) {
         try {
             return ResponseEntity.ok(careerService.getCareerByCode(code));

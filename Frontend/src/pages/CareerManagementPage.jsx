@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import careerService from '../services/career.service';
 import studyPlanService from '../services/study-plan.service';
 import { useAuth } from '../context/AuthContext';
@@ -549,6 +550,14 @@ const CareerManagementPage = () => {
                             </td>
                             <td className="text-end">
                               <div className="btn-group btn-group-sm">
+                                <Link
+                                  to={`/study-plans/${plan.id}`}
+                                  className="btn btn-outline-primary"
+                                  title={isAdmin ? "Administrar Plan y Malla Curricular" : "Ver Malla Curricular"}
+                                >
+                                  <i className="bi bi-diagram-3 me-1"></i>
+                                  <span>{isAdmin ? 'Administrar' : 'Ver Malla'}</span>
+                                </Link>
                                 {isAdmin && !plan.isActive && (
                                   <button
                                     onClick={() => handleActivatePlan(plan)}

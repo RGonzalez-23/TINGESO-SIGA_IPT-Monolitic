@@ -7,6 +7,7 @@ import StudentListPage from './pages/StudentListPage';
 import StudentRegisterPage from './pages/StudentRegisterPage';
 import StudentDetailPage from './pages/StudentDetailPage';
 import StudentProfilePage from './pages/StudentProfilePage';
+import StudyPlanDetailPage from './pages/StudyPlanDetailPage';
 
 // Protected Route Component based on User Authentication and Role
 const ProtectedRoute = ({ allowedRoles, children }) => {
@@ -60,12 +61,22 @@ function App() {
               {/* Home dispatcher according to user role (Option B) */}
               <Route path="/" element={<HomePage />} />
 
-              {/* Career and Study Plan Management: accessible to all authenticated, with edit restricted to ADMIN */}
+              {/* Career and Study Plan Management: only accessible to ADMIN and TEACHER */}
               <Route
                 path="/careers"
                 element={
-                  <ProtectedRoute allowedRoles={['ADMIN', 'TEACHER', 'STUDENT']}>
+                  <ProtectedRoute allowedRoles={['ADMIN', 'TEACHER']}>
                     <CareerManagementPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Individual Study Plan & Curriculum View: accessible to ADMIN, TEACHER and STUDENT */}
+              <Route
+                path="/study-plans/:id"
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN', 'TEACHER', 'STUDENT']}>
+                    <StudyPlanDetailPage />
                   </ProtectedRoute>
                 }
               />

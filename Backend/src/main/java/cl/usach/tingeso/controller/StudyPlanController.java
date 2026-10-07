@@ -39,13 +39,13 @@ public class StudyPlanController {
 
     /**
      * Retrieves all study plans for a given career code.
-     * Accessible by authenticated users (ADMIN, TEACHER, STUDENT).
+     * Accessible by ADMIN and TEACHER.
      *
      * @param careerCode the unique code of the career
      * @return 200 OK with list of study plans
      */
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER', 'STUDENT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
     public ResponseEntity<List<StudyPlanResponseDTO>> getPlansByCareer(
             @RequestParam(name = "careerCode") String careerCode) {
         return ResponseEntity.ok(studyPlanService.getPlansByCareer(careerCode));

@@ -25,5 +25,6 @@ public class StudentResponseDTO {
     private AcademicStatus academicStatus;
     private String careerCode;
     private String careerName;
+    private Long studyPlanId;
     private String studyPlanCode;
 }

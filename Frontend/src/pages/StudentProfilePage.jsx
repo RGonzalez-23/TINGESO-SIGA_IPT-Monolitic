@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import StudentDataService from '../services/student.service';
 import UserService from '../services/user.service';
 import { useAuth } from '../context/AuthContext';
@@ -144,7 +145,19 @@ const StudentProfilePage = () => {
                 </div>
                 <div className="col-6">
                   <span className="text-muted small d-block">Plan de Estudios:</span>
-                  <span className="badge bg-secondary">{student.studyPlanCode}</span>
+                  <div className="d-flex align-items-center gap-2">
+                    <span className="badge bg-secondary">{student.studyPlanCode}</span>
+                    {student.studyPlanId && (
+                      <Link
+                        to={`/study-plans/${student.studyPlanId}`}
+                        className="btn btn-outline-primary btn-sm py-0 px-2 fw-semibold"
+                        style={{ fontSize: '0.75rem' }}
+                      >
+                        <i className="bi bi-diagram-3 me-1"></i>
+                        Ver Malla
+                      </Link>
+                    )}
+                  </div>
                 </div>
                 <div className="col-6">
                   <span className="text-muted small d-block">Duración:</span>
