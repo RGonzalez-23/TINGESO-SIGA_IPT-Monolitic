@@ -153,9 +153,9 @@ Una vez implementadas y validadas las 7 épicas y alcanzado el umbral de cobertu
 | **Infraestructura Dev** | PostgreSQL 16 + Keycloak 24 en Docker | N/A | Vite + Bootstrap | **COMPLETADO** |
 | **Épica 1: Gestión de Estudiantes** | Endpoints REST, Validación RUN, Email auto | **97.98%** (97/99 líneas) | Listado, Registro, Ficha, Perfil | **COMPLETADO Y VALIDADO** |
 | **Seguridad & IAM: Integración Keycloak** | Spring Security + OAuth2 Resource Server | **94% líneas** (34/34 tests passing) | `keycloak-js` + Aprovisionamiento + Cambio Clave | **COMPLETADO Y VALIDADO** |
-| **Épica 2: Carreras y Planes** | Entidades base creadas | Pendiente | Pendiente | **SIGUIENTE PASO** |
-| **Épica 3: Asignaturas y Prerrequisitos** | Pendiente | Pendiente | Pendiente | **PENDIENTE** |
-| **Épica 4: Gestión de Docentes** | Pendiente | Pendiente | Pendiente | **PENDIENTE** |
+| **Épica 2: Carreras y Planes** | CRUD carreras y planes, activación | **92% inst / 95% líneas** (55/55 tests) | Vistas admin/teacher, "Mi malla" | **COMPLETADO Y VALIDADO** |
+| **Épica 3: Asignaturas y Prerrequisitos** | Endpoints REST, validaciones TEL/SCT, precarga Apéndice A | **93% inst / 96% líneas** (74/74 tests) | Malla interactiva, filtros, modales CRUD con cálculo TEL en vivo | **COMPLETADO Y VALIDADO** |
+| **Épica 4: Gestión de Docentes** | Pendiente | Pendiente | Pendiente | **SIGUIENTE PASO** |
 | **Épica 5: Oferta Académica y Secciones** | Pendiente | Pendiente | Pendiente | **PENDIENTE** |
 | **Épica 6: Inscripción Académica** | Pendiente | Pendiente | Pendiente | **PENDIENTE** |
 | **Épica 7: Calificaciones y Cierre** | Pendiente | Pendiente | Pendiente | **PENDIENTE** |
@@ -221,20 +221,61 @@ Una vez implementadas y validadas las 7 épicas y alcanzado el umbral de cobertu
 
 ---
 
-## 5. Hoja de Ruta Próxima Sesión: Épica 3 (Gestión de Asignaturas y Malla Curricular)
+### 4.3 Épica 3: Gestión de Asignaturas y Prerrequisitos (Completada)
+- **Backend Implementado y Validado:**
+  - **Entidad JPA:** [CourseEntity.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/entity/CourseEntity.java) con relación `@ManyToOne StudyPlanEntity` y `@ManyToMany Set<CourseEntity> prerequisites`, con restricción única compuesta `(study_plan_id, code)` para unicidad dentro del plan. Horas de trabajo semanal modeladas como enteros: `theoryHours`, `exerciseHours`, `laboratoryHours`.
+  - **Repositorio:** [CourseRepository.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/repository/CourseRepository.java) con métodos de consulta por plan ordenados por semestre y código, y validaciones de prerrequisitos dependientes (`countByPrerequisitesContaining`).
+  - **DTOs:** [CourseRegistrationDTO.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/dto/CourseRegistrationDTO.java), [CourseUpdateDTO.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/dto/CourseUpdateDTO.java), [CoursePrerequisiteDTO.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/dto/CoursePrerequisiteDTO.java) y [CourseResponseDTO.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/dto/CourseResponseDTO.java) (con desglose individual, formato `T-E-L`, total de horas y lista de códigos de prerrequisitos).
+  - **Servicio:** [CourseService.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/service/CourseService.java) con validaciones rigurosas:
+    - Semestre válido (1 al 4).
+    - Horas TEL individuales no negativas ($\ge 0$), suma total $> 0$ y estrictamente menor a 8 horas semanales ($< 8$).
+    - Créditos SCT válidos ($1 \le SCT \le 7$).
+    - Prerrequisitos limitados entre 0 y 3 asignaturas ($\le 3$), pertenecientes al mismo plan de estudios y ubicadas estrictamente en semestres anteriores (`prereq.semester < course.semester`).
+    - Prohibición de autoreferencia y ciclos directos.
+    - Bloqueo de borrado si la asignatura es prerrequisito de otras asignaturas registradas.
+  - **Controlador REST:** [CourseController.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/controller/CourseController.java) exponiendo `/api/courses` (`GET`, `POST`, `PUT`, `DELETE`) con autorización `@PreAuthorize`.
+  - **Precarga de Datos (Apéndice A):** [DataInitializerConfig.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/config/DataInitializerConfig.java) actualizado con la precarga de asignaturas de semestres 1, 2 y 3 para las carreras `10450`, `10451` y `10452` con sus respectivos prerrequisitos (54 asignaturas en total). El semestre 4 se dejó deliberadamente sin asignaturas precargadas para habilitar pruebas manuales en frontend.
+  - **Pruebas y Cobertura:**
+    - 19 pruebas unitarias en [CourseServiceTest.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/test/java/cl/usach/tingeso/service/CourseServiceTest.java) cubriendo creación, actualización, validaciones de TEL, SCT, semestres, prerrequisitos, borrado y excepciones.
+    - Cobertura global de JaCoCo en la capa `service`: **93% de instrucciones** y **96% de líneas** (`CourseService`: 95%). Total: **74/74 pruebas unitarias exitosas**.
+- **Frontend Implementado y Validado:**
+  - **Servicio:** [course.service.js](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/services/course.service.js).
+  - **Panel Admin:** [HomeAdmin.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/HomeAdmin.jsx) cuenta con tarjeta dedicada de "Gestión de Asignaturas" (Épica 3) con acceso directo a carreras y mallas curriculares.
+  - **Malla Curricular Interactiva:** [StudyPlanDetailPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/StudyPlanDetailPage.jsx) enriquecida con:
+    - Selector/filtro de visualización ("Todos los semestres" o filtro individual por semestres 1 a 4).
+    - Tarjetas de asignaturas con código, nombre, formato `T-E-L` y total de horas, créditos SCT, y badges informativos de prerrequisitos.
+    - Modales de creación y edición con cálculo en tiempo real de la suma de horas TEL (bloqueo si $\ge 8$), validación de créditos SCT ($1-7$), y selector múltiple de prerrequisitos que solo lista asignaturas de semestres anteriores (máx. 3).
+    - Botón de eliminación con confirmación para administradores.
+  - **Calidad:** 0 errores en ESLint (`npm run lint`), compilación limpia en `npm run build`.
+
+---
+
+## 5. Hoja de Ruta Próxima Sesión: Épica 4 (Gestión de Docentes)
 
 1. **Modelado de Dominio y Reglas de Negocio:**
-   - Asignaturas con código único, nombre, créditos SCT ($0 < SCT \le 7$), horas TEL (Teoría, Ejercicios, Laboratorio con suma $< 8$ hrs/semana), semestre de ubicación (1 al 4).
-   - Asociación a Planes de Estudio de la Carrera.
-   - Prerrequisitos de asignaturas (0 a 3 asignaturas del mismo plan en semestres estrictamente anteriores).
+   - Entidad `TeacherEntity` en PostgreSQL:
+     - `run`: Único, formato chileno validado (Módulo 11).
+     - `firstName`, `paternalLastName`, `maternalLastName`: Nombres y apellidos.
+     - `email`: Único, autogenerado o validado institucional.
+     - `professionalTitle`: Título profesional.
+     - `academicDegree`: Grado académico (`LICENCIATURA`, `MAGISTER`, `DOCTORADO`).
+     - `active`: Booleano (`ACTIVO` / `INACTIVO`).
+   - Reglas de negocio:
+     - Solo docentes en estado `ACTIVO` pueden ser asignados a impartir secciones (Épica 5).
+     - No se permite inactivar ni eliminar a un docente si tiene secciones asignadas en períodos académicos abiertos o vigentes.
+   - Aprovisionamiento en Keycloak:
+     - Creación de cuenta en Keycloak con rol `TEACHER` vía `KeycloakUserService` para inicio de sesión en la plataforma.
 2. **Backend:**
-   - Entidad `SubjectEntity`, repositorio, DTOs, servicio y controlador con `@PreAuthorize`.
-   - Pruebas unitarias asegurando JaCoCo $\ge 90\%$.
+   - `TeacherEntity`, `TeacherRepository`, `TeacherRegistrationDTO`, `TeacherUpdateDTO`, `TeacherResponseDTO`.
+   - `TeacherService` con reglas de validación y `TeacherController` con `@PreAuthorize`.
+   - Pruebas unitarias en `TeacherServiceTest` manteniendo cobertura JaCoCo $\ge 90\%$.
 3. **Frontend:**
-   - Servicio `subject.service.js` e integración de la malla curricular con asignaturas y prerrequisitos en la vista [StudyPlanDetailPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/StudyPlanDetailPage.jsx).
+   - `teacher.service.js`.
+   - Vistas de listado, registro y modificación de docentes con control de rol.
+   - Enlace desde el panel de administración [HomeAdmin.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/HomeAdmin.jsx).
 
 ---
 
 ## 6. Instrucción para Continuar la Próxima Sesión
 Al iniciar una nueva sesión en Antigravity desde otra computadora tras clonar/hacer `git pull`:
-> *"Lee el archivo `PROJECT_CONTEXT.md` para cargar todo el contexto, arquitectura y estado de avance de SIGA IPT. Procedamos a desarrollar la Épica 3 (Gestión de Asignaturas y Malla Curricular) siguiendo la sección 5."*
+> *"Lee el archivo `PROJECT_CONTEXT.md` para cargar todo el contexto, arquitectura y estado de avance de SIGA IPT. Procedamos a desarrollar la Épica 4 (Gestión de Docentes) siguiendo la sección 5."*
