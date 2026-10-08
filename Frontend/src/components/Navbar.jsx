@@ -70,6 +70,30 @@ const Navbar = () => {
               </li>
             )}
 
+            {authenticated && isAdmin && (
+              <li className="nav-item">
+                <Link
+                  className={`nav-link ${location.pathname === '/teachers' ? 'active fw-bold' : ''}`}
+                  to="/teachers"
+                >
+                  <i className="bi bi-person-video3 me-1"></i>
+                  Docentes
+                </Link>
+              </li>
+            )}
+
+            {authenticated && isTeacher && (
+              <li className="nav-item">
+                <Link
+                  className={`nav-link ${location.pathname === '/teacher/profile' ? 'active fw-bold' : ''}`}
+                  to="/teacher/profile"
+                >
+                  <i className="bi bi-person-badge-fill me-1"></i>
+                  Mi Perfil Docente
+                </Link>
+              </li>
+            )}
+
             {authenticated && isStudent && (
               <li className="nav-item">
                 <Link

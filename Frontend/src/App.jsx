@@ -8,6 +8,8 @@ import StudentRegisterPage from './pages/StudentRegisterPage';
 import StudentDetailPage from './pages/StudentDetailPage';
 import StudentProfilePage from './pages/StudentProfilePage';
 import StudyPlanDetailPage from './pages/StudyPlanDetailPage';
+import TeacherListPage from './pages/TeacherListPage';
+import TeacherProfilePage from './pages/TeacherProfilePage';
 
 // Protected Route Component based on User Authentication and Role
 const ProtectedRoute = ({ allowedRoles, children }) => {
@@ -117,6 +119,26 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={['STUDENT']}>
                     <StudentProfilePage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Teacher Management: only accessible to ADMIN (Epic 4) */}
+              <Route
+                path="/teachers"
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
+                    <TeacherListPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Personal Teacher Profile: accessible to TEACHER (Epic 4) */}
+              <Route
+                path="/teacher/profile"
+                element={
+                  <ProtectedRoute allowedRoles={['TEACHER']}>
+                    <TeacherProfilePage />
                   </ProtectedRoute>
                 }
               />

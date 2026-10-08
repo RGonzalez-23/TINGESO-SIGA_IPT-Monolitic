@@ -30,7 +30,7 @@ const HomeAdmin = () => {
       {/* Control Panel Cards */}
       <div className="row g-4 mb-4">
         {/* Card 1: Student Management */}
-        <div className="col-12 col-lg-4">
+        <div className="col-12 col-md-6 col-xl-3">
           <div className="card h-100 border-0 shadow-sm rounded-4 transition-hover overflow-hidden">
             <div className="card-body p-4 d-flex flex-column">
               <div className="d-flex align-items-center justify-content-between mb-3">
@@ -48,13 +48,13 @@ const HomeAdmin = () => {
               <h4 className="fw-bold text-dark mb-2">Gestión de Estudiantes</h4>
               <p className="text-muted small mb-4 flex-grow-1">
                 Consulta la nómina general de alumnos matriculados, filtra por carrera y estado académico,
-                accede a fichas integrales, actualiza antecedentes y gestiona credenciales de acceso.
+                accede a fichas integrales y credenciales.
               </p>
 
               <div className="d-flex flex-wrap gap-2 pt-2 border-top">
                 <Link
                   to="/students"
-                  className="btn btn-primary fw-semibold px-4 py-2 rounded-3 d-flex align-items-center gap-2"
+                  className="btn btn-primary fw-semibold px-3 py-2 rounded-3 d-flex align-items-center gap-2"
                 >
                   <i className="bi bi-list-ul"></i>
                   <span>Ver Estudiantes</span>
@@ -65,7 +65,7 @@ const HomeAdmin = () => {
         </div>
 
         {/* Card 2: Career and Study Plan Management */}
-        <div className="col-12 col-lg-4">
+        <div className="col-12 col-md-6 col-xl-3">
           <div className="card h-100 border-0 shadow-sm rounded-4 transition-hover overflow-hidden">
             <div className="card-body p-4 d-flex flex-column">
               <div className="d-flex align-items-center justify-content-between mb-3">
@@ -101,7 +101,7 @@ const HomeAdmin = () => {
         </div>
 
         {/* Card 3: Subject & Prerequisite Management (Epic 3) */}
-        <div className="col-12 col-lg-4">
+        <div className="col-12 col-md-6 col-xl-3">
           <div className="card h-100 border-0 shadow-sm rounded-4 transition-hover overflow-hidden">
             <div className="card-body p-4 d-flex flex-column">
               <div className="d-flex align-items-center justify-content-between mb-3">
@@ -112,23 +112,58 @@ const HomeAdmin = () => {
                   <i className="bi bi-diagram-3-fill fs-3 text-warning"></i>
                 </div>
                 <span className="badge bg-warning bg-opacity-10 text-dark px-3 py-2 rounded-pill fw-semibold">
-                  Épica 3
+                  Módulo Mallas
                 </span>
               </div>
 
-              <h4 className="fw-bold text-dark mb-2">Gestión de Asignaturas</h4>
+              <h4 className="fw-bold text-dark mb-2">Asignaturas</h4>
               <p className="text-muted small mb-4 flex-grow-1">
                 Administra las asignaturas de 1° a 4° semestre, créditos SCT (1 a 7), horas pedagógicas TEL (&lt; 8 hrs)
-                y hasta 3 prerrequisitos por asignatura dentro de cada plan curricular.
+                y hasta 3 prerrequisitos formativos.
               </p>
 
               <div className="d-flex flex-wrap gap-2 pt-2 border-top">
                 <Link
                   to="/careers"
-                  className="btn btn-warning text-dark fw-bold px-4 py-2 rounded-3 d-flex align-items-center gap-2"
+                  className="btn btn-warning text-dark fw-bold px-3 py-2 rounded-3 d-flex align-items-center gap-2"
                 >
                   <i className="bi bi-diagram-3"></i>
-                  <span>Mallas y Asignaturas</span>
+                  <span>Ver Mallas</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 4: Teacher Management (Epic 4) */}
+        <div className="col-12 col-md-6 col-xl-3">
+          <div className="card h-100 border-0 shadow-sm rounded-4 transition-hover overflow-hidden">
+            <div className="card-body p-4 d-flex flex-column">
+              <div className="d-flex align-items-center justify-content-between mb-3">
+                <div
+                  className="rounded-3 p-3 d-flex align-items-center justify-content-center text-info"
+                  style={{ backgroundColor: '#f0fdfa', width: '56px', height: '56px' }}
+                >
+                  <i className="bi bi-person-badge-fill fs-3 text-info"></i>
+                </div>
+                <span className="badge bg-info bg-opacity-10 text-dark px-3 py-2 rounded-pill fw-semibold">
+                  Módulo Docente
+                </span>
+              </div>
+
+              <h4 className="fw-bold text-dark mb-2">Gestión Docente</h4>
+              <p className="text-muted small mb-4 flex-grow-1">
+                Registra y administra a los profesores del IPT, títulos profesionales, grados académicos,
+                estado contractual (ACTIVO/INACTIVO) y credenciales Keycloak.
+              </p>
+
+              <div className="d-flex flex-wrap gap-2 pt-2 border-top">
+                <Link
+                  to="/teachers"
+                  className="btn btn-info text-dark fw-bold px-3 py-2 rounded-3 d-flex align-items-center gap-2"
+                >
+                  <i className="bi bi-person-video3"></i>
+                  <span>Ver Docentes</span>
                 </Link>
               </div>
             </div>

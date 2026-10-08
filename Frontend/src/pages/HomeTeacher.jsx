@@ -30,7 +30,40 @@ const HomeTeacher = () => {
 
       {/* Action Cards */}
       <div className="row g-4 mb-4">
-        <div className="col-12 col-md-6">
+        {/* Card 1: Teacher Profile & Password */}
+        <div className="col-12 col-md-4">
+          <div className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden border-top border-4 border-primary">
+            <div className="card-body p-4 d-flex flex-column">
+              <div className="d-flex align-items-center justify-content-between mb-3">
+                <div
+                  className="rounded-3 p-3 d-flex align-items-center justify-content-center text-primary"
+                  style={{ backgroundColor: '#eff6ff', width: '56px', height: '56px' }}
+                >
+                  <i className="bi bi-person-badge-fill fs-3 text-primary"></i>
+                </div>
+                <span className="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-semibold">
+                  Mi Perfil
+                </span>
+              </div>
+              <h4 className="fw-bold text-dark mb-2">Mi Perfil y Clave</h4>
+              <p className="text-muted small mb-4 flex-grow-1">
+                Consulta tus antecedentes académicos, grado, título profesional y gestiona tu contraseña de acceso a la plataforma.
+              </p>
+              <div className="pt-2 border-top">
+                <Link
+                  to="/teacher/profile"
+                  className="btn btn-primary fw-semibold px-3 py-2 rounded-3 w-100 d-flex align-items-center justify-content-center gap-2"
+                >
+                  <i className="bi bi-person-circle"></i>
+                  <span>Ver Ficha y Clave</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 2: Student Consultation */}
+        <div className="col-12 col-md-4">
           <div className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
             <div className="card-body p-4 d-flex flex-column">
               <div className="d-flex align-items-center justify-content-between mb-3">
@@ -49,17 +82,21 @@ const HomeTeacher = () => {
                 Visualiza el listado de alumnos por carrera técnica, verifica su estado académico y accede a fichas de consulta.
               </p>
               <div className="pt-2 border-top">
-                <Link to="/students" className="btn btn-info text-white fw-semibold px-4 py-2 rounded-3"
-                  style={{ backgroundColor: '#0e7490', borderColor: '#0e7490' }}>
-                  <i className="bi bi-search me-2"></i>
-                  Consultar Estudiantes
+                <Link
+                  to="/students"
+                  className="btn btn-info text-white fw-semibold px-3 py-2 rounded-3 w-100 d-flex align-items-center justify-content-center gap-2"
+                  style={{ backgroundColor: '#0e7490', borderColor: '#0e7490' }}
+                >
+                  <i className="bi bi-search"></i>
+                  <span>Consultar Estudiantes</span>
                 </Link>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="col-12 col-md-6">
+        {/* Card 3: Study Plans */}
+        <div className="col-12 col-md-4">
           <div className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
             <div className="card-body p-4 d-flex flex-column">
               <div className="d-flex align-items-center justify-content-between mb-3">
@@ -78,9 +115,12 @@ const HomeTeacher = () => {
                 Consulta los planes de estudio vigentes y la oferta formativa técnica de 2 años del instituto.
               </p>
               <div className="pt-2 border-top">
-                <Link to="/careers" className="btn btn-outline-secondary fw-semibold px-4 py-2 rounded-3">
-                  <i className="bi bi-eye me-2"></i>
-                  Ver Carreras y Planes
+                <Link
+                  to="/careers"
+                  className="btn btn-outline-secondary fw-semibold px-3 py-2 rounded-3 w-100 d-flex align-items-center justify-content-center gap-2"
+                >
+                  <i className="bi bi-eye"></i>
+                  <span>Ver Planes</span>
                 </Link>
               </div>
             </div>
