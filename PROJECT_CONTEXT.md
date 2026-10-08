@@ -155,8 +155,8 @@ Una vez implementadas y validadas las 7 épicas y alcanzado el umbral de cobertu
 | **Seguridad & IAM: Integración Keycloak** | Spring Security + OAuth2 Resource Server | **94% líneas** (34/34 tests passing) | `keycloak-js` + Aprovisionamiento + Cambio Clave | **COMPLETADO Y VALIDADO** |
 | **Épica 2: Carreras y Planes** | CRUD carreras y planes, activación | **92% inst / 95% líneas** (55/55 tests) | Vistas admin/teacher, "Mi malla" | **COMPLETADO Y VALIDADO** |
 | **Épica 3: Asignaturas y Prerrequisitos** | Endpoints REST, validaciones TEL/SCT, precarga Apéndice A | **93% inst / 96% líneas** (74/74 tests) | Malla interactiva, filtros, modales CRUD con cálculo TEL en vivo | **COMPLETADO Y VALIDADO** |
-| **Épica 4: Gestión de Docentes** | Pendiente | Pendiente | Pendiente | **SIGUIENTE PASO** |
-| **Épica 5: Oferta Académica y Secciones** | Pendiente | Pendiente | Pendiente | **PENDIENTE** |
+| **Épica 4: Gestión de Docentes** | Endpoints REST, resolución de colisiones, Keycloak | **94% inst / 96% líneas** (88/88 tests) | Nómina docente, previsualización email, perfil docente y clave | **COMPLETADO Y VALIDADO** |
+| **Épica 5: Oferta Académica y Secciones** | Pendiente | Pendiente | Pendiente | **SIGUIENTE PASO** |
 | **Épica 6: Inscripción Académica** | Pendiente | Pendiente | Pendiente | **PENDIENTE** |
 | **Épica 7: Calificaciones y Cierre** | Pendiente | Pendiente | Pendiente | **PENDIENTE** |
 
@@ -250,32 +250,48 @@ Una vez implementadas y validadas las 7 épicas y alcanzado el umbral de cobertu
 
 ---
 
-## 5. Hoja de Ruta Próxima Sesión: Épica 4 (Gestión de Docentes)
+### 4.4 Épica 4: Gestión de Docentes (Completada)
+- **Backend Implementado y Validado:**
+  - **Entidad & Enums:** [TeacherEntity.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/entity/TeacherEntity.java) y [AcademicDegree.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/entity/AcademicDegree.java) (`LICENCIATURA`, `MAGISTER`, `DOCTORADO`). RUN chileno como clave primaria (`@Id`), nombres desglosados (`firstName`, `paternalLastName`, `maternalLastName`), correo institucional único, título profesional, grado académico y estado contractual `isActive` (por defecto `true`/`ACTIVO`).
+  - **Repositorio:** [TeacherRepository.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/repository/TeacherRepository.java).
+  - **Servicio Unificado de Correo Institucional:** [InstitutionalEmailService.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/service/InstitutionalEmailService.java) centraliza la generación de correos `@sigaipt.cl` para estudiantes y docentes con **remoción estricta de tildes y diacríticos** (NFD + `\p{M}`) y **resolución dinámica de colisiones** (añade iniciales progresivas del apellido materno `.x`, `.xy` y sufijos numéricos si se agotan, verificando duplicados simultáneamente en `StudentRepository` y `TeacherRepository`).
+  - **DTOs:** [TeacherRegistrationDTO.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/dto/TeacherRegistrationDTO.java), [TeacherUpdateDTO.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/dto/TeacherUpdateDTO.java), [TeacherResponseDTO.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/dto/TeacherResponseDTO.java).
+  - **Servicio de Docentes:** [TeacherService.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/service/TeacherService.java) con validaciones de Módulo 11, unicidad de RUN y correo, aprovisionamiento automático en Keycloak con rol `TEACHER` y clave temporal `Siga2026!`, protección contra inactivación si tiene secciones en períodos abiertos y protección contra borrado físico si tiene secciones asociadas.
+  - **Controlador REST:** [TeacherController.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/controller/TeacherController.java) con endpoints `/api/teachers` (`GET`, `POST`, `PUT`, `DELETE`, y `GET /preview-email`) protegidos por `@PreAuthorize` (`ADMIN` para administración global, `TEACHER` para consulta de su propio perfil).
+  - **Precarga de Datos:** [DataInitializerConfig.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/config/DataInitializerConfig.java) precarga docentes de muestra, incluyendo al profesor de prueba en Keycloak *Pedro González* (`11111111-1`, `pedro.gonzalez@sigaipt.cl`).
+  - **Pruebas y Cobertura:** 89/89 pruebas unitarias exitosas (0 fallos) con cobertura global en la capa `service` de **94% de instrucciones** y **96% de líneas**.
+- **Frontend Implementado y Validado:**
+  - **Servicio:** [teacher.service.js](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/services/teacher.service.js) y utilidad [runValidator.js](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/utils/runValidator.js) con `sanitizeForEmail` para supresión en vivo de caracteres acentuados.
+  - **Administración para Admin:** [TeacherListPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/TeacherListPage.jsx) en `/teachers` con KPIs de docentes, buscador en vivo, filtros por estado (`TODOS`, `ACTIVOS`, `INACTIVOS`), modales de registro con cálculo en vivo de correo institucional y validación Módulo 11, modal de edición con toggle de estado y restablecimiento de contraseña en Keycloak.
+  - **Portal y Perfil Docente:** [TeacherProfilePage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/TeacherProfilePage.jsx) en `/teacher/profile`, accesible para profesores desde [HomeTeacher.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/HomeTeacher.jsx) y [Navbar.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/components/Navbar.jsx) para visualizar su información y cambiar su contraseña.
+  - **Calidad:** 0 errores en ESLint (`npm run lint`), compilación limpia en `npm run build`.
+
+---
+
+## 5. Hoja de Ruta Próxima Sesión: Épica 5 (Gestión de Oferta Académica y Secciones)
 
 1. **Modelado de Dominio y Reglas de Negocio:**
-   - Entidad `TeacherEntity` en PostgreSQL:
-     - `run`: Único, formato chileno validado (Módulo 11).
-     - `firstName`, `paternalLastName`, `maternalLastName`: Nombres y apellidos.
-     - `email`: Único, autogenerado o validado institucional.
-     - `professionalTitle`: Título profesional.
-     - `academicDegree`: Grado académico (`LICENCIATURA`, `MAGISTER`, `DOCTORADO`).
-     - `active`: Booleano (`ACTIVO` / `INACTIVO`).
-   - Reglas de negocio:
-     - Solo docentes en estado `ACTIVO` pueden ser asignados a impartir secciones (Épica 5).
-     - No se permite inactivar ni eliminar a un docente si tiene secciones asignadas en períodos académicos abiertos o vigentes.
-   - Aprovisionamiento en Keycloak:
-     - Creación de cuenta en Keycloak con rol `TEACHER` vía `KeycloakUserService` para inicio de sesión en la plataforma.
+   - Períodos académicos (`AcademicPeriodEntity`):
+     - Formato `YYYY-S` (ej. `2027-1`, `2027-2`).
+     - Estado ENUM (`ABIERTO`, `CERRADO`). Al crearse se inicia siempre en `ABIERTO`.
+   - Secciones académicas (`SectionEntity`):
+     - Única sección por asignatura por período académico.
+     - Capacidad máxima: $> 0$ y $\le 60$ estudiantes.
+     - Docente responsable: obligatorio y debe encontrarse en estado `ACTIVO`.
+     - Bloques horarios (`TimeBlockEntity` o embebidos):
+       - Días: L (lunes), M (martes), W (miércoles), J (jueves), V (viernes).
+       - Módulos: M1 (08:15 - 09:35) a M6 (16:55 - 18:15) de 80 minutos.
+       - La cantidad de bloques semanales asignados debe coincidir exactamente con el total de horas pedagógicas TEL de la asignatura (1 bloque = 2 horas pedagógicas).
+       - No permite bloques duplicados en la sección.
+       - Validación de choque de horario: un docente no puede tener dos secciones en el mismo día y módulo.
 2. **Backend:**
-   - `TeacherEntity`, `TeacherRepository`, `TeacherRegistrationDTO`, `TeacherUpdateDTO`, `TeacherResponseDTO`.
-   - `TeacherService` con reglas de validación y `TeacherController` con `@PreAuthorize`.
-   - Pruebas unitarias en `TeacherServiceTest` manteniendo cobertura JaCoCo $\ge 90\%$.
+   - Entidades, repositorios, DTOs, servicios y controladores REST para períodos y secciones.
+   - Pruebas unitarias asegurando JaCoCo $\ge 90\%$.
 3. **Frontend:**
-   - `teacher.service.js`.
-   - Vistas de listado, registro y modificación de docentes con control de rol.
-   - Enlace desde el panel de administración [HomeAdmin.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/HomeAdmin.jsx).
+   - Servicios, vistas de administración de períodos, oferta académica y asignación de docentes/horarios sin conflictos.
 
 ---
 
 ## 6. Instrucción para Continuar la Próxima Sesión
 Al iniciar una nueva sesión en Antigravity desde otra computadora tras clonar/hacer `git pull`:
-> *"Lee el archivo `PROJECT_CONTEXT.md` para cargar todo el contexto, arquitectura y estado de avance de SIGA IPT. Procedamos a desarrollar la Épica 4 (Gestión de Docentes) siguiendo la sección 5."*
+> *"Lee el archivo `PROJECT_CONTEXT.md` para cargar todo el contexto, arquitectura y estado de avance de SIGA IPT. Procedamos a desarrollar la Épica 5 (Oferta Académica y Secciones) siguiendo la sección 5."*
