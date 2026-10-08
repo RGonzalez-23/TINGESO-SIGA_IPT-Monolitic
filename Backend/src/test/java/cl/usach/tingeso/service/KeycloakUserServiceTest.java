@@ -13,8 +13,10 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
@@ -237,5 +239,38 @@ class KeycloakUserServiceTest {
                 keycloakUserService.resetPassword("unknown-user", "NewSecret123!", false));
 
         mockServer.verify();
+    }
+
+    @Test
+    @DisplayName("Should return true when Keycloak verifies password successfully")
+    void shouldReturnTrueWhenPasswordVerificationSucceeds() {
+        mockServer.expect(requestTo("http://localhost:8080/realms/siga-ipt-realm/protocol/openid-connect/token"))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess("{\"access_token\":\"valid-user-token\"}", MediaType.APPLICATION_JSON));
+
+        boolean valid = keycloakUserService.verifyUserPassword("11111111-1", "docente123");
+        assertTrue(valid);
+        mockServer.verify();
+    }
+
+    @Test
+    @DisplayName("Should return false when Keycloak returns 401 Unauthorized for incorrect password")
+    void shouldReturnFalseWhenPasswordVerificationFailsUnauthorized() {
+        mockServer.expect(requestTo("http://localhost:8080/realms/siga-ipt-realm/protocol/openid-connect/token"))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withStatus(HttpStatus.UNAUTHORIZED).body("{\"error\":\"invalid_grant\"}").contentType(MediaType.APPLICATION_JSON));
+
+        boolean valid = keycloakUserService.verifyUserPassword("11111111-1", "wrongpwd");
+        assertFalse(valid);
+        mockServer.verify();
+    }
+
+    @Test
+    @DisplayName("Should return false when input username or password is blank or null")
+    void shouldReturnFalseWhenInputIsInvalidOrBlank() {
+        assertFalse(keycloakUserService.verifyUserPassword(null, "pwd"));
+        assertFalse(keycloakUserService.verifyUserPassword("user", null));
+        assertFalse(keycloakUserService.verifyUserPassword("user", "   "));
+        assertFalse(keycloakUserService.verifyUserPassword("", "pwd"));
     }
 }

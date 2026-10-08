@@ -161,6 +161,46 @@ public class KeycloakUserService {
     }
 
     /**
+     * Verifies if a user's current password is valid by attempting Direct Access Grant authentication in Keycloak.
+     *
+     * @param username user RUN / username
+     * @param password raw password to test
+     * @return true if credentials are valid, false otherwise
+     */
+    public boolean verifyUserPassword(String username, String password) {
+        if (username == null || username.isBlank() || password == null || password.isBlank()) {
+            return false;
+        }
+
+        String tokenUrl = String.format("%s/realms/%s/protocol/openid-connect/token", serverUrl, realm);
+
+        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+        formData.add("grant_type", "password");
+        formData.add("client_id", "siga-frontend");
+        formData.add("username", username);
+        formData.add("password", password);
+
+        try {
+            ResponseEntity<Map<String, Object>> response = restClient.post()
+                    .uri(tokenUrl)
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body(formData)
+                    .retrieve()
+                    .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {});
+
+            return response.getStatusCode().is2xxSuccessful()
+                    && response.getBody() != null
+                    && response.getBody().containsKey("access_token");
+        } catch (HttpClientErrorException.Unauthorized | HttpClientErrorException.BadRequest e) {
+            log.info("Password verification failed for user {}: invalid credentials", username);
+            return false;
+        } catch (Exception e) {
+            log.warn("Password verification error for user {}: {}", username, e.getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Resets or changes a user's password in Keycloak.
      *
      * @param username user username or RUN

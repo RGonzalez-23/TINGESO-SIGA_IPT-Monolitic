@@ -15,6 +15,7 @@ const TeacherProfilePage = () => {
   const [error, setError] = useState(null);
 
   // Password change state
+  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [pwdLoading, setPwdLoading] = useState(false);
@@ -46,8 +47,18 @@ const TeacherProfilePage = () => {
     setPwdSuccess(null);
     setPwdError(null);
 
+    if (!currentPassword) {
+      setPwdError('Debes ingresar tu contraseña actual.');
+      return;
+    }
+
     if (newPassword.length < 6) {
       setPwdError('La nueva contraseña debe tener al menos 6 caracteres.');
+      return;
+    }
+
+    if (newPassword === currentPassword) {
+      setPwdError('La nueva contraseña debe ser distinta a la contraseña actual.');
       return;
     }
 
@@ -58,8 +69,9 @@ const TeacherProfilePage = () => {
 
     try {
       setPwdLoading(true);
-      await userService.changePassword(currentUserRun, newPassword, false);
+      await userService.changePassword(currentUserRun, newPassword, false, currentPassword);
       setPwdSuccess('¡Contraseña actualizada exitosamente en Keycloak!');
+      setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (err) {
@@ -212,6 +224,20 @@ const TeacherProfilePage = () => {
             )}
 
             <form onSubmit={handlePasswordChange}>
+              <div className="mb-3">
+                <label className="form-label small fw-semibold text-secondary">
+                  Contraseña Actual <span className="text-danger">*</span>
+                </label>
+                <input
+                  type="password"
+                  className="form-control"
+                  placeholder="Ingresa tu contraseña actual"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  required
+                />
+              </div>
+
               <div className="mb-3">
                 <label className="form-label small fw-semibold text-secondary">
                   Nueva Contraseña <span className="text-danger">*</span>
