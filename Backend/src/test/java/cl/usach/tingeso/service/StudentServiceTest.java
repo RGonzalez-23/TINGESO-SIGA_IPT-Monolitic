@@ -53,6 +53,9 @@ class StudentServiceTest {
     @Mock
     private KeycloakUserService keycloakUserService;
 
+    @Mock
+    private InstitutionalEmailService institutionalEmailService;
+
     @InjectMocks
     private StudentService studentService;
 
@@ -116,7 +119,7 @@ class StudentServiceTest {
         when(studentRepository.existsByRun("12345678-5")).thenReturn(false);
         when(careerRepository.findByCode("10450")).thenReturn(Optional.of(careerActive));
         when(studyPlanRepository.findByCareer_CodeAndIsActiveTrue("10450")).thenReturn(Optional.of(activeStudyPlan));
-        when(studentRepository.existsByEmail("juan.perez@sigaipt.cl")).thenReturn(false);
+        when(institutionalEmailService.generateUniqueEmail(any(), any(), any())).thenReturn("juan.perez@sigaipt.cl");
         when(studentRepository.save(any(StudentEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         StudentResponseDTO response = studentService.registerStudent(dto);
@@ -428,10 +431,10 @@ class StudentServiceTest {
     // =========================================================================
 
     @Test
-    @DisplayName("Should handle email collision by appending counter suffix")
+    @DisplayName("Should delegate email generation to InstitutionalEmailService")
     void testGenerateUniqueEmail_WithCollision() {
-        when(studentRepository.existsByEmail("maria.lopez@sigaipt.cl")).thenReturn(true);
-        when(studentRepository.existsByEmail("maria.lopez2@sigaipt.cl")).thenReturn(false);
+        when(institutionalEmailService.generateUniqueEmail("María José", "López", ""))
+                .thenReturn("maria.lopez2@sigaipt.cl");
 
         String email = studentService.generateUniqueEmail("María José", "López");
 
