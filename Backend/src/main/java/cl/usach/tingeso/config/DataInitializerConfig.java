@@ -1,11 +1,14 @@
 package cl.usach.tingeso.config;
 
+import cl.usach.tingeso.entity.AcademicDegree;
 import cl.usach.tingeso.entity.CareerEntity;
 import cl.usach.tingeso.entity.CourseEntity;
 import cl.usach.tingeso.entity.StudyPlanEntity;
+import cl.usach.tingeso.entity.TeacherEntity;
 import cl.usach.tingeso.repository.CareerRepository;
 import cl.usach.tingeso.repository.CourseRepository;
 import cl.usach.tingeso.repository.StudyPlanRepository;
+import cl.usach.tingeso.repository.TeacherRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -14,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,6 +34,7 @@ public class DataInitializerConfig {
     private final CareerRepository careerRepository;
     private final StudyPlanRepository studyPlanRepository;
     private final CourseRepository courseRepository;
+    private final cl.usach.tingeso.repository.TeacherRepository teacherRepository;
 
     @Bean
     public CommandLineRunner initDatabaseData() {
@@ -106,6 +111,47 @@ public class DataInitializerConfig {
                         .ifPresent(this::seedTcsCourses);
 
                 log.info("Appendix A subjects (Semesters 1 to 3) successfully seeded.");
+            }
+
+            // Seed initial teachers if empty
+            if (teacherRepository.count() == 0) {
+                log.info("Seeding initial faculty members / teachers...");
+
+                TeacherEntity t1 = TeacherEntity.builder()
+                        .run("11111111-1")
+                        .firstName("Pedro")
+                        .paternalLastName("González")
+                        .maternalLastName("Pérez")
+                        .email("pedro.gonzalez@sigaipt.cl")
+                        .professionalTitle("Ingeniero Civil en Informática")
+                        .academicDegree(AcademicDegree.MAGISTER)
+                        .isActive(true)
+                        .build();
+
+                TeacherEntity t2 = TeacherEntity.builder()
+                        .run("11223344-5")
+                        .firstName("Patricia")
+                        .paternalLastName("Morales")
+                        .maternalLastName("Valenzuela")
+                        .email("patricia.morales@sigaipt.cl")
+                        .professionalTitle("Ingeniera en Ciberseguridad")
+                        .academicDegree(AcademicDegree.DOCTORADO)
+                        .isActive(true)
+                        .build();
+
+                TeacherEntity t3 = TeacherEntity.builder()
+                        .run("12345678-5")
+                        .firstName("Carlos")
+                        .paternalLastName("Valenzuela")
+                        .maternalLastName("Soto")
+                        .email("carlos.valenzuela@sigaipt.cl")
+                        .professionalTitle("Magíster en Ciencia de Datos")
+                        .academicDegree(AcademicDegree.MAGISTER)
+                        .isActive(true)
+                        .build();
+
+                teacherRepository.saveAll(List.of(t1, t2, t3));
+                log.info("Initial teachers successfully seeded.");
             }
         };
     }
