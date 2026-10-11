@@ -50,8 +50,11 @@ public class CourseController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER', 'STUDENT')")
     public ResponseEntity<List<CourseResponseDTO>> getCourses(
-            @RequestParam(name = "studyPlanId") Long studyPlanId,
+            @RequestParam(name = "studyPlanId", required = false) Long studyPlanId,
             @RequestParam(name = "semester", required = false) Integer semester) {
+        if (studyPlanId == null) {
+            return ResponseEntity.ok(courseService.getAllCourses());
+        }
         if (semester != null) {
             return ResponseEntity.ok(courseService.getCoursesByStudyPlanAndSemester(studyPlanId, semester));
         }

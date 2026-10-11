@@ -40,6 +40,18 @@ public class CourseService {
      * @return list of course response DTOs
      * @throws ResourceNotFoundException if study plan does not exist
      */
+    /**
+     * Retrieves all courses across all study plans.
+     *
+     * @return list of course response DTOs
+     */
+    @Transactional(readOnly = true)
+    public List<CourseResponseDTO> getAllCourses() {
+        return courseRepository.findAll().stream()
+                .map(this::mapToDTO)
+                .toList();
+    }
+
     @Transactional(readOnly = true)
     public List<CourseResponseDTO> getCoursesByStudyPlan(Long studyPlanId) {
         if (!studyPlanRepository.existsById(studyPlanId)) {

@@ -30,6 +30,7 @@ public class TeacherService {
     private final StudentRepository studentRepository;
     private final InstitutionalEmailService institutionalEmailService;
     private final KeycloakUserService keycloakUserService;
+    private final cl.usach.tingeso.repository.SectionRepository sectionRepository;
 
     /**
      * Registers a new teacher in the institution.
@@ -192,20 +193,19 @@ public class TeacherService {
      * @return true if has open sections, false otherwise
      */
     public boolean hasOpenSections(String run) {
-        // In Epic 5, this will delegate to sectionRepository.countByTeacher_RunAndPeriod_Status(run, PeriodStatus.ABIERTO) > 0
-        return false;
+        String cleanedRun = RunValidatorUtil.cleanFormat(run);
+        return sectionRepository.existsByTeacherRunAndAcademicPeriodIsOpenTrue(cleanedRun);
     }
 
     /**
      * Checks if the teacher has any associated course sections (active or historical).
-     * Prepared for Epic 5 integration.
      *
      * @param run teacher RUN
      * @return true if has associated sections, false otherwise
      */
     public boolean hasAssociatedSections(String run) {
-        // In Epic 5, this will delegate to sectionRepository.countByTeacher_Run(run) > 0
-        return false;
+        String cleanedRun = RunValidatorUtil.cleanFormat(run);
+        return sectionRepository.existsByTeacherRun(cleanedRun);
     }
 
     /**
