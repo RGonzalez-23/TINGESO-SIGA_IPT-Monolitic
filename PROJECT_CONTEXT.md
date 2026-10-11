@@ -269,30 +269,34 @@ Una vez implementadas y validadas las 7 épicas y alcanzado el umbral de cobertu
 
 ---
 
-## 5. Hoja de Ruta Próxima Sesión: Épica 5 (Gestión de Oferta Académica y Secciones)
+### 4.5 Épica 5: Gestión de Oferta Académica y Secciones (Completada)
+- **Backend Implementado y Validado:**
+  - **Entidades de Dominio:**
+    - [AcademicPeriodEntity.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/entity/AcademicPeriodEntity.java): Clave canónica `id` en formato `"YYYY-S"` (ej. `"2027-1"`), columnas `academic_year` y `semester`, y bandera de estado `isOpen` (por defecto `true`/`ABIERTO`). Constraint de unicidad `uk_period_year_semester`.
+    - [TimeBlockEntity.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/entity/TimeBlockEntity.java): 30 módulos estandarizados de 80 minutos cada uno (L1 a V6), días L, M, W, J, V y módulos 1 a 6 con rangos fijos de hora (M1 08:15-09:35, M2 09:50-11:10, M3 11:25-12:45, almuerzo 1h, M4 13:45-15:05, M5 15:20-16:40, M6 16:55-18:15).
+    - [SectionEntity.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/entity/SectionEntity.java): Clave numérica autoincremental `Long id`, regla de unicidad estricta por asignatura por período (`uk_section_course_period`), código de sección generado como `"${course.code}-A-1"` (ej. `"TAP101-A-1"`), relación `@ManyToMany` con bloques horarios, validación de capacidad (1 a 60 cupos), contador de inscritos `enrolledCount` (inicia en 0) y docente asignado obligatorio en estado activo.
+  - **Servicios & Reglas de Negocio:**
+    - [AcademicPeriodService.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/service/AcademicPeriodService.java): Creación de períodos y alternancia de estado ABIERTO/CERRADO garantizando que estrictamente un único período permanezca abierto a la vez (cierre automático de períodos previos al abrir o crear uno nuevo).
+    - [TimeBlockService.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/service/TimeBlockService.java): Consulta ordenada de los 30 bloques horarios estandarizados.
+    - [SectionService.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/service/SectionService.java): Única sección por asignatura por período, asignación de docente activo, bloques TEL requeridos (`totalTEL / 2`), control de choque de horarios docentes, código `"${course.code}-A-1"`, y protección contra borrado si tiene alumnos.
+  - **Controladores REST:** [AcademicPeriodController.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/controller/AcademicPeriodController.java), [TimeBlockController.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/controller/TimeBlockController.java), y [SectionController.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/controller/SectionController.java).
+  - **Pruebas y Cobertura:** 121/121 pruebas unitarias exitosas (0 fallos). Cobertura en capa service: **91% de instrucciones** y **95.6% de líneas**.
+- **Frontend Implementado y Validado:**
+  - **Servicios:** [academic-period.service.js](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/services/academic-period.service.js), [time-block.service.js](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/services/time-block.service.js), y [section.service.js](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/services/section.service.js).
+  - **Página de Oferta Académica:** [AcademicOfferPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/AcademicOfferPage.jsx) (`/academic-offer`) con administración de períodos, filtros, KPIs, listado de secciones, horario semanal visual (5x6), y modal interactivo para creación/edición con código de sección `"${course.code}-A-1"`.
+  - **Calidad:** 0 errores en ESLint y compilación en Vite.
 
-1. **Modelado de Dominio y Reglas de Negocio:**
-   - Períodos académicos (`AcademicPeriodEntity`):
-     - Formato `YYYY-S` (ej. `2027-1`, `2027-2`).
-     - Estado ENUM (`ABIERTO`, `CERRADO`). Al crearse se inicia siempre en `ABIERTO`.
-   - Secciones académicas (`SectionEntity`):
-     - Única sección por asignatura por período académico.
-     - Capacidad máxima: $> 0$ y $\le 60$ estudiantes.
-     - Docente responsable: obligatorio y debe encontrarse en estado `ACTIVO`.
-     - Bloques horarios (`TimeBlockEntity` o embebidos):
-       - Días: L (lunes), M (martes), W (miércoles), J (jueves), V (viernes).
-       - Módulos: M1 (08:15 - 09:35) a M6 (16:55 - 18:15) de 80 minutos.
-       - La cantidad de bloques semanales asignados debe coincidir exactamente con el total de horas pedagógicas TEL de la asignatura (1 bloque = 2 horas pedagógicas).
-       - No permite bloques duplicados en la sección.
-       - Validación de choque de horario: un docente no puede tener dos secciones en el mismo día y módulo.
-2. **Backend:**
-   - Entidades, repositorios, DTOs, servicios y controladores REST para períodos y secciones.
-   - Pruebas unitarias asegurando JaCoCo $\ge 90\%$.
-3. **Frontend:**
-   - Servicios, vistas de administración de períodos, oferta académica y asignación de docentes/horarios sin conflictos.
+---
+
+## 5. Hoja de Ruta Próxima Sesión: Épica 6 (Inscripción Académica de Estudiantes)
+
+1. **Modelado y Reglas de Negocio:**
+   - Inscripción académica (`EnrollmentEntity`): asignaturas por plan, verificación de prerrequisitos, créditos máximos por semestre, verificación de choque de horarios y control de cupos.
+2. **Backend:** Entidades, repositorios, servicios y endpoints REST con cobertura JaCoCo $\ge 90\%$.
+3. **Frontend:** Módulo de inscripción para estudiantes con validación en tiempo real y vista de comprobante de horario.
 
 ---
 
 ## 6. Instrucción para Continuar la Próxima Sesión
 Al iniciar una nueva sesión en Antigravity desde otra computadora tras clonar/hacer `git pull`:
-> *"Lee el archivo `PROJECT_CONTEXT.md` para cargar todo el contexto, arquitectura y estado de avance de SIGA IPT. Procedamos a desarrollar la Épica 5 (Oferta Académica y Secciones) siguiendo la sección 5."*
+> *"Lee el archivo `PROJECT_CONTEXT.md` para cargar todo el contexto, arquitectura y estado de avance de SIGA IPT. Procedamos a desarrollar la Épica 6 (Inscripción Académica de Estudiantes) siguiendo la sección 5."*
