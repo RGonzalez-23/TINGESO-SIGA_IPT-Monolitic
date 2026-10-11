@@ -100,6 +100,19 @@ class CourseServiceTest {
     }
 
     @Test
+    @DisplayName("Should return all courses across all study plans")
+    void testGetAllCourses_Success() {
+        when(courseRepository.findAll()).thenReturn(List.of(sampleCourse1, sampleCourse2));
+
+        List<CourseResponseDTO> result = courseService.getAllCourses();
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals("TAP101", result.get(0).getCode());
+        assertEquals("TAP201", result.get(1).getCode());
+    }
+
+    @Test
     @DisplayName("Should return all courses for a study plan")
     void testGetCoursesByStudyPlan_Success() {
         when(studyPlanRepository.existsById(1L)).thenReturn(true);

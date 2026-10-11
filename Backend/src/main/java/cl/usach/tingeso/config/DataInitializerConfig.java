@@ -5,16 +5,24 @@ import cl.usach.tingeso.entity.CareerEntity;
 import cl.usach.tingeso.entity.CourseEntity;
 import cl.usach.tingeso.entity.StudyPlanEntity;
 import cl.usach.tingeso.entity.TeacherEntity;
+import cl.usach.tingeso.entity.AcademicPeriodEntity;
+import cl.usach.tingeso.entity.SectionEntity;
+import cl.usach.tingeso.entity.TimeBlockEntity;
+import cl.usach.tingeso.repository.AcademicPeriodRepository;
 import cl.usach.tingeso.repository.CareerRepository;
 import cl.usach.tingeso.repository.CourseRepository;
+import cl.usach.tingeso.repository.SectionRepository;
 import cl.usach.tingeso.repository.StudyPlanRepository;
 import cl.usach.tingeso.repository.TeacherRepository;
+import cl.usach.tingeso.repository.TimeBlockRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,8 +31,7 @@ import java.util.Set;
 
 /**
  * DataInitializerConfig initializes essential domain data on application startup.
- * Seeds the 3 professional careers and active study plans, plus initial subjects
- * from semesters 1 to 3 from Appendix A (leaving semester 4 empty for manual testing).
+ * Seeds careers, plans, courses, faculty, time blocks, and academic periods with sections.
  */
 @Configuration
 @RequiredArgsConstructor
@@ -34,11 +41,17 @@ public class DataInitializerConfig {
     private final CareerRepository careerRepository;
     private final StudyPlanRepository studyPlanRepository;
     private final CourseRepository courseRepository;
-    private final cl.usach.tingeso.repository.TeacherRepository teacherRepository;
+    private final TeacherRepository teacherRepository;
+    private final TimeBlockRepository timeBlockRepository;
+    private final AcademicPeriodRepository academicPeriodRepository;
+    private final SectionRepository sectionRepository;
 
     @Bean
     public CommandLineRunner initDatabaseData() {
         return args -> {
+            seedTimeBlocks();
+            seedAcademicPeriodAndSections();
+
             if (careerRepository.count() == 0) {
                 log.info("Seeding initial careers and study plans from Appendix A...");
 
@@ -256,4 +269,62 @@ public class DataInitializerConfig {
                 .build();
         return courseRepository.save(course);
     }
+
+    private void seedTimeBlocks() {
+        if (timeBlockRepository.count() > 0) {
+            return;
+        }
+
+        log.info("Seeding standardized 30 time blocks (L1 to V6)...");
+        String[] days = {"L", "M", "W", "J", "V"};
+        LocalTime[] startTimes = {
+                LocalTime.of(8, 15),
+                LocalTime.of(9, 50),
+                LocalTime.of(11, 25),
+                LocalTime.of(13, 45),
+                LocalTime.of(15, 20),
+                LocalTime.of(16, 55)
+        };
+        LocalTime[] endTimes = {
+                LocalTime.of(9, 35),
+                LocalTime.of(11, 10),
+                LocalTime.of(12, 45),
+                LocalTime.of(15, 5),
+                LocalTime.of(16, 40),
+                LocalTime.of(18, 15)
+        };
+
+        List<TimeBlockEntity> blocks = new ArrayList<>();
+        for (String day : days) {
+            for (int module = 1; module <= 6; module++) {
+                String code = day + module;
+                blocks.add(TimeBlockEntity.builder()
+                        .code(code)
+                        .dayOfWeek(day)
+                        .moduleNumber(module)
+                        .startTime(startTimes[module - 1])
+                        .endTime(endTimes[module - 1])
+                        .build());
+            }
+        }
+        timeBlockRepository.saveAll(blocks);
+        log.info("Standardized 30 time blocks successfully seeded.");
+    }
+
+    private void seedAcademicPeriodAndSections() {
+        if (academicPeriodRepository.count() > 0) {
+            return;
+        }
+
+        log.info("Seeding initial academic period 2027-1 (ABIERTO)...");
+        AcademicPeriodEntity period20271 = AcademicPeriodEntity.builder()
+                .id("2027-1")
+                .year(2027)
+                .semester(1)
+                .isOpen(true)
+                .build();
+        academicPeriodRepository.save(period20271);
+        log.info("Initial academic period 2027-1 seeded.");
+    }
 }
+

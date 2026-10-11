@@ -51,6 +51,9 @@ class TeacherServiceTest {
     @Mock
     private KeycloakUserService keycloakUserService;
 
+    @Mock
+    private cl.usach.tingeso.repository.SectionRepository sectionRepository;
+
     @InjectMocks
     private TeacherService teacherService;
 
