@@ -7,6 +7,13 @@ import apiClient from './http-common';
  */
 class CourseDataService {
   /**
+   * Retrieves all courses across all study plans.
+   */
+  getAllCourses() {
+    return apiClient.get('/courses');
+  }
+
+  /**
    * Retrieves all courses for a study plan, optionally filtered by semester.
    * @param {number|string} studyPlanId
    * @param {number} [semester] optional semester filter (1 to 4)

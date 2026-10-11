@@ -169,6 +169,41 @@ const HomeAdmin = () => {
             </div>
           </div>
         </div>
+
+        {/* Card 5: Academic Offer & Sections Management (Epic 5) */}
+        <div className="col-12 col-md-6 col-xl-4">
+          <div className="card h-100 border-0 shadow-sm rounded-4 transition-hover overflow-hidden">
+            <div className="card-body p-4 d-flex flex-column">
+              <div className="d-flex align-items-center justify-content-between mb-3">
+                <div
+                  className="rounded-3 p-3 d-flex align-items-center justify-content-center text-primary"
+                  style={{ backgroundColor: '#e0e7ff', width: '56px', height: '56px', color: '#4338ca' }}
+                >
+                  <i className="bi bi-calendar3-range fs-3" style={{ color: '#4338ca' }}></i>
+                </div>
+                <span className="badge px-3 py-2 rounded-pill fw-semibold" style={{ backgroundColor: '#e0e7ff', color: '#3730a3' }}>
+                  Módulo Oferta
+                </span>
+              </div>
+
+              <h4 className="fw-bold text-dark mb-2">Oferta y Secciones</h4>
+              <p className="text-muted small mb-4 flex-grow-1">
+                Define períodos académicos (abiertos/cerrados), gestiona las secciones únicas por asignatura en formato <code>TAP101-A-1</code>, asigna módulos horarios de 80 min y docentes sin topes.
+              </p>
+
+              <div className="d-flex flex-wrap gap-2 pt-2 border-top">
+                <Link
+                  to="/academic-offer"
+                  className="btn text-white fw-bold px-3 py-2 rounded-3 d-flex align-items-center gap-2"
+                  style={{ backgroundColor: '#312e81', borderColor: '#312e81' }}
+                >
+                  <i className="bi bi-calendar3-range"></i>
+                  <span>Gestionar Oferta</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Quick Info & Policy Guidelines */}

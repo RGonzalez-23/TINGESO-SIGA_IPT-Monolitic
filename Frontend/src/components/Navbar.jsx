@@ -65,7 +65,19 @@ const Navbar = () => {
                   to="/careers"
                 >
                   <i className="bi bi-journal-bookmark-fill me-1"></i>
-                  {isAdmin ? 'Carreras y Planes' : 'Oferta Académica'}
+                  {isAdmin ? 'Carreras y Planes' : 'Mallas Curriculares'}
+                </Link>
+              </li>
+            )}
+
+            {authenticated && (isAdmin || isTeacher) && (
+              <li className="nav-item">
+                <Link
+                  className={`nav-link ${location.pathname === '/academic-offer' ? 'active fw-bold' : ''}`}
+                  to="/academic-offer"
+                >
+                  <i className="bi bi-calendar3-range me-1"></i>
+                  Oferta Académica
                 </Link>
               </li>
             )}

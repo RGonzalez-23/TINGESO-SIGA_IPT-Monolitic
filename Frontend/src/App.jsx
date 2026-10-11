@@ -10,6 +10,7 @@ import StudentProfilePage from './pages/StudentProfilePage';
 import StudyPlanDetailPage from './pages/StudyPlanDetailPage';
 import TeacherListPage from './pages/TeacherListPage';
 import TeacherProfilePage from './pages/TeacherProfilePage';
+import AcademicOfferPage from './pages/AcademicOfferPage';
 
 // Protected Route Component based on User Authentication and Role
 const ProtectedRoute = ({ allowedRoles, children }) => {
@@ -139,6 +140,16 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={['TEACHER']}>
                     <TeacherProfilePage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Academic Offer & Sections Management: accessible to ADMIN and TEACHER (Epic 5) */}
+              <Route
+                path="/academic-offer"
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN', 'TEACHER']}>
+                    <AcademicOfferPage />
                   </ProtectedRoute>
                 }
               />
