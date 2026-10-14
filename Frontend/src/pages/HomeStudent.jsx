@@ -55,6 +55,14 @@ const HomeStudent = () => {
 
       {/* Action Cards */}
       <div className="row g-4 mb-4">
+        <div className="col-12">
+          <div className="card border-0 shadow-sm rounded-4 border-start border-4 border-success">
+            <div className="card-body p-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
+              <div><span className="badge bg-success mb-2">Épica 6</span><h4 className="fw-bold mb-1">Inscripción Académica</h4><p className="text-muted small mb-0">Revisa la oferta elegible, cupos y horarios del período abierto.</p></div>
+              <Link to="/enrollment" className="btn btn-success fw-semibold"><i className="bi bi-pencil-square me-2" />Inscribir asignaturas</Link>
+            </div>
+          </div>
+        </div>
         {/* Card 1: Perfil y Seguridad */}
         <div className="col-12 col-md-6">
           <div className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">

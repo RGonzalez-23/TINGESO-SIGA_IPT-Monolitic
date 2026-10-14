@@ -23,6 +23,7 @@ const StudentDetailPage = () => {
     maternalLastName: '',
     careerCode: '',
     academicStatus: 'REGULAR',
+    isMatriculated: false,
   });
   // Password change inside edit modal
   const [newPassword, setNewPassword] = useState('');
@@ -67,6 +68,7 @@ const StudentDetailPage = () => {
       maternalLastName: student.maternalLastName,
       careerCode: student.careerCode,
       academicStatus: student.academicStatus,
+      isMatriculated: Boolean(student.isMatriculated),
     });
     setNewPassword('');
     setIsTemporaryPassword(true);
@@ -226,6 +228,10 @@ const StudentDetailPage = () => {
                     {student.careerCode} - {student.careerName}
                   </span>
                 </div>
+                <div className="col-12">
+                  <span className="text-muted small d-block">Matrícula período actual:</span>
+                  <span className={`badge ${student.isMatriculated ? 'bg-success' : 'bg-secondary'}`}>{student.isMatriculated ? 'MATRICULADO' : 'NO MATRICULADO'}</span>
+                </div>
                 <div className="col-6">
                   <span className="text-muted small d-block">Plan de Estudios:</span>
                   <span className="badge bg-secondary">{student.studyPlanCode}</span>
@@ -374,6 +380,12 @@ const StudentDetailPage = () => {
                         required
                       />
                     </div>
+                  </div>
+
+                  <div className="form-check form-switch mb-3 p-3 bg-light border rounded">
+                    <input className="form-check-input ms-0 me-2" type="checkbox" role="switch" id="matriculatedCheck" checked={editFormData.isMatriculated} onChange={(e) => setEditFormData({ ...editFormData, isMatriculated: e.target.checked })} />
+                    <label className="form-check-label fw-semibold" htmlFor="matriculatedCheck">Estudiante matriculado en el período actual</label>
+                    <div className="form-text">Solo estudiantes regulares y matriculados pueden inscribir asignaturas.</div>
                   </div>
 
                   <div className="row mb-3">

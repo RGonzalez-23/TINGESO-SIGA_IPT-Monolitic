@@ -11,6 +11,8 @@ import StudyPlanDetailPage from './pages/StudyPlanDetailPage';
 import TeacherListPage from './pages/TeacherListPage';
 import TeacherProfilePage from './pages/TeacherProfilePage';
 import AcademicOfferPage from './pages/AcademicOfferPage';
+import EnrollmentPage from './pages/EnrollmentPage';
+import TeacherSectionsPage from './pages/TeacherSectionsPage';
 
 // Protected Route Component based on User Authentication and Role
 const ProtectedRoute = ({ allowedRoles, children }) => {
@@ -124,6 +126,11 @@ function App() {
                 }
               />
 
+              <Route
+                path="/enrollment"
+                element={<ProtectedRoute allowedRoles={['STUDENT']}><EnrollmentPage /></ProtectedRoute>}
+              />
+
               {/* Teacher Management: only accessible to ADMIN (Epic 4) */}
               <Route
                 path="/teachers"
@@ -142,6 +149,11 @@ function App() {
                     <TeacherProfilePage />
                   </ProtectedRoute>
                 }
+              />
+
+              <Route
+                path="/teacher/sections"
+                element={<ProtectedRoute allowedRoles={['TEACHER']}><TeacherSectionsPage /></ProtectedRoute>}
               />
 
               {/* Academic Offer & Sections Management: accessible to ADMIN and TEACHER (Epic 5) */}

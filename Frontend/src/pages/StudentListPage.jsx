@@ -53,6 +53,14 @@ const StudentListPage = () => {
     }
   };
 
+  const getMatriculationBadgeClass = (isMatriculated) => {
+    switch (isMatriculated) {
+      case true: return 'matriculation-active';
+      case false: return 'matriculation-inactive';
+      default: return 'bg-secondary';
+    }
+  };
+
   // Filter students based on search term and role access rules
   const filteredStudents = students.filter((st) => {
     // If Teacher: only access students in REGULAR status
@@ -164,6 +172,7 @@ const StudentListPage = () => {
                 <th>Carrera</th>
                 <th>Plan</th>
                 <th>Estado</th>
+                <th>Matrícula</th>
                 <th className="text-end">Acciones</th>
               </tr>
             </thead>
@@ -196,6 +205,11 @@ const StudentListPage = () => {
                     <td>
                       <span className={`badge px-2 py-1 rounded-pill ${getStatusBadgeClass(st.academicStatus)}`}>
                         {st.academicStatus === 'RETIRO_TEMPORAL' ? 'RETIRO TEMPORAL' : st.academicStatus}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`badge text-dark border ${getMatriculationBadgeClass(st.isMatriculated)}`}>
+                        {st.isMatriculated === true ? 'Activa' : 'Inactiva'}
                       </span>
                     </td>
                     <td className="text-end">

@@ -96,12 +96,28 @@ const Navbar = () => {
 
             {authenticated && isTeacher && (
               <li className="nav-item">
+                <Link className={`nav-link ${location.pathname === '/teacher/sections' ? 'active fw-bold' : ''}`} to="/teacher/sections">
+                  <i className="bi bi-people-fill me-1"></i>Mis Secciones
+                </Link>
+              </li>
+            )}
+
+            {authenticated && isTeacher && (
+              <li className="nav-item">
                 <Link
                   className={`nav-link ${location.pathname === '/teacher/profile' ? 'active fw-bold' : ''}`}
                   to="/teacher/profile"
                 >
                   <i className="bi bi-person-badge-fill me-1"></i>
                   Mi Perfil Docente
+                </Link>
+              </li>
+            )}
+
+            {authenticated && isStudent && (
+              <li className="nav-item">
+                <Link className={`nav-link ${location.pathname === '/enrollment' ? 'active fw-bold' : ''}`} to="/enrollment">
+                  <i className="bi bi-pencil-square me-1"></i>Inscripción Académica
                 </Link>
               </li>
             )}

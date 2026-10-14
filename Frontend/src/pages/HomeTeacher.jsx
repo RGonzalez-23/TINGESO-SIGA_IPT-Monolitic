@@ -30,6 +30,14 @@ const HomeTeacher = () => {
 
       {/* Action Cards */}
       <div className="row g-4 mb-4">
+        <div className="col-12">
+          <div className="card border-0 shadow-sm rounded-4 border-start border-4 border-info">
+            <div className="card-body p-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
+              <div><span className="badge bg-info text-dark mb-2">Épica 6</span><h4 className="fw-bold mb-1">Mis Secciones</h4><p className="text-muted small mb-0">Consulta tus secciones asignadas y las nóminas de estudiantes.</p></div>
+              <Link to="/teacher/sections" className="btn btn-info text-white fw-semibold"><i className="bi bi-people me-2" />Ver mis secciones</Link>
+            </div>
+          </div>
+        </div>
         {/* Card 1: Teacher Profile & Password */}
         <div className="col-12 col-md-4">
           <div className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden border-top border-4 border-primary">
