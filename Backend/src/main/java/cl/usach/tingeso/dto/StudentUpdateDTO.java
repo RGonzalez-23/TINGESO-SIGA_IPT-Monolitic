@@ -48,4 +48,9 @@ public class StudentUpdateDTO {
      * Only REGULAR, POSTERGACION, or RETIRO_TEMPORAL are permitted manually.
      */
     private AcademicStatus academicStatus;
+
+    /**
+     * Matriculation flag for current period (only editable by ADMIN).
+     */
+    private Boolean isMatriculated;
 }

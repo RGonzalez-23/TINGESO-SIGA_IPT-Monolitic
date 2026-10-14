@@ -27,4 +27,5 @@ public class StudentResponseDTO {
     private String careerName;
     private Long studyPlanId;
     private String studyPlanCode;
+    private Boolean isMatriculated;
 }

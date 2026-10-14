@@ -52,4 +52,9 @@ public class StudentRegistrationDTO {
      */
     @NotBlank(message = "Career code is required")
     private String careerCode;
+
+    /**
+     * Optional matriculation flag upon registration (defaults to false if null).
+     */
+    private Boolean isMatriculated;
 }
