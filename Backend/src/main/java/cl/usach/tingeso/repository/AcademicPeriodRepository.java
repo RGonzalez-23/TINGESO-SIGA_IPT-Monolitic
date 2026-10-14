@@ -32,4 +32,11 @@ public interface AcademicPeriodRepository extends JpaRepository<AcademicPeriodEn
      * Finds the currently open academic period.
      */
     java.util.Optional<AcademicPeriodEntity> findFirstByIsOpenTrue();
+
+    /**
+     * Finds the single currently open academic period.
+     */
+    default java.util.Optional<AcademicPeriodEntity> findByIsOpenTrue() {
+        return findFirstByIsOpenTrue();
+    }
 }

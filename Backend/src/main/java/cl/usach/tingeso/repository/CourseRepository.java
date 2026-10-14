@@ -23,6 +23,16 @@ public interface CourseRepository extends JpaRepository<CourseEntity, Long> {
     List<CourseEntity> findByStudyPlan_IdOrderBySemesterAscCodeAsc(Long studyPlanId);
 
     /**
+     * Retrieves all courses belonging to a specific study plan.
+     */
+    List<CourseEntity> findByStudyPlan_Id(Long studyPlanId);
+
+    /**
+     * Finds a course by its unique code across active plans.
+     */
+    Optional<CourseEntity> findByCode(String code);
+
+    /**
      * Retrieves courses for a specific study plan and semester.
      *
      * @param studyPlanId ID of the study plan

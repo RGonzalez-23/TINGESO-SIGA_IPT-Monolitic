@@ -10,6 +10,7 @@ import cl.usach.tingeso.entity.StudyPlanEntity;
 import cl.usach.tingeso.exception.BusinessRuleException;
 import cl.usach.tingeso.exception.ResourceNotFoundException;
 import cl.usach.tingeso.repository.CareerRepository;
+import cl.usach.tingeso.repository.EnrollmentRepository;
 import cl.usach.tingeso.repository.StudentRepository;
 import cl.usach.tingeso.repository.StudyPlanRepository;
 import cl.usach.tingeso.util.RunValidatorUtil;
@@ -36,6 +37,7 @@ public class StudentService {
     private final StudyPlanRepository studyPlanRepository;
     private final KeycloakUserService keycloakUserService;
     private final InstitutionalEmailService institutionalEmailService;
+    private final EnrollmentRepository enrollmentRepository;
 
     /**
      * Registers a new student in the institution.
@@ -85,6 +87,7 @@ public class StudentService {
                 .career(career)
                 .studyPlan(activePlan)
                 .academicStatus(AcademicStatus.REGULAR)
+                .isMatriculated(dto.getIsMatriculated() != null ? dto.getIsMatriculated() : false)
                 .build();
 
         StudentEntity saved = studentRepository.save(student);
@@ -143,6 +146,10 @@ public class StudentService {
                 throw new BusinessRuleException("The states EGRESADO and ELIMINADO cannot be assigned manually.");
             }
             student.setAcademicStatus(dto.getAcademicStatus());
+        }
+
+        if (dto.getIsMatriculated() != null) {
+            student.setIsMatriculated(dto.getIsMatriculated());
         }
 
         if (dto.getFirstName() != null && !dto.getFirstName().isBlank()) {
@@ -208,8 +215,7 @@ public class StudentService {
      * @return true if enrollments or history exist
      */
     public boolean hasEnrollmentsOrAcademicHistory(StudentEntity student) {
-        // Will be connected to EnrollmentRepository in Epics 6 & 7
-        return false;
+        return enrollmentRepository.existsByStudent_Run(student.getRun());
     }
 
     /**
@@ -249,6 +255,7 @@ public class StudentService {
                 .careerName(entity.getCareer() != null ? entity.getCareer().getName() : null)
                 .studyPlanId(entity.getStudyPlan() != null ? entity.getStudyPlan().getId() : null)
                 .studyPlanCode(entity.getStudyPlan() != null ? entity.getStudyPlan().getCode() : null)
+                .isMatriculated(entity.getIsMatriculated())
                 .build();
     }
 }

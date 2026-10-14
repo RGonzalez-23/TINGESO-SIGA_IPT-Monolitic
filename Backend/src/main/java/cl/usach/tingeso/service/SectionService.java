@@ -16,6 +16,7 @@ import cl.usach.tingeso.repository.CourseRepository;
 import cl.usach.tingeso.repository.SectionRepository;
 import cl.usach.tingeso.repository.TeacherRepository;
 import cl.usach.tingeso.repository.TimeBlockRepository;
+import cl.usach.tingeso.util.RunValidatorUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -65,6 +66,17 @@ public class SectionService {
         }
 
         return sections.stream()
+                .map(this::toResponseDTO)
+                .toList();
+    }
+
+    /**
+     * Retrieves all sections assigned to a specific teacher across all periods.
+     */
+    @Transactional(readOnly = true)
+    public List<SectionResponseDTO> getSectionsByTeacher(String teacherRun) {
+        String cleaned = RunValidatorUtil.cleanFormat(teacherRun);
+        return sectionRepository.findByTeacherRun(cleaned).stream()
                 .map(this::toResponseDTO)
                 .toList();
     }

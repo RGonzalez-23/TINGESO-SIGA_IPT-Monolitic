@@ -1,10 +1,12 @@
 package cl.usach.tingeso.controller;
 
+import cl.usach.tingeso.dto.EnrolledStudentDTO;
 import cl.usach.tingeso.dto.SectionCreateDTO;
 import cl.usach.tingeso.dto.SectionResponseDTO;
 import cl.usach.tingeso.dto.SectionUpdateDTO;
 import cl.usach.tingeso.exception.BusinessRuleException;
 import cl.usach.tingeso.exception.ResourceNotFoundException;
+import cl.usach.tingeso.service.EnrollmentService;
 import cl.usach.tingeso.service.SectionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,6 +43,7 @@ import java.util.Map;
 public class SectionController {
 
     private final SectionService sectionService;
+    private final EnrollmentService enrollmentService;
 
     /**
      * Retrieves course sections with optional filters by period, study plan, or teacher RUN.
@@ -130,6 +135,45 @@ public class SectionController {
             log.error("Error deleting section {}: {}", id, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "Error al eliminar la sección: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Retrieves all sections assigned to the currently authenticated teacher.
+     * Accessible by TEACHER.
+     */
+    @GetMapping("/teacher/my-sections")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<List<SectionResponseDTO>> getMyTeacherSections(Authentication authentication) {
+        String teacherRun = authentication.getName();
+        return ResponseEntity.ok(sectionService.getSectionsByTeacher(teacherRun));
+    }
+
+    /**
+     * Retrieves the list of students enrolled in a section.
+     * Accessible by the TEACHER assigned to that section, or ADMIN.
+     */
+    @GetMapping("/{id}/enrolled-students")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
+    public ResponseEntity<?> getEnrolledStudents(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        try {
+            boolean isAdmin = authentication != null && authentication.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .anyMatch(r -> r.equals("ROLE_ADMIN") || r.equals("ADMIN"));
+            String username = authentication != null ? authentication.getName() : "";
+            List<EnrolledStudentDTO> students = enrollmentService.getEnrolledStudentsForSection(id, username, isAdmin);
+            return ResponseEntity.ok(students);
+        } catch (BusinessRuleException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", e.getMessage()));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            log.error("Error retrieving enrolled students for section {}: {}", id, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Error al consultar alumnos de la sección: " + e.getMessage()));
         }
     }
 }

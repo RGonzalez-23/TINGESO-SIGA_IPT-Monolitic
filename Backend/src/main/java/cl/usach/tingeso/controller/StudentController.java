@@ -45,7 +45,7 @@ public class StudentController {
      * @return 200 OK with list of students, or 500 on unexpected error
      */
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getAllStudents() {
         try {
             List<StudentResponseDTO> students = studentService.getAllStudents();
@@ -59,13 +59,13 @@ public class StudentController {
 
     /**
      * Retrieves a student by their unique RUN.
-     * Accessible by ADMIN, TEACHER, or the STUDENT themselves.
+     * Accessible by ADMIN, or the STUDENT themselves.
      *
      * @param run National identification number
      * @return 200 OK with student data, 404 if not found, or 400 on invalid format
      */
     @GetMapping("/{run}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER') or (hasRole('STUDENT') and #run == authentication.name)")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('STUDENT') and #run == authentication.name)")
     public ResponseEntity<?> getStudentByRun(@PathVariable String run) {
         try {
             StudentResponseDTO student = studentService.getStudentByRun(run);

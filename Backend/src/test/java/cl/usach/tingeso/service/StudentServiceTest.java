@@ -56,6 +56,9 @@ class StudentServiceTest {
     @Mock
     private InstitutionalEmailService institutionalEmailService;
 
+    @Mock
+    private cl.usach.tingeso.repository.EnrollmentRepository enrollmentRepository;
+
     @InjectMocks
     private StudentService studentService;
 
@@ -424,6 +427,32 @@ class StudentServiceTest {
         assertThrows(ResourceNotFoundException.class, () ->
                 studentService.deleteStudent("12345678-5"));
         verify(studentRepository, never()).delete(any());
+    }
+
+    @Test
+    @DisplayName("Should throw BusinessRuleException when deleting student with existing enrollments")
+    void testDeleteStudent_WithEnrollments() {
+        when(studentRepository.findByRun("12345678-5")).thenReturn(Optional.of(sampleStudent));
+        when(enrollmentRepository.existsByStudent_Run("12345678-5")).thenReturn(true);
+
+        assertThrows(BusinessRuleException.class, () ->
+                studentService.deleteStudent("12345678-5"));
+        verify(studentRepository, never()).delete(any());
+    }
+
+    @Test
+    @DisplayName("Should update matriculation status successfully")
+    void testUpdateStudent_MatriculationStatus() {
+        when(studentRepository.findByRun("12345678-5")).thenReturn(Optional.of(sampleStudent));
+        when(studentRepository.save(any(StudentEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        StudentUpdateDTO dto = StudentUpdateDTO.builder()
+                .isMatriculated(true)
+                .build();
+
+        StudentResponseDTO res = studentService.updateStudent("12345678-5", dto);
+
+        assertTrue(res.getIsMatriculated());
     }
 
     // =========================================================================

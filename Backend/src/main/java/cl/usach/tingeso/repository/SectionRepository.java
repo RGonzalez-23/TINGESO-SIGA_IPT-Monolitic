@@ -43,6 +43,16 @@ public interface SectionRepository extends JpaRepository<SectionEntity, Long> {
     List<SectionEntity> findByTeacherRunAndAcademicPeriodId(String teacherRun, String academicPeriodId);
 
     /**
+     * Retrieves all sections assigned to a teacher across all periods.
+     */
+    List<SectionEntity> findByTeacherRun(String teacherRun);
+
+    /**
+     * Finds single section for a course in a given period (explicit underscore alias).
+     */
+    Optional<SectionEntity> findByCourse_IdAndAcademicPeriod_Id(Long courseId, String academicPeriodId);
+
+    /**
      * Checks if a teacher is assigned to any sections across the system.
      */
     boolean existsByTeacherRun(String teacherRun);
