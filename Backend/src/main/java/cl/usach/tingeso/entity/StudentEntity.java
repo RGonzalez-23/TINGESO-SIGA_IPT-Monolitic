@@ -69,6 +69,15 @@ public class StudentEntity {
     private AcademicStatus academicStatus = AcademicStatus.REGULAR;
 
     /**
+     * Matriculation flag for the academic period.
+     * True if the student is formally matriculated, false otherwise.
+     * Editable exclusively by the Academic Administrator.
+     */
+    @Column(name = "is_matriculated", nullable = false)
+    @Builder.Default
+    private Boolean isMatriculated = false;
+
+    /**
      * The career in which the student is enrolled.
      * Cannot be changed if the student has enrollments or academic history.
      */
