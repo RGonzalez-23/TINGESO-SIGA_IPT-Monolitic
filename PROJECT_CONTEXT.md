@@ -156,9 +156,9 @@ Una vez implementadas y validadas las 7 épicas y alcanzado el umbral de cobertu
 | **Épica 2: Carreras y Planes** | CRUD carreras y planes, activación | **92% inst / 95% líneas** (55/55 tests) | Vistas admin/teacher, "Mi malla" | **COMPLETADO Y VALIDADO** |
 | **Épica 3: Asignaturas y Prerrequisitos** | Endpoints REST, validaciones TEL/SCT, precarga Apéndice A | **93% inst / 96% líneas** (74/74 tests) | Malla interactiva, filtros, modales CRUD con cálculo TEL en vivo | **COMPLETADO Y VALIDADO** |
 | **Épica 4: Gestión de Docentes** | Endpoints REST, resolución de colisiones, Keycloak | **94% inst / 96% líneas** (88/88 tests) | Nómina docente, previsualización email, perfil docente y clave | **COMPLETADO Y VALIDADO** |
-| **Épica 5: Oferta Académica y Secciones** | Pendiente | Pendiente | Pendiente | **SIGUIENTE PASO** |
-| **Épica 6: Inscripción Académica** | Pendiente | Pendiente | Pendiente | **PENDIENTE** |
-| **Épica 7: Calificaciones y Cierre** | Pendiente | Pendiente | Pendiente | **PENDIENTE** |
+| **Épica 5: Oferta Académica y Secciones** | Períodos, secciones, bloques TEL, control choque horario | **91% inst / 95.6% líneas** (121/121 tests) | Gestión de períodos, horario semanal visual, modal sección | **COMPLETADO Y VALIDADO** |
+| **Épica 6: Inscripción Académica** | 10 reglas de negocio, CRUD inscripciones, endpoints teacher/student | Pendiente medición (>= 18 tests) | Pendiente | **BACKEND COMPLETADO / FRONTEND PENDIENTE** |
+| **Épica 7: Calificaciones y Cierre** | Pendiente | Pendiente | Pendiente | **SIGUIENTE PASO** |
 
 ### Resumen de lo Implementado en Épica 1 y Seguridad (Keycloak):
 - **Backend:**
@@ -286,17 +286,69 @@ Una vez implementadas y validadas las 7 épicas y alcanzado el umbral de cobertu
   - **Página de Oferta Académica:** [AcademicOfferPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/AcademicOfferPage.jsx) (`/academic-offer`) con administración de períodos, filtros, KPIs, listado de secciones, horario semanal visual (5x6), y modal interactivo para creación/edición con código de sección `"${course.code}-A-1"`.
   - **Calidad:** 0 errores en ESLint y compilación en Vite.
 
----
-
-## 5. Hoja de Ruta Próxima Sesión: Épica 6 (Inscripción Académica de Estudiantes)
-
-1. **Modelado y Reglas de Negocio:**
-   - Inscripción académica (`EnrollmentEntity`): asignaturas por plan, verificación de prerrequisitos, créditos máximos por semestre, verificación de choque de horarios y control de cupos.
-2. **Backend:** Entidades, repositorios, servicios y endpoints REST con cobertura JaCoCo $\ge 90\%$.
-3. **Frontend:** Módulo de inscripción para estudiantes con validación en tiempo real y vista de comprobante de horario.
-
----
-
-## 6. Instrucción para Continuar la Próxima Sesión
-Al iniciar una nueva sesión en Antigravity desde otra computadora tras clonar/hacer `git pull`:
-> *"Lee el archivo `PROJECT_CONTEXT.md` para cargar todo el contexto, arquitectura y estado de avance de SIGA IPT. Procedamos a desarrollar la Épica 6 (Inscripción Académica de Estudiantes) siguiendo la sección 5."*
+---
+
+### 4.6 Épica 6: Inscripción Académica (Backend Completado)
+- **Backend Implementado:**
+  - **Enum:** [EnrollmentStatus.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/entity/EnrollmentStatus.java) con estados `INSCRITA`, `APROBADA`, `REPROBADA`, `ANULADA`.
+  - **Entidad JPA:** [EnrollmentEntity.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/entity/EnrollmentEntity.java) — relaciones `@ManyToOne` con `StudentEntity`, `CourseEntity`, `SectionEntity` y `AcademicPeriodEntity`; campos `enrollmentDate`, `cancellationDate`, `status` (enum), `finalGrade` (nullable).
+  - **Atributo `isMatriculated`:** Añadido a [StudentEntity.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/entity/StudentEntity.java) (boolean, por defecto `false`). Gestionado exclusivamente por `ADMIN`. DTOs `StudentResponseDTO`, `StudentRegistrationDTO` y `StudentUpdateDTO` actualizados.
+  - **Repositorio:** [EnrollmentRepository.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/repository/EnrollmentRepository.java) con queries: `findByStudentRun`, `findByStudentRunAndPeriodId`, `countByStudentRunAndPeriodIdAndStatusIn`, `findByStudentRunAndCourseIdAndStatus`, `existsByStudentRunAndCourseIdAndPeriodId`, entre otras.
+  - **DTOs de Inscripción:**
+    - [EnrollmentRequestDTO.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/dto/EnrollmentRequestDTO.java): `studentRun`, `sectionId`.
+    - [EnrollmentResponseDTO.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/dto/EnrollmentResponseDTO.java): datos completos de la inscripción.
+    - [AvailableCourseOfferDTO.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/dto/AvailableCourseOfferDTO.java): oferta disponible para el estudiante (asignatura + sección + bloques + cupos).
+    - [EnrolledStudentDTO.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/dto/EnrolledStudentDTO.java): nómina de alumnos de una sección para docentes.
+  - **Servicio:** [EnrollmentService.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/service/EnrollmentService.java) con **10 reglas de negocio** validadas al registrar:
+    1. Período académico **ABIERTO**.
+    2. Estudiante en estado **REGULAR** y con `isMatriculated = true`.
+    3. Asignatura perteneciente al **plan de estudios** del estudiante.
+    4. Asignatura **no aprobada** previamente (`APROBADA` bloquea; `REPROBADA` permite reinscripción).
+    5. **Prerrequisitos** todos en estado `APROBADA`.
+    6. **Sin duplicado** en el mismo período académico.
+    7. Límite de asignaturas: mínimo 3, máximo 6 (excepto si faltan menos de 3 para egresar).
+    8. **Progresión por semestre:** no se puede inscribir asignatura de semestre superior si existen asignaturas de semestres inferiores disponibles con sección y prerrequisitos cumplidos.
+    9. **Cupo disponible** en la sección (`enrolledCount < capacity`). Al inscribir, se incrementa `enrolledCount`.
+    10. **Sin choque de horario** entre los bloques de las secciones inscritas en el mismo período.
+  - **Cancelación de inscripción:** Libera un cupo (`enrolledCount--`) y pasa el estado a `ANULADA`; solo ejecutable con período `ABIERTO`.
+  - **Actualizaciones en otros servicios:**
+    - [StudentService.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/service/StudentService.java): Bloquea borrado físico y cambio de carrera si el estudiante tiene inscripciones.
+    - [SectionService.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/service/SectionService.java): Añadido `getSectionsByTeacher(run)` para consulta de secciones asignadas por docente.
+  - **Controladores REST:**
+    - [EnrollmentController.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/controller/EnrollmentController.java):
+      - `POST /api/enrollments/register` — registrar inscripción (rol `STUDENT`).
+      - `DELETE /api/enrollments/{id}` — cancelar inscripción (rol `STUDENT`).
+      - `GET /api/enrollments/available-offer` — oferta disponible para el alumno (rol `STUDENT`).
+      - `GET /api/enrollments/my-enrollments` — inscripciones activas del alumno (rol `STUDENT`).
+      - `POST /api/enrollments/seed-past` — sembrar historial previo de prueba (rol `ADMIN`).
+    - [SectionController.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/controller/SectionController.java) (endpoints adicionales):
+      - `GET /api/sections/teacher/my-sections` — secciones asignadas al docente autenticado (rol `TEACHER`).
+      - `GET /api/sections/{id}/enrolled-students` — nómina de alumnos inscritos (roles `TEACHER`, `ADMIN`).
+    - [StudentController.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/controller/StudentController.java): `GET /api/students` (listado completo) restringido a `ADMIN`.
+  - **Pruebas:** [EnrollmentServiceTest.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/test/java/cl/usach/tingeso/service/EnrollmentServiceTest.java) — cobertura completa de las 10 reglas (éxito + rechazo) + cancelación. 100% passing (`mvnw test`).
+- **Frontend:** Pendiente — módulo de inscripción para estudiantes, vista de mis secciones para docentes.
+
+---
+
+## 5. Hoja de Ruta Próxima Sesión: Épica 6 Frontend + Épica 7
+
+### 5.1 Épica 6 — Frontend Pendiente
+1. **Servicio HTTP:** Crear `enrollment.service.js` con llamadas a los endpoints de inscripción.
+2. **Vista Estudiante — Inscripción:** Nueva página (ej. `EnrollmentPage.jsx`) con:
+   - Lista de asignaturas disponibles (oferta filtrada por el backend con las 10 reglas).
+   - Indicadores de cupos, bloques horarios y prerrequisitos.
+   - Botón de inscribir / anular por asignatura.
+   - Comprobante / resumen de inscripciones activas con horario semanal.
+3. **Vista Docente — Mis Secciones:** Mostrar secciones asignadas al docente y nómina de alumnos inscritos.
+4. **Vista Admin — Matrícula de Estudiantes:** Toggle `isMatriculated` desde la ficha del estudiante.
+
+### 5.2 Épica 7 — Calificaciones y Cierre de Semestre (Pendiente)
+1. **Backend:** Endpoint para que el docente ingrese nota final por inscripción; servicio de cierre de período (consolidación, cambio de estados académicos, detección de egresados y eliminados).
+2. **Frontend:** Módulo de ingreso de calificaciones para docentes y vista de historial de notas para estudiantes.
+3. **Tests JaCoCo:** Verificar cobertura global >= 90% antes de empaquetar Docker.
+
+---
+
+## 6. Instrucción para Continuar la Próxima Sesión
+Al iniciar una nueva sesión en Antigravity desde otra computadora tras clonar/hacer `git pull`:
+> *"Lee el archivo `PROJECT_CONTEXT.md` para cargar todo el contexto, arquitectura y estado de avance de SIGA IPT. El backend de la Épica 6 (Inscripción Académica) está completo. Procede a implementar el frontend de la Épica 6 y luego la Épica 7 (Calificaciones y Cierre de Semestre) según la sección 5."*
