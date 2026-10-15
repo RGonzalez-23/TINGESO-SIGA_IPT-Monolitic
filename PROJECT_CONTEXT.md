@@ -362,64 +362,64 @@ Una vez implementadas y validadas las 7 épicas y alcanzado el umbral de cobertu
 
       - `GET /api/sections/{id}/enrolled-students` — nómina de alumnos inscritos (roles `TEACHER`, `ADMIN`).
 
+    - [TeacherController.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/controller/TeacherController.java): `GET /api/teachers` habilitado para `hasAnyRole('ADMIN', 'TEACHER')` permitiendo consulta del catálogo docente institucional en `/academic-offer`, manteniendo creación, edición y borrado protegidos exclusivamente para `ADMIN`.
     - [StudentController.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/controller/StudentController.java): `GET /api/students` (listado completo) restringido a `ADMIN`.
 
-  - **Pruebas:** [EnrollmentServiceTest.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/test/java/cl/usach/tingeso/service/EnrollmentServiceTest.java) — cobertura completa de las 10 reglas (éxito + rechazo) + cancelación. 100% passing (`mvnw test`).
+  - **Pruebas:** [EnrollmentServiceTest.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/test/java/cl/usach/tingeso/service/EnrollmentServiceTest.java) — cobertura completa de las 10 reglas (éxito + rechazo) + cancelación. 100% passing (145/145 tests en verde con `mvnw test`).
 
-- **Frontend Implementado:**
-  - [enrollment.service.js](Frontend/src/services/enrollment.service.js) consume la oferta, inscripciones activas, registro y anulación.
-  - [EnrollmentPage.jsx](Frontend/src/pages/EnrollmentPage.jsx) muestra la oferta filtrada por backend, cupos, prerrequisitos, bloques, inscripción/anulación y horario semanal.
-  - [TeacherSectionsPage.jsx](Frontend/src/pages/TeacherSectionsPage.jsx) muestra las secciones del docente y sus nóminas bajo demanda.
-  - [StudentDetailPage.jsx](Frontend/src/pages/StudentDetailPage.jsx) incorpora el toggle Admin de matrícula del período actual.
-  - Rutas y navegación protegidas por rol para estudiantes y docentes.
-
-
-
----
-
-
-
-## 5. Hoja de Ruta Próxima Sesión: Épica 6 Frontend + Épica 7
-
-
-
-### 5.1 Épica 6 — Frontend Implementado
-
-1. **Servicio HTTP:** Crear `enrollment.service.js` con llamadas a los endpoints de inscripción.
-
-2. **Vista Estudiante — Inscripción:** Nueva página (ej. `EnrollmentPage.jsx`) con:
-
-   - Lista de asignaturas disponibles (oferta filtrada por el backend con las 10 reglas).
-
-   - Indicadores de cupos, bloques horarios y prerrequisitos.
-
-   - Botón de inscribir / anular por asignatura.
-
-   - Comprobante / resumen de inscripciones activas con horario semanal.
-
-3. **Vista Docente — Mis Secciones:** Mostrar secciones asignadas al docente y nómina de alumnos inscritos.
-
-4. **Vista Admin — Matrícula de Estudiantes:** Toggle `isMatriculated` desde la ficha del estudiante.
-
-
-
-### 5.2 Épica 7 — Calificaciones y Cierre de Semestre (Pendiente)
-
-1. **Backend:** Endpoint para que el docente ingrese nota final por inscripción; servicio de cierre de período (consolidación, cambio de estados académicos, detección de egresados y eliminados).
-
-2. **Frontend:** Módulo de ingreso de calificaciones para docentes y vista de historial de notas para estudiantes.
-
-3. **Tests JaCoCo:** Verificar cobertura global >= 90% antes de empaquetar Docker.
-
-
+- **Frontend Implementado, Refinado y Validado (Completado y Probado):**
+  - [enrollment.service.js](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/services/enrollment.service.js): Servicio cliente para oferta disponible con elegibilidad, inscripciones activas, registro por lote y anulación.
+  - [section-roster.service.js](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/services/section-roster.service.js): Servicio para consulta de secciones asignadas al docente autenticado y nómina de alumnos inscritos.
+  - [EnrollmentPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/EnrollmentPage.jsx): Módulo integral de auto-servicio de inscripción para estudiantes en `/enrollment`:
+    - Selección múltiple de asignaturas (batch) cumpliendo la regla de mínimo 3 y máximo 6 asignaturas por período.
+    - Filtros por semestre (1 a 4) y buscador en tiempo real por nombre, código o sección.
+    - Panel lateral interactivo `sticky-lg-top` con scroll vertical propio y contenedor interno de asignaturas preseleccionadas con altura acotada (`maxHeight: 135px`), garantizando que el botón "Confirmar Inscripción" nunca quede cortado ni se desborde al sumar múltiples materias.
+    - Detección visual en tiempo real de colisiones/topes de horario y advertencia de regla de progresión curricular.
+    - Grilla semanal (5x6) interactiva colapsable mediante acordeón, diferenciando asignaturas confirmadas (verde), preseleccionadas (azul) y colisiones (rojo).
+    - Indicador visual refinado y discreto para asignaturas ya inscritas: tarjeta con fondo blanco puro (`bg-white`), borde lateral verde sutil (`border-start border-4 border-success`) y badge pill en verde pastel suave (`bg-success bg-opacity-10 text-success border border-success border-opacity-25`).
+    - Gestión de inscripciones activas con opción de anulación segura y liberación automática de cupos.
+  - [TeacherSectionsPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/TeacherSectionsPage.jsx): Portal docente en `/teacher/sections` con resumen de cursos asignados, porcentaje de ocupación de cupos, horarios, desplegable de nómina oficial de alumnos con buscador interno interactivo en vivo (`Buscar en nómina (nombre, RUN)...`) activo incondicionalmente siempre que la sección tenga alumnos inscritos (`currentRoster.length > 0`) y botón de copiado de correos de la sección.
+  - [AcademicOfferPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/AcademicOfferPage.jsx): Vista de consulta general de oferta académica institucional accesible para ADMIN y TEACHER, con carga defensiva no bloqueante de catálogos auxiliares mediante `.catch()`.
+  - [StudentDetailPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/StudentDetailPage.jsx): Switch administrativo para conmutar `isMatriculated` (estudiante matriculado en el período actual).
+  - [StudentListPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/StudentListPage.jsx): Indicador badge de estado de matrícula en el período actual.
+  - Navegación y Permisos: [Navbar.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/components/Navbar.jsx), [App.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/App.jsx) y [HomeTeacher.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/HomeTeacher.jsx) ajustados para restringir `/students` únicamente a `ADMIN`, canalizando la consulta de estudiantes del docente exclusivamente a través de sus secciones asignadas (`/teacher/sections`).
+  - Calidad: 0 errores en ESLint (`npm run lint`), compilación limpia en `vite build`.
 
 ---
 
+## 5. Hoja de Ruta Próxima Sesión: Épica 7 — Calificaciones y Cierre de Semestre
 
+### 5.1 Estado Actual de Épicas
+- **Épica 1:** Autenticación y Autorización (Keycloak + Spring Security + SPA) $\rightarrow$ **100% Completa**.
+- **Épica 2:** Gestión de Carreras y Planes de Estudio $\rightarrow$ **100% Completa**.
+- **Épica 3:** Gestión de Asignaturas y Mallas Curriculares $\rightarrow$ **100% Completa**.
+- **Épica 4:** Gestión Docente $\rightarrow$ **100% Completa**.
+- **Épica 5:** Oferta Académica y Secciones $\rightarrow$ **100% Completa**.
+- **Épica 6:** Inscripción Académica y Secciones Docentes $\rightarrow$ **100% Completa (Backend & Frontend probados)**.
+- **Épica 7:** Calificaciones y Cierre de Semestre $\rightarrow$ **Pendiente de Inicio**.
+
+### 5.2 Épica 7 — Calificaciones y Cierre de Semestre (Próxima Tarea)
+1. **Backend:**
+   - Endpoint para que el docente ingrese la nota final por inscripción (`finalGrade`, escala 1.0 a 7.0, nota mínima de aprobación 4.0) en sus secciones asignadas.
+   - Servicio de cierre de período académico:
+     - Consolidación de actas finales de notas.
+     - Transición de estados de inscripciones de `EN_CURSO` a `APROBADA` o `REPROBADA`.
+     - Actualización de situación académica del estudiante: detección automática de egresados (aprobadas todas las asignaturas de su plan) y alumnos en causal de eliminación según repitencias de asignaturas (Regla de repitencia del IPT).
+     - Cierre formal del período académico (`isOpen = false`).
+2. **Frontend:**
+   - Módulo de ingreso y envío de calificaciones para docentes en sus secciones (`/teacher/sections` o subvista de actas).
+   - Vista de historial académico y notas para estudiantes en su perfil (`/profile`).
+   - Panel de cierre formal de período para el Administrador Académico (`/academic-offer`).
+3. **Tests JaCoCo & Integración:**
+   - Pruebas unitarias de la capa de servicio de la Épica 7.
+   - Pruebas de integración del flujo completo de cierre de semestre.
+   - Auditoría de cobertura global $\ge 90\%$ antes del empaquetado final con Docker.
+
+---
 
 ## 6. Instrucción para Continuar la Próxima Sesión
 
 Al iniciar una nueva sesión en Antigravity desde otra computadora tras clonar/hacer `git pull`:
 
-> *"Lee el archivo `PROJECT_CONTEXT.md` para cargar todo el contexto, arquitectura y estado de avance de SIGA IPT. El backend de la Épica 6 (Inscripción Académica) está completo. Procede a implementar el frontend de la Épica 6 y luego la Épica 7 (Calificaciones y Cierre de Semestre) según la sección 5."*
+> *"Lee el archivo `PROJECT_CONTEXT.md` para cargar todo el contexto, arquitectura y estado de avance de SIGA IPT. Las Épicas 1 a 6 están 100% implementadas, testeadas y validadas tanto en Backend como en Frontend. Procede a implementar la **Épica 7: Calificaciones y Cierre de Semestre** según la hoja de ruta descrita en la sección 5."*
 

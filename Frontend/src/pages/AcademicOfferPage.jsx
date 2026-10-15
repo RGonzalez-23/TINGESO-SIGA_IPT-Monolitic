@@ -912,7 +912,7 @@ const AcademicOfferPage = () => {
             </span>
           </div>
           <div className="table-responsive">
-            <table className="table table-bordered mb-0 text-center align-middle" style={{ minWidth: '800px' }}>
+            <table className="table table-bordered mb-0 text-center align-middle schedule-matrix-table" style={{ minWidth: '800px' }}>
               <thead className="table-light">
                 <tr>
                   <th style={{ width: '130px' }}>Módulo</th>
