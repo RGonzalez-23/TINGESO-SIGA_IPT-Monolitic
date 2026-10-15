@@ -44,10 +44,10 @@ public class TeacherController {
 
     /**
      * Retrieves all teachers with optional status and search filtering.
-     * Accessible by ADMIN.
+     * Accessible by ADMIN and TEACHER.
      */
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
     public ResponseEntity<List<TeacherResponseDTO>> getAllTeachers(
             @RequestParam(required = false) Boolean active,
             @RequestParam(required = false) String search

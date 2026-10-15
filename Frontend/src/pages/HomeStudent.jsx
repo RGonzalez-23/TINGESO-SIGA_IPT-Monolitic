@@ -35,14 +35,14 @@ const HomeStudent = () => {
         }}
       >
         <div style={{ maxWidth: '700px' }}>
-          <div className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-white bg-opacity-20 mb-3 text-white small fw-semibold">
+          <div className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-white bg-opacity-20 mb-3 text-black small fw-semibold">
             <i className="bi bi-mortarboard"></i>
             <span>Portal del Estudiante IPT</span>
           </div>
           <h1 className="display-6 fw-bold mb-2">
             ¡Hola, {student?.firstName || user?.name || 'Estudiante'}!
           </h1>
-          <p className="lead mb-0 text-white-50 fs-6">
+          <p className="lead mb-0 text-white-75 fs-6">
             Bienvenido/a a tu portal de autoservicio académico en el Instituto Profesional de Tecnología.
             {student?.careerName && (
               <span className="d-block mt-1 text-white">

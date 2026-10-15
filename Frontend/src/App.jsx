@@ -86,11 +86,11 @@ function App() {
                 }
               />
 
-              {/* Student Management: accessible to ADMIN and TEACHER */}
+              {/* Student Management: accessible to ADMIN */}
               <Route
                 path="/students"
                 element={
-                  <ProtectedRoute allowedRoles={['ADMIN', 'TEACHER']}>
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
                     <StudentListPage />
                   </ProtectedRoute>
                 }
@@ -106,11 +106,11 @@ function App() {
                 }
               />
 
-              {/* Student Detail: accessible to ADMIN and TEACHER */}
+              {/* Student Detail: accessible to ADMIN */}
               <Route
                 path="/students/:run"
                 element={
-                  <ProtectedRoute allowedRoles={['ADMIN', 'TEACHER']}>
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
                     <StudentDetailPage />
                   </ProtectedRoute>
                 }

@@ -94,7 +94,10 @@ const AcademicOfferPage = () => {
         const [pRes, cRes, tRes, carRes] = await Promise.all([
           academicPeriodService.getAll(),
           courseService.getAllCourses(),
-          teacherService.getAll({ active: true }),
+          teacherService.getAll({ active: true }).catch((err) => {
+            console.warn('Could not load teachers catalog for current role:', err);
+            return { data: [] };
+          }),
           careerService.getAllCareers(),
         ]);
 
@@ -489,9 +492,9 @@ const AcademicOfferPage = () => {
         <div className="position-relative z-1">
           <div className="d-flex flex-wrap align-items-center justify-content-between gap-3">
             <div>
-              <div className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-white bg-opacity-20 backdrop-blur mb-3 text-white small fw-semibold">
+              <div className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-white bg-opacity-20 backdrop-blur mb-3 text-black small fw-semibold">
                 <i className="bi bi-calendar3-range"></i>
-                <span>Gestión de Oferta Académica y Secciones</span>
+                {isAdmin ? <span>Gestión de Oferta Académica y Secciones</span> : <span>Oferta Académica</span>}
               </div>
               <h1 className="display-6 fw-bold mb-2">Oferta Académica IPT</h1>
               <p className="lead mb-0 text-white-50 fs-6" style={{ maxWidth: '700px' }}>
@@ -589,10 +592,10 @@ const AcademicOfferPage = () => {
         >
           <i
             className={`bi ${alert.type === 'success'
-                ? 'bi-check-circle-fill'
-                : alert.type === 'danger'
-                  ? 'bi-exclamation-triangle-fill'
-                  : 'bi-info-circle-fill'
+              ? 'bi-check-circle-fill'
+              : alert.type === 'danger'
+                ? 'bi-exclamation-triangle-fill'
+                : 'bi-info-circle-fill'
               } me-2`}
           ></i>
           {alert.message}
@@ -1284,9 +1287,9 @@ const AcademicOfferPage = () => {
                       <div className="d-flex align-items-center gap-2">
                         <span
                           className={`badge fs-6 px-3 py-2 rounded-pill ${createSectionForm.selectedBlockCodes.size === requiredBlocksCount &&
-                              requiredBlocksCount > 0
-                              ? 'bg-success'
-                              : 'bg-warning text-dark'
+                            requiredBlocksCount > 0
+                            ? 'bg-success'
+                            : 'bg-warning text-dark'
                             }`}
                         >
                           Seleccionados: {createSectionForm.selectedBlockCodes.size} de{' '}
@@ -1348,10 +1351,10 @@ const AcademicOfferPage = () => {
                                     <div className="p-2 rounded-2 d-flex flex-column align-items-center justify-content-center h-100">
                                       <span
                                         className={`font-monospace fw-bold ${isSelected
-                                            ? 'text-primary'
-                                            : isBusy
-                                              ? 'text-danger'
-                                              : 'text-dark'
+                                          ? 'text-primary'
+                                          : isBusy
+                                            ? 'text-danger'
+                                            : 'text-dark'
                                           }`}
                                       >
                                         {code}
@@ -1491,8 +1494,8 @@ const AcademicOfferPage = () => {
                       </div>
                       <span
                         className={`badge fs-6 px-3 py-2 rounded-pill ${editSectionForm.selectedBlockCodes.size === sectionToEdit.requiredBlocksCount
-                            ? 'bg-success'
-                            : 'bg-warning text-dark'
+                          ? 'bg-success'
+                          : 'bg-warning text-dark'
                           }`}
                       >
                         Seleccionados: {editSectionForm.selectedBlockCodes.size} de{' '}
@@ -1552,10 +1555,10 @@ const AcademicOfferPage = () => {
                                     <div className="p-2 rounded-2 d-flex flex-column align-items-center justify-content-center h-100">
                                       <span
                                         className={`font-monospace fw-bold ${isSelected
-                                            ? 'text-primary'
-                                            : isBusy
-                                              ? 'text-danger'
-                                              : 'text-dark'
+                                          ? 'text-primary'
+                                          : isBusy
+                                            ? 'text-danger'
+                                            : 'text-dark'
                                           }`}
                                       >
                                         {code}

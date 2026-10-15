@@ -220,7 +220,6 @@ const StudentListPage = () => {
                           title="Ver Ficha y Opciones"
                         >
                           <i className="bi bi-eye-fill"></i>
-                          <span>Ver Ficha y Opciones</span>
                         </Link>
                         {isAdmin && (
                           <button

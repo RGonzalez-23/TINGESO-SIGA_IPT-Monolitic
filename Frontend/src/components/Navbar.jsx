@@ -46,14 +46,14 @@ const Navbar = () => {
               </li>
             )}
 
-            {authenticated && (isAdmin || isTeacher) && (
+            {authenticated && isAdmin && (
               <li className="nav-item">
                 <Link
                   className={`nav-link ${location.pathname === '/students' ? 'active fw-bold' : ''}`}
                   to="/students"
                 >
                   <i className="bi bi-people-fill me-1"></i>
-                  {isAdmin ? 'Gestión de Estudiantes' : 'Consulta de Alumnos'}
+                  Gestión de Estudiantes
                 </Link>
               </li>
             )}

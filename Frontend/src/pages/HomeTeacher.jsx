@@ -30,14 +30,6 @@ const HomeTeacher = () => {
 
       {/* Action Cards */}
       <div className="row g-4 mb-4">
-        <div className="col-12">
-          <div className="card border-0 shadow-sm rounded-4 border-start border-4 border-info">
-            <div className="card-body p-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
-              <div><span className="badge bg-info text-dark mb-2">Épica 6</span><h4 className="fw-bold mb-1">Mis Secciones</h4><p className="text-muted small mb-0">Consulta tus secciones asignadas y las nóminas de estudiantes.</p></div>
-              <Link to="/teacher/sections" className="btn btn-info text-white fw-semibold"><i className="bi bi-people me-2" />Ver mis secciones</Link>
-            </div>
-          </div>
-        </div>
         {/* Card 1: Teacher Profile & Password */}
         <div className="col-12 col-md-4">
           <div className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden border-top border-4 border-primary">
@@ -70,33 +62,33 @@ const HomeTeacher = () => {
           </div>
         </div>
 
-        {/* Card 2: Student Consultation */}
+        {/* Card 2: Teacher Sections and Rosters (Epic 6) */}
         <div className="col-12 col-md-4">
-          <div className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+          <div className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden border-top border-4 border-info">
             <div className="card-body p-4 d-flex flex-column">
               <div className="d-flex align-items-center justify-content-between mb-3">
                 <div
                   className="rounded-3 p-3 d-flex align-items-center justify-content-center text-info"
                   style={{ backgroundColor: '#ecfeff', width: '56px', height: '56px' }}
                 >
-                  <i className="bi bi-people fs-3"></i>
+                  <i className="bi bi-people-fill fs-3"></i>
                 </div>
                 <span className="badge bg-info bg-opacity-10 text-info px-3 py-2 rounded-pill fw-semibold">
-                  Alumnos
+                  Docencia Activa
                 </span>
               </div>
-              <h4 className="fw-bold text-dark mb-2">Consulta de Estudiantes</h4>
+              <h4 className="fw-bold text-dark mb-2">Mis Secciones y Nóminas</h4>
               <p className="text-muted small mb-4 flex-grow-1">
-                Visualiza el listado de alumnos por carrera técnica, verifica su estado académico y accede a fichas de consulta.
+                Consulta los cursos asignados a tu docencia, los horarios semanales y revisa la nómina de estudiantes inscritos en tus secciones.
               </p>
               <div className="pt-2 border-top">
                 <Link
-                  to="/students"
+                  to="/teacher/sections"
                   className="btn btn-info text-white fw-semibold px-3 py-2 rounded-3 w-100 d-flex align-items-center justify-content-center gap-2"
-                  style={{ backgroundColor: '#0e7490', borderColor: '#0e7490' }}
+                  style={{ backgroundColor: '#0891b2', borderColor: '#0891b2' }}
                 >
-                  <i className="bi bi-search"></i>
-                  <span>Consultar Estudiantes</span>
+                  <i className="bi bi-people"></i>
+                  <span>Ver Mis Secciones</span>
                 </Link>
               </div>
             </div>

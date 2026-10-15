@@ -13,14 +13,14 @@ const HomeAdmin = () => {
         }}
       >
         <div className="position-relative z-1" style={{ maxWidth: '750px' }}>
-          <div className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-white bg-opacity-20 backdrop-blur mb-3 text-white small fw-semibold">
+          <div className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-white bg-opacity-20 backdrop-blur mb-3 text-black small fw-semibold">
             <i className="bi bi-shield-check"></i>
             <span>Panel de Administración Institucional</span>
           </div>
           <h1 className="display-6 fw-bold mb-2">
             Bienvenido/a, {user?.name || 'Administrador'}
           </h1>
-          <p className="lead mb-0 text-white-50 fs-6">
+          <p className="lead mb-0 text-white-75 fs-6">
             Gestión centralizada del Instituto Profesional de Tecnología (IPT) de la Universidad de Santiago de Chile.
             Administra carreras técnicas de 2 años, mallas curriculares, asignaturas con horas TEL/créditos SCT y estudiantes.
           </p>
