@@ -265,43 +265,53 @@ const StudentDetailPage = () => {
                   </div>
                 ) : (
                   <div className="d-grid gap-3">
-                    <button
-                      type="button"
-                      className="btn btn-outline-primary p-3 text-start d-flex justify-content-between align-items-center"
-                      onClick={() =>
-                        setModalMessage(
-                          'El módulo de Asignaturas Cursadas se habilitará con la implementación de la Épica 6 (Inscripción Académica) y Épica 7 (Cierre de Semestre).'
-                        )
-                      }
+                    <Link
+                      to={`/students/${run}/current-courses`}
+                      className="btn btn-outline-primary p-3 text-start d-flex justify-content-between align-items-center rounded-3 text-decoration-none shadow-sm"
                     >
                       <div>
-                        <div className="fw-bold fs-6">
-                          <i className="bi bi-collection-fill me-2"></i>
-                          Asignaturas Cursadas
+                        <div className="fw-bold fs-6 text-primary">
+                          <i className="bi bi-calendar-week-fill me-2"></i>
+                          Asignaturas que Cursa Actualmente
                         </div>
-                        <small className="text-muted">Revisar avance curricular, asignaturas inscritas y aprobadas</small>
+                        <small className="text-muted d-block mt-1">
+                          Revisar asignaturas con inscripción activa (estado INSCRITA) y horario semanal
+                        </small>
                       </div>
-                      <i className="bi bi-chevron-right text-muted"></i>
-                    </button>
+                      <i className="bi bi-chevron-right text-primary fs-5"></i>
+                    </Link>
 
-                    <button
-                      type="button"
-                      className="btn btn-outline-primary p-3 text-start d-flex justify-content-between align-items-center"
-                      onClick={() =>
-                        setModalMessage(
-                          'El módulo de Calificaciones Finales se habilitará con la implementación de la Épica 7 (Registro de calificaciones finales y cierre de semestre).'
-                        )
-                      }
+                    <Link
+                      to={`/students/${run}/academic-history`}
+                      className="btn btn-outline-primary p-3 text-start d-flex justify-content-between align-items-center rounded-3 text-decoration-none shadow-sm"
                     >
                       <div>
-                        <div className="fw-bold fs-6">
-                          <i className="bi bi-card-checklist me-2"></i>
-                          Calificaciones Finales
+                        <div className="fw-bold fs-6 text-primary">
+                          <i className="bi bi-clock-history me-2"></i>
+                          Historial Académico Completo
                         </div>
-                        <small className="text-muted">Escala de 1,0 a 7,0 y condición de aprobación (≥ 4,0)</small>
+                        <small className="text-muted d-block mt-1">
+                          Expediente histórico dividido en períodos académicos, notas (1,0 a 7,0) y condición
+                        </small>
                       </div>
-                      <i className="bi bi-chevron-right text-muted"></i>
-                    </button>
+                      <i className="bi bi-chevron-right text-primary fs-5"></i>
+                    </Link>
+
+                    <Link
+                      to={`/students/${run}/curriculum`}
+                      className="btn btn-outline-primary p-3 text-start d-flex justify-content-between align-items-center rounded-3 text-decoration-none shadow-sm"
+                    >
+                      <div>
+                        <div className="fw-bold fs-6 text-primary">
+                          <i className="bi bi-diagram-3-fill me-2"></i>
+                          Malla Curricular y Prerrequisitos
+                        </div>
+                        <small className="text-muted d-block mt-1">
+                          Avance curricular interactivo (aprobadas en verde, reprobadas en rojo, inscritas en amarillo)
+                        </small>
+                      </div>
+                      <i className="bi bi-chevron-right text-primary fs-5"></i>
+                    </Link>
                   </div>
                 )}
               </div>

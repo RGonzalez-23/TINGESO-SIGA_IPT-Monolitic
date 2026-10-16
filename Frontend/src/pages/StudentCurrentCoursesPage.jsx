@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import enrollmentService from '../services/enrollment.service';
+import studentService from '../services/student.service';
 
 const DAYS = [
   { key: 'L', label: 'Lunes' },
@@ -22,6 +23,8 @@ const MODULE_TIMES = {
 const MODULES = [1, 2, 3, 4, 5, 6];
 
 const StudentCurrentCoursesPage = () => {
+  const { run } = useParams();
+  const [targetStudent, setTargetStudent] = useState(null);
   const [enrollments, setEnrollments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,18 +34,27 @@ const StudentCurrentCoursesPage = () => {
     const fetchCurrentCourses = async () => {
       try {
         setLoading(true);
-        const res = await enrollmentService.getMyEnrollments();
-        setEnrollments(res.data || []);
+        if (run) {
+          const [enrollmentsRes, studentRes] = await Promise.all([
+            enrollmentService.getStudentActiveEnrollments(run),
+            studentService.getByRun(run).catch(() => ({ data: null })),
+          ]);
+          setEnrollments(enrollmentsRes.data || []);
+          setTargetStudent(studentRes.data);
+        } else {
+          const res = await enrollmentService.getMyEnrollments();
+          setEnrollments(res.data || []);
+        }
       } catch (err) {
         console.error('Error fetching current courses:', err);
-        setError('No fue posible cargar tus asignaturas inscritas actualmente.');
+        setError('No fue posible cargar las asignaturas inscritas actualmente.');
       } finally {
         setLoading(false);
       }
     };
 
     fetchCurrentCourses();
-  }, []);
+  }, [run]);
 
   const totalCredits = useMemo(
     () => enrollments.reduce((sum, e) => sum + (e.sctCredits || 0), 0),
@@ -62,6 +74,16 @@ const StudentCurrentCoursesPage = () => {
 
   return (
     <div className="container py-4">
+      {/* Admin Back Link if viewing a specific student */}
+      {run && (
+        <div className="mb-3">
+          <Link to={`/students/${run}`} className="btn btn-outline-secondary btn-sm rounded-3">
+            <i className="bi bi-arrow-left me-1"></i>
+            Volver a la ficha de {targetStudent?.fullName || run}
+          </Link>
+        </div>
+      )}
+
       {/* Header Banner */}
       <div
         className="p-4 p-md-5 mb-4 rounded-4 text-white shadow-sm"
@@ -75,9 +97,13 @@ const StudentCurrentCoursesPage = () => {
               <i className="bi bi-calendar-check-fill"></i>
               <span>Período Académico Activo &bull; IPT</span>
             </div>
-            <h1 className="display-6 fw-bold mb-2">Mis Asignaturas en Curso</h1>
+            <h1 className="display-6 fw-bold mb-2">
+              {run ? `Asignaturas en Curso • ${targetStudent?.fullName || run}` : 'Mis Asignaturas en Curso'}
+            </h1>
             <p className="lead mb-0 text-white-75 fs-6">
-              Revisa los horarios de tus clases, secciones asignadas y distribución de módulos semanales.
+              {run
+                ? `Horarios de clases, secciones inscritas y distribución semanal de ${targetStudent?.fullName || 'estudiante'} (RUN: ${run}).`
+                : 'Revisa los horarios de tus clases, secciones asignadas y distribución de módulos semanales.'}
             </p>
           </div>
           <div className="d-flex flex-wrap gap-2">

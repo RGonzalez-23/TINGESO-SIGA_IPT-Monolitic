@@ -119,6 +119,36 @@ function App() {
                 }
               />
 
+              {/* Student Current Courses for Admin (Epic 7) */}
+              <Route
+                path="/students/:run/current-courses"
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
+                    <StudentCurrentCoursesPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Student Curriculum Progress for Admin (Epic 7) */}
+              <Route
+                path="/students/:run/curriculum"
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
+                    <StudentCurriculumPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Student Academic History & Transcript for Admin (Epic 7) */}
+              <Route
+                path="/students/:run/academic-history"
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
+                    <StudentAcademicHistoryPage />
+                  </ProtectedRoute>
+                }
+              />
+
               {/* Personal Student Profile: accessible to STUDENT */}
               <Route
                 path="/profile"

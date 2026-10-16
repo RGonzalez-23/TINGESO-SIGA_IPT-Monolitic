@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import academicHistoryService from '../services/academic-history.service';
 
 const StudentAcademicHistoryPage = () => {
+  const { run } = useParams();
   const [historyData, setHistoryData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -10,18 +12,20 @@ const StudentAcademicHistoryPage = () => {
     const fetchHistory = async () => {
       try {
         setLoading(true);
-        const res = await academicHistoryService.getMyAcademicHistory();
+        const res = run
+          ? await academicHistoryService.getStudentAcademicHistory(run)
+          : await academicHistoryService.getMyAcademicHistory();
         setHistoryData(res.data);
       } catch (err) {
         console.error('Error fetching academic history:', err);
-        setError('No fue posible cargar tu historial académico.');
+        setError('No fue posible cargar el historial académico.');
       } finally {
         setLoading(false);
       }
     };
 
     fetchHistory();
-  }, []);
+  }, [run]);
 
   const getStatusBadge = (status) => {
     switch (status) {
@@ -75,6 +79,16 @@ const StudentAcademicHistoryPage = () => {
 
   return (
     <div className="container py-4">
+      {/* Admin Back Link if viewing a specific student */}
+      {run && (
+        <div className="mb-3">
+          <Link to={`/students/${run}`} className="btn btn-outline-secondary btn-sm rounded-3">
+            <i className="bi bi-arrow-left me-1"></i>
+            Volver a la ficha de {historyData?.studentFullName || run}
+          </Link>
+        </div>
+      )}
+
       {/* Banner */}
       <div
         className="p-4 p-md-5 mb-4 rounded-4 text-white shadow-sm"
@@ -88,9 +102,11 @@ const StudentAcademicHistoryPage = () => {
               <i className="bi bi-clock-history"></i>
               <span>Expediente Académico IPT</span>
             </div>
-            <h1 className="display-6 fw-bold mb-2">Mi Historial Académico</h1>
+            <h1 className="display-6 fw-bold mb-2">
+              {run ? `Historial Académico • ${historyData?.studentFullName || run}` : 'Mi Historial Académico'}
+            </h1>
             <p className="lead mb-0 text-white-75 fs-6">
-              {historyData?.studentFullName || 'Estudiante'} &bull; RUN: {historyData?.studentRun} &bull; Carrera: {historyData?.careerName}
+              {historyData?.studentFullName || 'Estudiante'} &bull; RUN: {historyData?.studentRun || run} &bull; Carrera: {historyData?.careerName || 'IPT'}
             </p>
           </div>
           <div className="d-flex flex-wrap gap-2">

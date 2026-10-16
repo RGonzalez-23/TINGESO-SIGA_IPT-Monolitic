@@ -35,11 +35,14 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/enrollments")
 @CrossOrigin(origins = "*")
-@RequiredArgsConstructor
 @Slf4j
 public class EnrollmentController {
 
     private final EnrollmentService enrollmentService;
+
+    public EnrollmentController(EnrollmentService enrollmentService) {
+        this.enrollmentService = enrollmentService;
+    }
 
     /**
      * Registers a student into a list of selected sections in the active academic period.
@@ -138,6 +141,16 @@ public class EnrollmentController {
     @PreAuthorize("hasRole('ADMIN') or (hasRole('STUDENT') and #run == authentication.name)")
     public ResponseEntity<List<EnrollmentResponseDTO>> getStudentEnrollments(@PathVariable String run) {
         return ResponseEntity.ok(enrollmentService.getAllStudentEnrollments(run));
+    }
+
+    /**
+     * Retrieves active enrollments in the current open academic period for a specified student.
+     * Accessible by ADMIN and the STUDENT themselves.
+     */
+    @GetMapping("/student/{run}/active")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('STUDENT') and #run == authentication.name)")
+    public ResponseEntity<List<EnrollmentResponseDTO>> getStudentActiveEnrollments(@PathVariable String run) {
+        return ResponseEntity.ok(enrollmentService.getActiveEnrollments(run));
     }
 
     /**

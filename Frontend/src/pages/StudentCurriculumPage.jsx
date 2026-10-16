@@ -1,7 +1,9 @@
 import { useEffect, useState, useMemo } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import academicHistoryService from '../services/academic-history.service';
 
 const StudentCurriculumPage = () => {
+  const { run } = useParams();
   const [progressData, setProgressData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,18 +13,20 @@ const StudentCurriculumPage = () => {
     const fetchCurriculum = async () => {
       try {
         setLoading(true);
-        const res = await academicHistoryService.getMyCurriculumProgress();
+        const res = run
+          ? await academicHistoryService.getStudentCurriculumProgress(run)
+          : await academicHistoryService.getMyCurriculumProgress();
         setProgressData(res.data);
       } catch (err) {
         console.error('Error fetching curriculum progress:', err);
-        setError('No fue posible cargar tu malla curricular con el avance actual.');
+        setError('No fue posible cargar la malla curricular con el avance actual.');
       } finally {
         setLoading(false);
       }
     };
 
     fetchCurriculum();
-  }, []);
+  }, [run]);
 
   const courses = useMemo(() => progressData?.courses || [], [progressData]);
 
@@ -103,6 +107,16 @@ const StudentCurriculumPage = () => {
 
   return (
     <div className="container py-4">
+      {/* Admin Back Link if viewing a specific student */}
+      {run && (
+        <div className="mb-3">
+          <Link to={`/students/${run}`} className="btn btn-outline-secondary btn-sm rounded-3">
+            <i className="bi bi-arrow-left me-1"></i>
+            Volver a la ficha de {progressData?.studentFullName || run}
+          </Link>
+        </div>
+      )}
+
       {/* Header Banner */}
       <div
         className="p-4 p-md-5 mb-4 rounded-4 text-white shadow-sm"
@@ -116,9 +130,11 @@ const StudentCurriculumPage = () => {
               <i className="bi bi-diagram-3-fill"></i>
               <span>Plan de Estudios {progressData?.studyPlanCode || '2021/2022'}</span>
             </div>
-            <h1 className="display-6 fw-bold mb-2">Mi Malla Curricular</h1>
+            <h1 className="display-6 fw-bold mb-2">
+              {run ? `Malla Curricular • ${progressData?.studentFullName || run}` : 'Mi Malla Curricular'}
+            </h1>
             <p className="lead mb-0 text-white-75 fs-6">
-              {progressData?.careerName || 'Carrera Técnica IPT'} &bull; Visualiza tu avance formativo, asignaturas aprobadas, en curso y prerrequisitos.
+              {progressData?.careerName || 'Carrera Técnica IPT'} &bull; {run ? `Estudiante: ${progressData?.studentFullName || run} (RUN: ${run})` : 'Visualiza tu avance formativo, asignaturas aprobadas, en curso y prerrequisitos.'}
             </p>
           </div>
           <div className="d-flex flex-wrap gap-2">

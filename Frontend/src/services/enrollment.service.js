@@ -8,6 +8,9 @@ const enrollmentService = {
   getMyEnrollments() {
     return apiClient.get('/enrollments/my-enrollments');
   },
+  getStudentActiveEnrollments(run) {
+    return apiClient.get(`/enrollments/student/${run}/active`);
+  },
   register(studentRun, sectionIds) {
     return apiClient.post('/enrollments/register', { studentRun, sectionIds });
   },
