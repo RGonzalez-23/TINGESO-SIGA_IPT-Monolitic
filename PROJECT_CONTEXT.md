@@ -387,39 +387,83 @@ Una vez implementadas y validadas las 7 épicas y alcanzado el umbral de cobertu
 
 ---
 
-## 5. Hoja de Ruta Próxima Sesión: Épica 7 — Calificaciones y Cierre de Semestre
+## 5. Épica 7: Registro de Calificaciones Finales y Cierre de Semestre (100% Completa)
 
-### 5.1 Estado Actual de Épicas
+### 5.1 Reglas de Negocio Implementadas
+1. **Registro de Calificaciones Finales por Docente:**
+   - Durante un período académico `ABIERTO`, los docentes asignados a una sección registran la calificación final (`finalGrade`, escala `1.0` a `7.0`, redondeada a 1 decimal).
+   - Validación estricta: sólo el docente titular de la sección (o un `ADMIN`) puede registrar/modificar notas.
+   - En período abierto, las inscripciones permanecen en estado `INSCRITA`.
+2. **Criterio de Aprobación y Reprobación:**
+   - Si `finalGrade >= 4.0`, la condición es **APROBADO**.
+   - Si `finalGrade < 4.0`, la condición es **REPROBADO**.
+3. **Auditoría Previa y Cierre Formal del Semestre:**
+   - Ejecutable exclusivamente por el Administrador Académico (`ADMIN`).
+   - **Condición de Cierre:** El 100% de las inscripciones activas del período deben contar con calificación final registrada.
+   - Si faltan notas (`canClose = false`), el sistema detalla todas las secciones incompletas (código, asignatura, docente asignado, cantidad de alumnos pendientes).
+   - Al ejecutarse el cierre formal:
+     - El período pasa a `CERRADO` (`isOpen = false`), congelando las calificaciones en modo sólo lectura.
+     - Todas las inscripciones pasan a estado `APROBADA` o `REPROBADA`.
+     - **Causal de Eliminación Automática:** Estudiantes que reprueban la **misma asignatura por segunda vez** pasan automáticamente a estado académico **`ELIMINADO`**.
+     - **Graduación Automática:** Estudiantes que hayan aprobado la totalidad de las asignaturas de su plan de estudios pasan automáticamente a estado académico **`EGRESADO`**.
+
+### 5.2 Componentes Backend Desarrollados
+- **DTOs Creados:**
+  - `StudentGradeEntryDTO`: Entrada individual de nota con validaciones `@DecimalMin("1.0")` y `@DecimalMax("7.0")`.
+  - `SectionGradesSubmissionDTO`: Lote de calificaciones para envío masivo por sección.
+  - `IncompleteSectionDTO`: Auditoría de sección incompleta con desglose de pendientes.
+  - `PeriodCloseValidationDTO`: Estado general de auditoría de cierre (`canClose`, pendientes, total activas).
+  - `PeriodCloseResultDTO`: Resumen consolidado del cierre (procesadas, aprobadas, reprobadas, egresados, eliminados).
+  - `CourseHistoryEntryDTO`, `PeriodHistoryDTO`, `StudentAcademicHistoryDTO`: Estructura jerárquica del expediente académico cronológico por período con cálculo de promedio ponderado semestral y acumulado.
+  - `CurriculumCourseProgressDTO`, `StudentCurriculumProgressDTO`: Avance formativo de la malla con estados de colores (`APPROVED`, `FAILED`, `ENROLLED`, `PENDING`), conteo de reprobaciones y prerrequisitos.
+- **Servicios:**
+  - [GradeService.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/service/GradeService.java): Consulta y registro de calificaciones con control de rol y período abierto/cerrado.
+  - [PeriodCloseService.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/service/PeriodCloseService.java): Auditoría de completitud y ejecución del cierre con transición de estados y actualización masiva de situaciones académicas.
+  - [AcademicHistoryService.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/service/AcademicHistoryService.java): Cálculo de GPA semestral/acumulado y mapeo del avance curricular formativo.
+- **Controladores REST:**
+  - [GradeController.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/controller/GradeController.java): `GET` y `PUT /api/sections/{sectionId}/grades`.
+  - [AcademicPeriodCloseController.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/controller/AcademicPeriodCloseController.java): `GET /api/academic-periods/{id}/close-readiness` y `POST /api/academic-periods/{id}/close`.
+  - [StudentAcademicHistoryController.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/controller/StudentAcademicHistoryController.java): `GET /api/students/me/academic-history`, `GET /api/students/me/curriculum-progress`, y endpoints administrativos `/api/students/{run}/...`.
+- **Pruebas Automatizadas:** 163 pruebas unitarias y de integración pasando al 100% (`mvn clean test`), 0 fallas, 0 errores.
+
+### 5.3 Componentes Frontend Desarrollados y Refinados
+- **Servicios:**
+  - `grade.service.js`: Conexión a endpoints de calificaciones.
+  - `period-close.service.js`: Conexión a auditoría y ejecución de cierre de período.
+  - `academic-history.service.js`: Conexión al historial académico y avance de malla del estudiante.
+- **Vistas del Estudiante:**
+  - [StudentCurrentCoursesPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/StudentCurrentCoursesPage.jsx) (`/student/my-courses`): Detalle de asignaturas actualmente cursadas (estado `INSCRITA`), créditos, docentes asignados y **Malla Horaria Semanal** oficial.
+  - [StudentCurriculumPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/StudentCurriculumPage.jsx) (`/student/curriculum`): Malla curricular completa con semáforo formativo:
+    - **Verde:** Asignatura Aprobada.
+    - **Rojo:** Asignatura Reprobada (indicando contador de reprobaciones, ej. *Reprobada (1 vez)*).
+    - **Amarillo:** Asignatura Inscrita en curso actual.
+    - **Fondo Blanco:** Asignatura Pendiente.
+    - Muestra además los **prerrequisitos formativos** de cada asignatura.
+  - [StudentAcademicHistoryPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/StudentAcademicHistoryPage.jsx) (`/student/academic-history`): Historial académico completo ordenado cronológicamente y **dividido por períodos académicos**, con detalle de calificaciones (1.0 - 7.0), condición de aprobación, créditos SCT y promedio ponderado (PPA y PAA).
+  - [HomeStudent.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/HomeStudent.jsx): Tarjetas de acceso directo a Cursos en Curso, Malla Curricular, Historial Académico y Perfil.
+  - [StudentProfilePage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/StudentProfilePage.jsx): Tarjeta y modal placeholder de "Mi Historial Curricular" eliminados exitosamente.
+- **Vista Docente:**
+  - [TeacherSectionsPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/TeacherSectionsPage.jsx):
+    - Nómina oficial de alumnos con columna interactiva de calificación final (1.0 a 7.0) e indicador badge automático en vivo (*Aprobado* en verde si $\ge 4.0$, *Reprobado* en rojo si $< 4.0$, o *Pendiente*).
+    - Botón *"Guardar Calificaciones"* con feedback visual y mensajes de éxito/error.
+    - En períodos cerrados, actas congeladas en modo sólo lectura con aviso visual oficial.
+- **Vista Administrador:**
+  - [AcademicOfferPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/AcademicOfferPage.jsx):
+    - Botón *"Cerrar Semestre"* con modal de **Auditoría Previa**.
+    - Si faltan calificaciones, bloquea el cierre y despliega la nómina de secciones incompletas con docentes y alumnos pendientes.
+    - Si el 100% de las notas están registradas, permite la confirmación formal del cierre y despliega el modal de resumen de resultados (aprobados, reprobados, egresados y alumnos eliminados por doble repitencia).
+
+---
+
+## 6. Estado Consolidado del Proyecto
 - **Épica 1:** Autenticación y Autorización (Keycloak + Spring Security + SPA) $\rightarrow$ **100% Completa**.
 - **Épica 2:** Gestión de Carreras y Planes de Estudio $\rightarrow$ **100% Completa**.
 - **Épica 3:** Gestión de Asignaturas y Mallas Curriculares $\rightarrow$ **100% Completa**.
 - **Épica 4:** Gestión Docente $\rightarrow$ **100% Completa**.
 - **Épica 5:** Oferta Académica y Secciones $\rightarrow$ **100% Completa**.
-- **Épica 6:** Inscripción Académica y Secciones Docentes $\rightarrow$ **100% Completa (Backend & Frontend probados)**.
-- **Épica 7:** Calificaciones y Cierre de Semestre $\rightarrow$ **Pendiente de Inicio**.
-
-### 5.2 Épica 7 — Calificaciones y Cierre de Semestre (Próxima Tarea)
-1. **Backend:**
-   - Endpoint para que el docente ingrese la nota final por inscripción (`finalGrade`, escala 1.0 a 7.0, nota mínima de aprobación 4.0) en sus secciones asignadas.
-   - Servicio de cierre de período académico:
-     - Consolidación de actas finales de notas.
-     - Transición de estados de inscripciones de `EN_CURSO` a `APROBADA` o `REPROBADA`.
-     - Actualización de situación académica del estudiante: detección automática de egresados (aprobadas todas las asignaturas de su plan) y alumnos en causal de eliminación según repitencias de asignaturas (Regla de repitencia del IPT).
-     - Cierre formal del período académico (`isOpen = false`).
-2. **Frontend:**
-   - Módulo de ingreso y envío de calificaciones para docentes en sus secciones (`/teacher/sections` o subvista de actas).
-   - Vista de historial académico y notas para estudiantes en su perfil (`/profile`).
-   - Panel de cierre formal de período para el Administrador Académico (`/academic-offer`).
-3. **Tests JaCoCo & Integración:**
-   - Pruebas unitarias de la capa de servicio de la Épica 7.
-   - Pruebas de integración del flujo completo de cierre de semestre.
-   - Auditoría de cobertura global $\ge 90\%$ antes del empaquetado final con Docker.
-
----
-
-## 6. Instrucción para Continuar la Próxima Sesión
-
-Al iniciar una nueva sesión en Antigravity desde otra computadora tras clonar/hacer `git pull`:
-
-> *"Lee el archivo `PROJECT_CONTEXT.md` para cargar todo el contexto, arquitectura y estado de avance de SIGA IPT. Las Épicas 1 a 6 están 100% implementadas, testeadas y validadas tanto en Backend como en Frontend. Procede a implementar la **Épica 7: Calificaciones y Cierre de Semestre** según la hoja de ruta descrita en la sección 5."*
+- **Épica 6:** Inscripción Académica y Secciones Docentes $\rightarrow$ **100% Completa**.
+- **Épica 7:** Calificaciones Finales y Cierre de Semestre $\rightarrow$ **100% Completa**.
+- **Calidad y Tests:**
+  - Backend: **163 / 163 pruebas unitarias y de integración pasando en verde** (`./mvnw clean test`), BUILD SUCCESS.
+  - Frontend: **0 errores de linting** (`npm run lint`), compilación limpia (`npm run build`).
 
