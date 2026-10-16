@@ -31,4 +31,16 @@ public interface EnrollmentRepository extends JpaRepository<EnrollmentEntity, Lo
     boolean existsByStudent_Run(String run);
 
     long countByStudent_RunAndAcademicPeriod_IdAndStatus(String run, String periodId, EnrollmentStatus status);
+
+    List<EnrollmentEntity> findByAcademicPeriod_IdAndStatus(String periodId, EnrollmentStatus status);
+
+    List<EnrollmentEntity> findByAcademicPeriod_Id(String periodId);
+
+    long countByAcademicPeriod_IdAndStatusAndFinalGradeIsNull(String periodId, EnrollmentStatus status);
+
+    long countByStudent_RunAndCourse_IdAndStatus(String run, Long courseId, EnrollmentStatus status);
+
+    List<EnrollmentEntity> findByStudent_RunOrderByAcademicPeriod_IdAscEnrollmentDateAsc(String run);
+
+    List<EnrollmentEntity> findByStudent_RunAndCourse_Id(String run, Long courseId);
 }
