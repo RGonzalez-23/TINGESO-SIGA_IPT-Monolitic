@@ -9,7 +9,6 @@ const StudentProfilePage = () => {
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [modalMessage, setModalMessage] = useState(null);
 
   // Password change state
   const [currentPassword, setCurrentPassword] = useState('');
@@ -177,9 +176,11 @@ const StudentProfilePage = () => {
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Tarjeta de Seguridad / Cambio de Contraseña */}
-            <div className="siga-card p-4">
+          {/* Columna Derecha: Seguridad / Cambio de Contraseña */}
+          <div className="col-12 col-lg-6">
+            <div className="siga-card p-4 h-100">
               <h5 className="fw-bold mb-3" style={{ color: 'var(--siga-primary)' }}>
                 <i className="bi bi-shield-lock-fill me-2"></i> Seguridad: Cambiar mi Contraseña
               </h5>
@@ -260,80 +261,6 @@ const StudentProfilePage = () => {
                   )}
                 </button>
               </form>
-            </div>
-          </div>
-
-          {/* Columna Derecha: Historial Curricular */}
-          <div className="col-lg-6">
-            <div className="siga-card p-4">
-              <h5 className="fw-bold mb-3" style={{ color: 'var(--siga-primary)' }}>
-                <i className="bi bi-clock-history me-2"></i> Mi Historial Curricular
-              </h5>
-              <p className="text-muted small mb-4">
-                Consulta los avances de tus asignaturas cursadas y calificaciones de períodos cerrados.
-              </p>
-
-              <div className="d-grid gap-3">
-                <button
-                  type="button"
-                  className="btn btn-outline-primary p-3 text-start d-flex justify-content-between align-items-center"
-                  onClick={() =>
-                    setModalMessage(
-                      'Podrás revisar las asignaturas cursadas y el avance de tu plan cuando se active el módulo de inscripciones y notas.'
-                    )
-                  }
-                >
-                  <div>
-                    <div className="fw-bold">
-                      <i className="bi bi-journal-check me-2"></i> Asignaturas Cursadas
-                    </div>
-                    <small className="text-muted">Asignaturas de tu plan 2021/2022</small>
-                  </div>
-                  <i className="bi bi-chevron-right text-muted"></i>
-                </button>
-
-                <button
-                  type="button"
-                  className="btn btn-outline-primary p-3 text-start d-flex justify-content-between align-items-center"
-                  onClick={() =>
-                    setModalMessage(
-                      'Tus calificaciones finales estarán disponibles una vez que los docentes las ingresen y se cierre el período académico.'
-                    )
-                  }
-                >
-                  <div>
-                    <div className="fw-bold">
-                      <i className="bi bi-card-checklist me-2"></i> Mis Calificaciones
-                    </div>
-                    <small className="text-muted">Historial de notas finales y condición de aprobación</small>
-                  </div>
-                  <i className="bi bi-chevron-right text-muted"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal Placeholder */}
-      {modalMessage && (
-        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content siga-card">
-              <div className="modal-header">
-                <h5 className="modal-title fw-bold" style={{ color: 'var(--siga-primary)' }}>
-                  <i className="bi bi-info-circle-fill me-2"></i> Próxima Funcionalidad
-                </h5>
-                <button type="button" className="btn-close" onClick={() => setModalMessage(null)}></button>
-              </div>
-              <div className="modal-body py-4">
-                <p className="mb-0 text-muted">{modalMessage}</p>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-siga-primary" onClick={() => setModalMessage(null)}>
-                  Entendido
-                </button>
-              </div>
             </div>
           </div>
         </div>

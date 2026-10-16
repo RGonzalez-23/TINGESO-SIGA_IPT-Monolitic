@@ -4,6 +4,7 @@ import sectionService from '../services/section.service';
 import courseService from '../services/course.service';
 import teacherService from '../services/teacher.service';
 import careerService from '../services/career.service';
+import periodCloseService from '../services/period-close.service';
 import { useAuth } from '../context/AuthContext';
 
 const DAYS = [
@@ -58,6 +59,14 @@ const AcademicOfferPage = () => {
   const [showDeleteSectionModal, setShowDeleteSectionModal] = useState(false);
   const [sectionToEdit, setSectionToEdit] = useState(null);
   const [sectionToDelete, setSectionToDelete] = useState(null);
+
+  // Period Close Modals (Epic 7)
+  const [showClosePeriodAuditModal, setShowClosePeriodAuditModal] = useState(false);
+  const [closeAuditData, setCloseAuditData] = useState(null);
+  const [showClosePeriodSuccessModal, setShowClosePeriodSuccessModal] = useState(false);
+  const [closeResultData, setCloseResultData] = useState(null);
+  const [closingPeriod, setClosingPeriod] = useState(false);
+  const [auditingPeriod, setAuditingPeriod] = useState(false);
 
   // Period Form
   const [periodForm, setPeriodForm] = useState({
@@ -150,14 +159,71 @@ const AcademicOfferPage = () => {
     [periods, selectedPeriodId]
   );
 
+  // Initiate Semester Close Pre-Audit (Epic 7)
+  const handleInitiatePeriodClose = async () => {
+    if (!currentPeriod || !isAdmin) return;
+    try {
+      setAuditingPeriod(true);
+      const res = await periodCloseService.checkCloseReadiness(currentPeriod.id);
+      setCloseAuditData(res.data);
+      setShowClosePeriodAuditModal(true);
+    } catch (err) {
+      console.error('Error auditing semester close readiness:', err);
+      setAlert({
+        type: 'danger',
+        message:
+          err.response?.data?.message || 'Error al auditar el estado de cierre del período.',
+      });
+    } finally {
+      setAuditingPeriod(false);
+    }
+  };
+
+  // Confirm and Execute Formal Semester Close (Epic 7)
+  const handleConfirmPeriodClose = async () => {
+    if (!currentPeriod || !isAdmin) return;
+    try {
+      setClosingPeriod(true);
+      const res = await periodCloseService.executeClose(currentPeriod.id);
+      setCloseResultData(res.data);
+      setShowClosePeriodAuditModal(false);
+      setShowClosePeriodSuccessModal(true);
+
+      // Refresh periods and sections
+      const updatedPeriods = await academicPeriodService.getAll();
+      setPeriods(updatedPeriods.data);
+      fetchSections();
+      setAlert({
+        type: 'success',
+        message: `¡Cierre de período ${currentPeriod.id} completado exitosamente!`,
+      });
+    } catch (err) {
+      console.error('Error executing semester close:', err);
+      setAlert({
+        type: 'danger',
+        message:
+          err.response?.data?.message || 'Error al ejecutar el cierre formal del período académico.',
+      });
+    } finally {
+      setClosingPeriod(false);
+    }
+  };
+
   // Toggle Academic Period status (Open / Closed)
   const handleTogglePeriodStatus = async () => {
     if (!currentPeriod || !isAdmin) return;
     const willOpen = !currentPeriod.isOpen;
+
+    // If currently OPEN, closing must go through the formal audit and semester close flow (Epic 7)
+    if (!willOpen) {
+      handleInitiatePeriodClose();
+      return;
+    }
+
     const otherOpen = periods.find((p) => p.isOpen && p.id !== currentPeriod.id);
 
-    let confirmMsg = `¿Confirmas que deseas ${willOpen ? 'ABRIR' : 'CERRAR'} el período académico ${currentPeriod.id}?`;
-    if (willOpen && otherOpen) {
+    let confirmMsg = `¿Confirmas que deseas ABRIR el período académico ${currentPeriod.id}?`;
+    if (otherOpen) {
       confirmMsg = `¿Confirmas que deseas ABRIR el período académico ${currentPeriod.id}?\n\nImportante: Solo un período académico puede estar abierto a la vez. Al abrir este período, el período ${otherOpen.id} (actualmente abierto) se cerrará automáticamente.`;
     }
 
@@ -172,9 +238,7 @@ const AcademicOfferPage = () => {
       setPeriods(updatedPeriods.data);
       setAlert({
         type: 'success',
-        message: willOpen
-          ? `El período ${currentPeriod.id} ahora está ABIERTO${otherOpen ? ` (se cerró automáticamente el período ${otherOpen.id})` : ''}.`
-          : `El período ${currentPeriod.id} ahora está CERRADO.`,
+        message: `El período ${currentPeriod.id} ahora está ABIERTO${otherOpen ? ` (se cerró automáticamente el período ${otherOpen.id})` : ''}.`,
       });
     } catch (err) {
       console.error('Error toggling period status:', err);
@@ -499,11 +563,7 @@ const AcademicOfferPage = () => {
               <h1 className="display-6 fw-bold mb-2">Oferta Académica IPT</h1>
               <p className="lead mb-0 text-white-50 fs-6" style={{ maxWidth: '700px' }}>
                 Planificación semestral de asignaturas, distribución de módulos horarios
-                estandarizados de 80 minutos y asignación de docentes. Formato de código de sección:{' '}
-                <span className="font-monospace fw-bold text-white bg-black bg-opacity-25 px-2 py-0.5 rounded">
-                  [CÓDIGO]-A-1
-                </span>
-                .
+                estandarizados de 80 minutos y asignación de docentes.
               </p>
             </div>
 
@@ -544,18 +604,35 @@ const AcademicOfferPage = () => {
               {/* Admin Period Actions */}
               {isAdmin && currentPeriod && (
                 <div className="d-flex align-items-center justify-content-end gap-2 mt-1">
-                  <button
-                    onClick={handleTogglePeriodStatus}
-                    disabled={submitting}
-                    className={`btn btn-sm ${currentPeriod.isOpen ? 'btn-outline-warning text-white' : 'btn-outline-success text-white'
-                      } fw-semibold`}
-                  >
-                    <i
-                      className={`bi ${currentPeriod.isOpen ? 'bi-lock' : 'bi-unlock'
-                        } me-1`}
-                    ></i>
-                    {currentPeriod.isOpen ? 'Cerrar Período' : 'Abrir Período'}
-                  </button>
+                  {currentPeriod.isOpen ? (
+                    <button
+                      onClick={handleInitiatePeriodClose}
+                      disabled={auditingPeriod || closingPeriod || submitting}
+                      className="btn btn-sm btn-warning text-dark fw-bold d-flex align-items-center gap-1 shadow-sm"
+                      title="Auditar y proceder al Cierre Formal de Semestre (Épica 7)"
+                    >
+                      {auditingPeriod ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm"></span>
+                          <span>Auditando...</span>
+                        </>
+                      ) : (
+                        <>
+                          <i className="bi bi-shield-check"></i>
+                          <span>Cerrar Semestre</span>
+                        </>
+                      )}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleTogglePeriodStatus}
+                      disabled={submitting}
+                      className="btn btn-sm btn-outline-success text-white fw-semibold"
+                    >
+                      <i className="bi bi-unlock me-1"></i>
+                      <span>Abrir Período</span>
+                    </button>
+                  )}
                   <button
                     onClick={() => setShowCreatePeriodModal(true)}
                     className="btn btn-sm btn-light fw-semibold text-primary"
@@ -1666,6 +1743,291 @@ const AcademicOfferPage = () => {
                   disabled={submitting || sectionToDelete.enrolledCount > 0}
                 >
                   {submitting ? 'Eliminando...' : 'Eliminar Sección'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= MODAL: SEMESTER CLOSE AUDIT & CONFIRMATION (Epic 7) ================= */}
+      {showClosePeriodAuditModal && closeAuditData && (
+        <div
+          className="modal show d-block"
+          tabIndex="-1"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+        >
+          <div className="modal-dialog modal-dialog-centered modal-lg">
+            <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+              <div
+                className={`modal-header text-white ${closeAuditData.canClose ? 'bg-success' : 'bg-warning text-dark'
+                  }`}
+              >
+                <div className="d-flex align-items-center gap-2">
+                  <i
+                    className={`bi ${closeAuditData.canClose
+                      ? 'bi-shield-check fs-4'
+                      : 'bi-exclamation-triangle-fill fs-4 text-dark'
+                      }`}
+                  ></i>
+                  <h5 className={`modal-title fw-bold mb-0 ${closeAuditData.canClose ? 'text-white' : 'text-dark'}`}>
+                    {closeAuditData.canClose
+                      ? `Confirmación de Cierre de Semestre: Período ${closeAuditData.periodId}`
+                      : `Auditoría Previa de Cierre: Período ${closeAuditData.periodId}`}
+                  </h5>
+                </div>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowClosePeriodAuditModal(false)}
+                ></button>
+              </div>
+
+              <div className="modal-body p-4">
+                {/* Audit Metrics Row */}
+                <div className="row g-3 mb-4">
+                  <div className="col-4">
+                    <div className="bg-light p-3 rounded-3 text-center border">
+                      <span className="small text-muted d-block mb-1">Inscripciones Totales</span>
+                      <strong className="fs-4 text-dark">
+                        {closeAuditData.totalActiveEnrollments}
+                      </strong>
+                    </div>
+                  </div>
+                  <div className="col-4">
+                    <div className="bg-success bg-opacity-10 p-3 rounded-3 text-center border border-success border-opacity-25">
+                      <span className="small text-success d-block mb-1">Con Nota Registrada</span>
+                      <strong className="fs-4 text-success">
+                        {closeAuditData.gradedEnrollmentsCount}
+                      </strong>
+                    </div>
+                  </div>
+                  <div className="col-4">
+                    <div
+                      className={`p-3 rounded-3 text-center border ${closeAuditData.pendingEnrollmentsCount > 0
+                        ? 'bg-danger bg-opacity-10 border-danger border-opacity-25 text-danger'
+                        : 'bg-light text-muted'
+                        }`}
+                    >
+                      <span className="small d-block mb-1">Notas Pendientes</span>
+                      <strong className="fs-4">
+                        {closeAuditData.pendingEnrollmentsCount}
+                      </strong>
+                    </div>
+                  </div>
+                </div>
+
+                {!closeAuditData.canClose ? (
+                  <>
+                    <div className="alert alert-danger d-flex align-items-center gap-3 mb-3 rounded-3">
+                      <i className="bi bi-x-circle-fill fs-3 text-danger"></i>
+                      <div>
+                        <strong>No es posible cerrar el semestre académico.</strong>
+                        <p className="small mb-0 mt-1">
+                          Existen <strong>{closeAuditData.pendingEnrollmentsCount}</strong> inscripciones sin nota final registrada.
+                          De acuerdo con la reglamentación académica de SIGA IPT, el cierre se hace efectivo únicamente una vez que el 100% de las inscripciones activas cuenten con una calificación (1.0 a 7.0).
+                        </p>
+                      </div>
+                    </div>
+
+                    <h6 className="fw-bold mb-2">
+                      <i className="bi bi-list-task text-primary me-2"></i>
+                      Secciones con Calificaciones Pendientes ({closeAuditData.incompleteSections?.length || 0}):
+                    </h6>
+
+                    <div className="table-responsive rounded-3 border mb-3" style={{ maxHeight: '240px' }}>
+                      <table className="table table-sm table-hover align-middle mb-0">
+                        <thead className="table-light sticky-top">
+                          <tr>
+                            <th>Sección</th>
+                            <th>Asignatura</th>
+                            <th>Docente Asignado</th>
+                            <th className="text-center text-danger">Pendientes</th>
+                            <th className="text-center">Total Inscritos</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {closeAuditData.incompleteSections?.map((sec) => (
+                            <tr key={sec.sectionId}>
+                              <td className="font-monospace fw-bold">{sec.sectionCode}</td>
+                              <td>{sec.courseCode} &bull; {sec.courseName}</td>
+                              <td>
+                                <div className="small fw-semibold">{sec.teacherName || 'Docente sin asignar'}</div>
+                                <span className="small text-muted font-monospace">{sec.teacherRun}</span>
+                              </td>
+                              <td className="text-center">
+                                <span className="badge bg-danger">
+                                  {sec.pendingGradesCount} sin nota
+                                </span>
+                              </td>
+                              <td className="text-center text-muted font-monospace">
+                                {sec.totalEnrolledCount}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="alert alert-light border small text-muted mb-0">
+                      <i className="bi bi-info-circle me-1 text-primary"></i>
+                      Notifica a los docentes respectivos para que ingresen las actas correspondientes en su portal docente.
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="alert alert-success d-flex align-items-center gap-3 mb-3 rounded-3">
+                      <i className="bi bi-check-circle-fill fs-3 text-success"></i>
+                      <div>
+                        <strong className="fs-6">¡Auditoría de Calificaciones Satisfactoria!</strong>
+                        <p className="small mb-0 mt-1">
+                          El 100% de las inscripciones ({closeAuditData.gradedEnrollmentsCount} de {closeAuditData.totalActiveEnrollments}) cuentan con calificación final ingresada.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="card bg-light border-0 rounded-3 p-3 mb-3">
+                      <h6 className="fw-bold text-dark mb-2">
+                        <i className="bi bi-gear-wide-connected text-primary me-2"></i>
+                        Efectos automáticos del Cierre de Semestre (Épica 7):
+                      </h6>
+                      <ul className="small text-muted mb-0 ps-3">
+                        <li className="mb-1">
+                          <strong>Aprobación / Reprobación:</strong> Alumnos con nota &ge; 4.0 pasan a estado <span className="text-success fw-bold">APROBADA</span>; con nota &lt; 4.0 a <span className="text-danger fw-bold">REPROBADA</span>.
+                        </li>
+                        <li className="mb-1">
+                          <strong>Causal de Eliminación:</strong> Alumnos con 2 reprobaciones en una misma asignatura pasarán automáticamente a estado <span className="text-danger fw-bold">ELIMINADO</span>.
+                        </li>
+                        <li className="mb-1">
+                          <strong>Graduación:</strong> Alumnos que aprueben la totalidad de asignaturas de su plan pasarán automáticamente a estado <span className="text-primary fw-bold">EGRESADO</span>.
+                        </li>
+                        <li>
+                          <strong>Inmutabilidad:</strong> El período pasará a <span className="fw-bold text-dark">CERRADO</span> y las actas de notas quedarán congeladas y protegidas contra modificaciones.
+                        </li>
+                      </ul>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <div className="modal-footer border-top p-3 bg-light">
+                <button
+                  type="button"
+                  className="btn btn-secondary rounded-3"
+                  onClick={() => setShowClosePeriodAuditModal(false)}
+                >
+                  {closeAuditData.canClose ? 'Cancelar' : 'Entendido'}
+                </button>
+
+                {closeAuditData.canClose && (
+                  <button
+                    type="button"
+                    className="btn btn-danger fw-bold px-4 rounded-3 d-flex align-items-center gap-2"
+                    onClick={handleConfirmPeriodClose}
+                    disabled={closingPeriod}
+                  >
+                    {closingPeriod ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm"></span>
+                        <span>Ejecutando Cierre...</span>
+                      </>
+                    ) : (
+                      <>
+                        <i className="bi bi-lock-fill"></i>
+                        <span>Ejecutar Cierre Definitivo</span>
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= MODAL: SEMESTER CLOSE SUCCESS SUMMARY (Epic 7) ================= */}
+      {showClosePeriodSuccessModal && closeResultData && (
+        <div
+          className="modal show d-block"
+          tabIndex="-1"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+              <div className="modal-header bg-success text-white">
+                <div className="d-flex align-items-center gap-2">
+                  <i className="bi bi-trophy-fill fs-4 text-white"></i>
+                  <h5 className="modal-title fw-bold mb-0 text-white">
+                    ¡Cierre de Período Académico Exitoso!
+                  </h5>
+                </div>
+                <button
+                  type="button"
+                  className="btn-close btn-close-white"
+                  onClick={() => setShowClosePeriodSuccessModal(false)}
+                ></button>
+              </div>
+
+              <div className="modal-body p-4 text-center">
+                <div
+                  className="rounded-circle d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success mb-3"
+                  style={{ width: '64px', height: '64px' }}
+                >
+                  <i className="bi bi-check-lg display-6"></i>
+                </div>
+                <h5 className="fw-bold text-dark mb-1">
+                  Período {closeResultData.periodId} Cerrado Oficialmente
+                </h5>
+                <p className="text-muted small mb-4">
+                  Se ha congelado el período académico y se ejecutó la evaluación académica integral.
+                </p>
+
+                <div className="row g-2 mb-3 text-start">
+                  <div className="col-4">
+                    <div className="bg-light p-2 rounded-3 text-center border">
+                      <span className="small text-muted d-block" style={{ fontSize: '0.75rem' }}>Procesadas</span>
+                      <strong className="fs-5 text-dark">{closeResultData.totalProcessedEnrollments}</strong>
+                    </div>
+                  </div>
+                  <div className="col-4">
+                    <div className="bg-success bg-opacity-10 p-2 rounded-3 text-center border border-success border-opacity-25">
+                      <span className="small text-success d-block" style={{ fontSize: '0.75rem' }}>Aprobadas</span>
+                      <strong className="fs-5 text-success">{closeResultData.approvedCount}</strong>
+                    </div>
+                  </div>
+                  <div className="col-4">
+                    <div className="bg-danger bg-opacity-10 p-2 rounded-3 text-center border border-danger border-opacity-25">
+                      <span className="small text-danger d-block" style={{ fontSize: '0.75rem' }}>Reprobadas</span>
+                      <strong className="fs-5 text-danger">{closeResultData.failedCount}</strong>
+                    </div>
+                  </div>
+                </div>
+
+                {closeResultData.graduatedStudentsCount > 0 && (
+                  <div className="alert alert-info py-2 small text-start mb-2">
+                    <i className="bi bi-mortarboard-fill me-2 text-primary"></i>
+                    <strong>{closeResultData.graduatedStudentsCount}</strong> nuevo(s) estudiante(s) pasaron a condición <strong>EGRESADO</strong>:
+                    <div className="font-monospace mt-1">{closeResultData.graduatedStudentRuns?.join(', ')}</div>
+                  </div>
+                )}
+
+                {closeResultData.dismissedStudentsCount > 0 && (
+                  <div className="alert alert-danger py-2 small text-start mb-2">
+                    <i className="bi bi-exclamation-octagon-fill me-2 text-danger"></i>
+                    <strong>{closeResultData.dismissedStudentsCount}</strong> estudiante(s) pasaron a estado <strong>ELIMINADO</strong> por 2ª reprobación:
+                    <div className="font-monospace mt-1">{closeResultData.dismissedStudentRuns?.join(', ')}</div>
+                  </div>
+                )}
+              </div>
+
+              <div className="modal-footer border-top p-3 bg-light">
+                <button
+                  type="button"
+                  className="btn btn-primary fw-bold px-4 w-100 rounded-3"
+                  style={{ backgroundColor: '#2563eb' }}
+                  onClick={() => setShowClosePeriodSuccessModal(false)}
+                >
+                  Entendido y Continuar
                 </button>
               </div>
             </div>

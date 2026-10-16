@@ -13,6 +13,9 @@ import TeacherProfilePage from './pages/TeacherProfilePage';
 import AcademicOfferPage from './pages/AcademicOfferPage';
 import EnrollmentPage from './pages/EnrollmentPage';
 import TeacherSectionsPage from './pages/TeacherSectionsPage';
+import StudentCurrentCoursesPage from './pages/StudentCurrentCoursesPage';
+import StudentCurriculumPage from './pages/StudentCurriculumPage';
+import StudentAcademicHistoryPage from './pages/StudentAcademicHistoryPage';
 
 // Protected Route Component based on User Authentication and Role
 const ProtectedRoute = ({ allowedRoles, children }) => {
@@ -129,6 +132,36 @@ function App() {
               <Route
                 path="/enrollment"
                 element={<ProtectedRoute allowedRoles={['STUDENT']}><EnrollmentPage /></ProtectedRoute>}
+              />
+
+              {/* Student Current Courses & Schedule (Epic 7) */}
+              <Route
+                path="/student/my-courses"
+                element={
+                  <ProtectedRoute allowedRoles={['STUDENT']}>
+                    <StudentCurrentCoursesPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Student Curriculum Progress & Prerequisites (Epic 7) */}
+              <Route
+                path="/student/curriculum"
+                element={
+                  <ProtectedRoute allowedRoles={['STUDENT']}>
+                    <StudentCurriculumPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Student Academic History & Transcript by Periods (Epic 7) */}
+              <Route
+                path="/student/academic-history"
+                element={
+                  <ProtectedRoute allowedRoles={['STUDENT', 'ADMIN']}>
+                    <StudentAcademicHistoryPage />
+                  </ProtectedRoute>
+                }
               />
 
               {/* Teacher Management: only accessible to ADMIN (Epic 4) */}
