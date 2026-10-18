@@ -6,10 +6,11 @@
 ---
 
 ## 1. Visión General del Proyecto
-SIGA IPT (Sistema Integrado de Gestión Académica) es una aplicación web monolítica por capas para el Instituto Profesional de Tecnología (IPT). Centraliza la gestión académica para 3 carreras técnicas de 2 años (4 semestres):
+SIGA IPT (Sistema Integrado de Gestión Académica) es una aplicación web monolítica por capas para el Instituto Profesional de Tecnología (IPT). Centraliza la gestión académica para carreras técnicas de 2 años (4 semestres):
 - **10450:** Técnico Analista Programador (Plan 2021.3)
 - **10451:** Técnico en Análisis de Datos (Plan 2022.3)
 - **10452:** Técnico en Ciberseguridad (Plan 2021.3)
+- **10453:** Técnico en Inteligencia Artificial (Plan 2026.1 - Carrera y plan configurable agregados para simulación y pruebas)
 
 ---
 
@@ -109,16 +110,17 @@ Una vez implementadas y validadas las 7 épicas y alcanzado el umbral de cobertu
    - **Reglas de Modificación y Estados:**
      - El Administrador Académico solo puede cambiar estados entre `REGULAR`, `POSTERGACION` y `RETIRO_TEMPORAL`.
      - `EGRESADO` y `ELIMINADO` no pueden asignarse manualmente; se asignan de forma automática durante el cierre de semestre.
-     - La carrera y el plan de estudios solo se pueden modificar si el estudiante NO posee inscripciones ni historial académico.
+     - **Cambio de Carrera Condicional:** La carrera y el plan de estudios solo se pueden modificar si el estudiante **NO posee inscripciones ni historial académico** en el sistema (`hasEnrollmentsOrAcademicHistory(student)`). Si registra inscripciones o historial previo, el backend rechaza la operación con `BusinessRuleException` y en el frontend ([StudentDetailPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/StudentDetailPage.jsx)) el selector de carrera se bloquea (`disabled`) mostrando un badge `"Bloqueada"`. Si no tiene registros previos, el cambio de carrera está habilitado (badge `"Modificable"`) y al confirmarse se le asigna atómicamente el plan de estudio activo vigente de la nueva carrera.
    - **Reglas de Eliminación:**
      - Prohibida la eliminación física si el alumno tiene ramos inscritos o historial académico.
      - El borrado físico (`DELETE /api/students/{run}`) solo se permite si el alumno no registra inscripciones ni historial previo.
    - **Matriz de Acceso y Visibilidad:**
-     - `STUDENT`: Solo puede consultar su **propia información e historial académico** (filtrado por su RUN extraído del JWT).
-     - `TEACHER`: Puede acceder a la información de contacto/datos de estudiantes en estado `REGULAR` inscritos en sus secciones asignadas (vía botón en la lista del curso). No tiene acceso al historial académico de los alumnos.
-     - `ADMIN`: Vista global con buscador de todos los estudiantes, edición de datos permitidos y cambio de estados habilitados. Acceso al historial académico.
+     - `STUDENT`: Solo puede consultar su **propia información, asignaturas en curso con horario semanal, malla curricular formativa con semáforo e historial académico por períodos** (filtrado por su RUN extraído del JWT o vía `/api/students/me/...`).
+     - `TEACHER`: Puede acceder a la información de contacto/datos de estudiantes en estado `REGULAR` inscritos en sus secciones asignadas (vía nómina en `/teacher/sections`). No tiene acceso al historial académico ni expedientes globales de los alumnos.
+     - `ADMIN`: Vista global con buscador de todos los estudiantes, filtro de matrícula activa/inactiva, edición de datos permitidos y cambio de estados habilitados. Acceso irrestricto al expediente completo de cualquier estudiante: Asignaturas en Curso con Horario Semanal (`/students/:run/current-courses`), Malla Curricular Formativa (`/students/:run/curriculum`) e Historial Académico por Períodos (`/students/:run/academic-history`).
    - **Vistas del Frontend:**
-     - Vista de detalle de estudiante con botones hacia "Asignaturas Cursadas" y "Calificaciones" (preparadas como enlaces/placeholders para futuras épicas).
+     - [StudentListPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/StudentListPage.jsx): Nómina general con buscador por nombre/RUN, selector de filtro por estado de matrícula en el período actual (`Todas`, `Matrícula Activa`, `Matrícula Inactiva`) y badges de estado (`.matriculation-active`, `.matriculation-inactive`).
+     - [StudentDetailPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/StudentDetailPage.jsx): Expediente detallado del estudiante que incluye la tarjeta de "Historial y Registro Académico" con accesos directos interactivos estilizados (`.siga-action-link`) a "Asignaturas en Curso", "Malla Curricular" e "Historial Académico", conmutador de matrícula activa/inactiva y selector de carrera condicionalmente bloqueado o editable.
 2. **Carreras y Planes de Estudio (Épica 2):**
    - Carreras: código único, nombre, descripción, duración 4 semestres, estado `ACTIVA`/`INACTIVA`.
    - Planes: solo uno vigente por carrera a la vez. Al activar un plan nuevo, el anterior pasa automáticamente a `NO VIGENTE`.
@@ -157,8 +159,8 @@ Una vez implementadas y validadas las 7 épicas y alcanzado el umbral de cobertu
 | **Épica 3: Asignaturas y Prerrequisitos** | Endpoints REST, validaciones TEL/SCT, precarga Apéndice A | **93% inst / 96% líneas** (74/74 tests) | Malla interactiva, filtros, modales CRUD con cálculo TEL en vivo | **COMPLETADO Y VALIDADO** |
 | **Épica 4: Gestión de Docentes** | Endpoints REST, resolución de colisiones, Keycloak | **94% inst / 96% líneas** (88/88 tests) | Nómina docente, previsualización email, perfil docente y clave | **COMPLETADO Y VALIDADO** |
 | **Épica 5: Oferta Académica y Secciones** | Períodos, secciones, bloques TEL, control choque horario | **91% inst / 95.6% líneas** (121/121 tests) | Gestión de períodos, horario semanal visual, modal sección | **COMPLETADO Y VALIDADO** |
-| **Épica 6: Inscripción Académica** | 10 reglas de negocio, CRUD inscripciones, endpoints teacher/student | Pendiente medición (>= 18 tests) | Inscripción estudiante, secciones docente, toggle matrícula Admin | **COMPLETADO (BACKEND + FRONTEND)** |
-| **Épica 7: Calificaciones y Cierre** | Pendiente | Pendiente | Pendiente | **SIGUIENTE PASO** |
+| **Épica 6: Inscripción Académica** | 10 reglas de negocio, CRUD inscripciones, endpoints teacher/student | **> 90% líneas** (145/145 tests) | Inscripción estudiante (batch, filtros, grilla semanal interactiva), secciones docente con nómina, toggle matrícula Admin | **COMPLETADO Y VALIDADO** |
+| **Épica 7: Calificaciones y Cierre** | Calificaciones finales (1.0-7.0), auditoría y cierre formal, causal eliminación doble repitencia, graduación, historial cronológico y avance formativo | **> 90% líneas** (164/164 tests) | Acta docente con badges en vivo, modal auditoría y cierre formal Admin, vistas de estudiante (cursos en curso, malla semáforo, historial por períodos) y expediente completo para Admin | **COMPLETADO Y VALIDADO** |
 
 ### Resumen de lo Implementado en Épica 1 y Seguridad (Keycloak):
 - **Backend:**
@@ -423,8 +425,13 @@ Una vez implementadas y validadas las 7 épicas y alcanzado el umbral de cobertu
 - **Controladores REST:**
   - [GradeController.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/controller/GradeController.java): `GET` y `PUT /api/sections/{sectionId}/grades`.
   - [AcademicPeriodCloseController.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/controller/AcademicPeriodCloseController.java): `GET /api/academic-periods/{id}/close-readiness` y `POST /api/academic-periods/{id}/close`.
-  - [StudentAcademicHistoryController.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/controller/StudentAcademicHistoryController.java): `GET /api/students/me/academic-history`, `GET /api/students/me/curriculum-progress`, y endpoints administrativos `/api/students/{run}/...`.
-- **Pruebas Automatizadas:** 163 pruebas unitarias y de integración pasando al 100% (`mvn clean test`), 0 fallas, 0 errores.
+  - [StudentAcademicHistoryController.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/controller/StudentAcademicHistoryController.java):
+    - Estudiante: `GET /api/students/me/academic-history` y `GET /api/students/me/curriculum-progress`.
+    - Administrador Académico: `GET /api/students/{run}/academic-history` y `GET /api/students/{run}/curriculum-progress`.
+  - [EnrollmentController.java](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/src/main/java/cl/usach/tingeso/controller/EnrollmentController.java):
+    - Estudiante: `GET /api/enrollments/my-enrollments` (asignaturas activas en curso).
+    - Administrador Académico: `GET /api/enrollments/student/{run}/active` (consulta de asignaturas cursando actualmente con horario por cualquier estudiante).
+- **Pruebas Automatizadas:** 164 pruebas unitarias y de integración pasando al 100% (`mvn test`), 0 fallas, 0 errores, con cobertura JaCoCo en capa service superior al 90%.
 
 ### 5.3 Componentes Frontend Desarrollados y Refinados
 - **Servicios:**
@@ -452,18 +459,28 @@ Una vez implementadas y validadas las 7 épicas y alcanzado el umbral de cobertu
     - Botón *"Cerrar Semestre"* con modal de **Auditoría Previa**.
     - Si faltan calificaciones, bloquea el cierre y despliega la nómina de secciones incompletas con docentes y alumnos pendientes.
     - Si el 100% de las notas están registradas, permite la confirmación formal del cierre y despliega el modal de resumen de resultados (aprobados, reprobados, egresados y alumnos eliminados por doble repitencia).
+  - [StudentDetailPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/StudentDetailPage.jsx):
+    - Tarjeta "Historial y Registro Académico" con botones de navegación con clase `.siga-action-link` (efecto hover con fondo claro `#eff6ff`, borde azul y sombra sin pérdida de legibilidad de texto):
+      - **"Asignaturas en Curso":** redirige a `/students/:run/current-courses` permitiendo al Admin visualizar las asignaturas inscritas y horario semanal del estudiante consultado.
+      - **"Malla Curricular":** redirige a `/students/:run/curriculum` mostrando la malla con semáforo formativo del estudiante consultado.
+      - **"Historial Académico":** redirige a `/students/:run/academic-history` con el expediente completo por períodos académicos.
+    - **Bloqueo dinámico de carrera:** selector de carrera deshabilitado si `student.hasAcademicHistory` es verdadero con badge de alerta "Bloqueada" y validación atómica en backend.
+  - [StudentListPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/StudentListPage.jsx):
+    - Selector interactivo de filtro por estado de matrícula (`Todas`, `Matrícula Activa`, `Matrícula Inactiva`) con badges distintivos `.matriculation-active` e `.matriculation-inactive`.
+  - **Reutilización Multirrol de Vistas Académicas:**
+    - [StudentCurrentCoursesPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/StudentCurrentCoursesPage.jsx), [StudentCurriculumPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/StudentCurriculumPage.jsx) y [StudentAcademicHistoryPage.jsx](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/src/pages/StudentAcademicHistoryPage.jsx) detectan dinámicamente si la URL incluye `:run` (modo Administrador Académico) o si se accede desde la ruta del estudiante (`/student/...`), adaptando automáticamente las llamadas a API, encabezados, alertas y botones de retorno.
 
 ---
 
 ## 6. Estado Consolidado del Proyecto
-- **Épica 1:** Autenticación y Autorización (Keycloak + Spring Security + SPA) $\rightarrow$ **100% Completa**.
-- **Épica 2:** Gestión de Carreras y Planes de Estudio $\rightarrow$ **100% Completa**.
-- **Épica 3:** Gestión de Asignaturas y Mallas Curriculares $\rightarrow$ **100% Completa**.
-- **Épica 4:** Gestión Docente $\rightarrow$ **100% Completa**.
-- **Épica 5:** Oferta Académica y Secciones $\rightarrow$ **100% Completa**.
-- **Épica 6:** Inscripción Académica y Secciones Docentes $\rightarrow$ **100% Completa**.
-- **Épica 7:** Calificaciones Finales y Cierre de Semestre $\rightarrow$ **100% Completa**.
+- **Épica 1:** Autenticación y Autorización (Keycloak + Spring Security + SPA) $\rightarrow$ **100% Completa y Validada**.
+- **Épica 2:** Gestión de Carreras y Planes de Estudio $\rightarrow$ **100% Completa y Validada**.
+- **Épica 3:** Gestión de Asignaturas y Mallas Curriculares $\rightarrow$ **100% Completa y Validada**.
+- **Épica 4:** Gestión Docente $\rightarrow$ **100% Completa y Validada**.
+- **Épica 5:** Oferta Académica y Secciones $\rightarrow$ **100% Completa y Validada**.
+- **Épica 6:** Inscripción Académica y Secciones Docentes $\rightarrow$ **100% Completa y Validada**.
+- **Épica 7:** Calificaciones Finales y Cierre de Semestre $\rightarrow$ **100% Completa y Validada**.
 - **Calidad y Tests:**
-  - Backend: **163 / 163 pruebas unitarias y de integración pasando en verde** (`./mvnw clean test`), BUILD SUCCESS.
+  - Backend: **164 / 164 pruebas unitarias y de integración pasando en verde** (`./mvnw test`), BUILD SUCCESS. Cobertura JaCoCo $\ge 90\%$ en la capa de servicios.
   - Frontend: **0 errores de linting** (`npm run lint`), compilación limpia (`npm run build`).
 
