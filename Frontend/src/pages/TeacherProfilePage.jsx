@@ -9,7 +9,7 @@ import { useAuth } from '../context/AuthContext';
  * Layer: Frontend Page.
  */
 const TeacherProfilePage = () => {
-  const { currentUserRun, user } = useAuth();
+  const { currentUserRun } = useAuth();
   const [teacher, setTeacher] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
