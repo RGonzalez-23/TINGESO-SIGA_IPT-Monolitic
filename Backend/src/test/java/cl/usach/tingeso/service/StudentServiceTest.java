@@ -357,6 +357,22 @@ class StudentServiceTest {
     }
 
     @Test
+    @DisplayName("Should throw BusinessRuleException when updating career if student has enrollments or history")
+    void testUpdateStudent_CareerUpdate_BlockedByEnrollments() {
+        StudentUpdateDTO dto = StudentUpdateDTO.builder()
+                .careerCode("10451")
+                .build();
+
+        when(studentRepository.findByRun("12345678-5")).thenReturn(Optional.of(sampleStudent));
+        when(enrollmentRepository.existsByStudent_Run("12345678-5")).thenReturn(true);
+
+        BusinessRuleException ex = assertThrows(BusinessRuleException.class, () ->
+                studentService.updateStudent("12345678-5", dto));
+
+        assertTrue(ex.getMessage().contains("inscripciones o historial académico"));
+    }
+
+    @Test
     @DisplayName("Should throw ResourceNotFoundException when updating career to non-existent career")
     void testUpdateStudent_CareerUpdate_NotFound() {
         StudentUpdateDTO dto = StudentUpdateDTO.builder()

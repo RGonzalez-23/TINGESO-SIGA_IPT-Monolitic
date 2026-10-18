@@ -28,4 +28,5 @@ public class StudentResponseDTO {
     private Long studyPlanId;
     private String studyPlanCode;
     private Boolean isMatriculated;
+    private Boolean hasAcademicHistory;
 }

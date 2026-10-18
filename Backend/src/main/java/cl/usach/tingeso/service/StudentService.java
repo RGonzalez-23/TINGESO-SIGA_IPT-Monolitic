@@ -27,7 +27,6 @@ import java.util.List;
  * Layer: Service.
  */
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class StudentService {
 
@@ -37,6 +36,20 @@ public class StudentService {
     private final KeycloakUserService keycloakUserService;
     private final InstitutionalEmailService institutionalEmailService;
     private final EnrollmentRepository enrollmentRepository;
+
+    public StudentService(StudentRepository studentRepository,
+                          CareerRepository careerRepository,
+                          StudyPlanRepository studyPlanRepository,
+                          KeycloakUserService keycloakUserService,
+                          InstitutionalEmailService institutionalEmailService,
+                          EnrollmentRepository enrollmentRepository) {
+        this.studentRepository = studentRepository;
+        this.careerRepository = careerRepository;
+        this.studyPlanRepository = studyPlanRepository;
+        this.keycloakUserService = keycloakUserService;
+        this.institutionalEmailService = institutionalEmailService;
+        this.enrollmentRepository = enrollmentRepository;
+    }
 
     /**
      * Registers a new student in the institution.
@@ -171,7 +184,7 @@ public class StudentService {
         if (dto.getCareerCode() != null && !dto.getCareerCode().equals(student.getCareer().getCode())) {
             if (hasEnrollmentsOrAcademicHistory(student)) {
                 throw new BusinessRuleException(
-                        "Career and study plan cannot be modified because the student has enrollments or academic history.");
+                        "No es posible cambiar de carrera ni plan de estudios porque el estudiante registra inscripciones o historial académico en el sistema.");
             }
 
             CareerEntity newCareer = careerRepository.findByCode(dto.getCareerCode())
@@ -269,6 +282,7 @@ public class StudentService {
                 .studyPlanId(entity.getStudyPlan() != null ? entity.getStudyPlan().getId() : null)
                 .studyPlanCode(entity.getStudyPlan() != null ? entity.getStudyPlan().getCode() : null)
                 .isMatriculated(entity.getIsMatriculated())
+                .hasAcademicHistory(hasEnrollmentsOrAcademicHistory(entity))
                 .build();
     }
 }
