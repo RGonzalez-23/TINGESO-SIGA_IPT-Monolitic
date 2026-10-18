@@ -1271,7 +1271,7 @@ const AcademicOfferPage = () => {
                       {selectedCourseForCreate && (
                         <div className="mt-3 p-3 bg-light rounded-3 border">
                           <div className="d-flex align-items-center justify-content-between mb-2">
-                            <span className="small text-muted">Código de Sección Formato Canónico:</span>
+                            <span className="small text-muted">Código de Sección:</span>
                             <span className="badge bg-primary font-monospace fs-6 px-3 py-1">
                               {previewSectionCode}
                             </span>
@@ -1889,7 +1889,7 @@ const AcademicOfferPage = () => {
                     <div className="card bg-light border-0 rounded-3 p-3 mb-3">
                       <h6 className="fw-bold text-dark mb-2">
                         <i className="bi bi-gear-wide-connected text-primary me-2"></i>
-                        Efectos automáticos del Cierre de Semestre (Épica 7):
+                        Efectos automáticos del Cierre de Semestre:
                       </h6>
                       <ul className="small text-muted mb-0 ps-3">
                         <li className="mb-1">

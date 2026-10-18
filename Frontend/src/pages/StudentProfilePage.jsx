@@ -103,10 +103,9 @@ const StudentProfilePage = () => {
             <i className="bi bi-person-circle me-2"></i> Mi Perfil de Estudiante
           </h2>
           <p className="text-muted small mb-0">
-            Vista personal del alumno autenticado. Acceso a situación curricular e historial.
+            Vista personal del alumno.
           </p>
         </div>
-        <span className="badge bg-primary px-3 py-2">Rol: ESTUDIANTE</span>
       </div>
 
       {error ? (
@@ -185,7 +184,7 @@ const StudentProfilePage = () => {
                 <i className="bi bi-shield-lock-fill me-2"></i> Seguridad: Cambiar mi Contraseña
               </h5>
               <p className="text-muted small mb-3">
-                Actualiza tu contraseña de acceso a Keycloak. El cambio se aplicará de inmediato.
+                Actualiza tu contraseña de acceso.
               </p>
 
               {pwdSuccess && (

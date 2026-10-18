@@ -97,9 +97,77 @@ body {
   border: 1px solid #fca5a5;
 }
 
+/* Matriculation Badges */
+.matriculation-active {
+  background-color: #dcfce7 !important;
+  color: #166534 !important;
+  border: 1px solid #86efac !important;
+}
+
+.matriculation-inactive {
+  background-color: #f1f5f9 !important;
+  color: #64748b !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
 /* Schedule Matrix Grid Thick Borders */
 .schedule-matrix-table,
 .schedule-matrix-table th,
 .schedule-matrix-table td {
   border: 1.25px solid #aaa9a9 !important;
+}
+
+/* Interactive Action Links & Cards (Preserves text and contrast on hover) */
+.siga-action-link {
+  background-color: #ffffff;
+  border: 1.5px solid #dbeafe;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.siga-action-link:hover {
+  background-color: #eff6ff;
+  border-color: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.12) !important;
+  text-decoration: none;
+}
+
+.siga-action-link .action-title {
+  color: #1e40af;
+  transition: color 0.2s ease;
+}
+
+.siga-action-link:hover .action-title {
+  color: #1d4ed8;
+}
+
+.siga-action-link .action-subtitle {
+  color: #64748b;
+  transition: color 0.2s ease;
+}
+
+.siga-action-link:hover .action-subtitle {
+  color: #334155;
+}
+
+.siga-action-link .action-arrow {
+  color: #3b82f6;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.siga-action-link:hover .action-arrow {
+  color: #1d4ed8;
+  transform: translateX(4px);
+}
+
+/* Fallback: preserve readability on hover for btn-outline-primary with inner colored text */
+.btn-outline-primary:hover .text-primary,
+.btn-outline-primary:hover .bi-chevron-right {
+  color: #ffffff !important;
+}
+
+.btn-outline-primary:hover .text-muted {
+  color: rgba(255, 255, 255, 0.9) !important;
 }

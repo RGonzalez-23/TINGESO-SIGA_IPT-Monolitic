@@ -41,14 +41,14 @@ const StudentCurriculumPage = () => {
     switch (status) {
       case 'APPROVED':
         return (
-          <span className="badge bg-success bg-opacity-15 text-success border border-success border-opacity-25 px-2 py-1 rounded-pill fw-semibold">
+          <span className="badge bg-success bg-opacity-15 text-success border border-success border-opacity-25 px-2 py-1 text-white rounded-pill fw-semibold">
             <i className="bi bi-check-circle-fill me-1"></i>
             Aprobada {grade ? `(${grade.toFixed(1)})` : ''}
           </span>
         );
       case 'FAILED':
         return (
-          <span className="badge bg-danger bg-opacity-15 text-danger border border-danger border-opacity-25 px-2 py-1 rounded-pill fw-semibold">
+          <span className="badge bg-danger bg-opacity-15 text-danger border border-danger border-opacity-25 px-2 py-1 text-white rounded-pill fw-semibold">
             <i className="bi bi-x-circle-fill me-1"></i>
             Reprobada {failCount > 0 ? `(${failCount} ${failCount === 1 ? 'vez' : 'veces'})` : ''}
           </span>

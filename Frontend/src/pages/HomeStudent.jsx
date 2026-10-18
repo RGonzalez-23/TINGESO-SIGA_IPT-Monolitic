@@ -89,7 +89,7 @@ const HomeStudent = () => {
               </div>
               <h4 className="fw-bold text-dark mb-2">Mis Asignaturas en Curso</h4>
               <p className="text-muted small mb-4 flex-grow-1">
-                Consulta en detalle las asignaturas que estás cursando en este período (estado <strong>INSCRITA</strong>), docentes asignados y tu <strong>malla horaria semanal</strong>.
+                Consulta en detalle las asignaturas que estás cursando en este período, docentes asignados y tu malla horaria semanal.
               </p>
               <div className="pt-2 border-top">
                 <Link to="/student/my-courses" className="btn btn-outline-primary fw-semibold px-4 py-2 rounded-3">
@@ -118,7 +118,7 @@ const HomeStudent = () => {
               </div>
               <h4 className="fw-bold text-dark mb-2">Mi Malla Curricular</h4>
               <p className="text-muted small mb-4 flex-grow-1">
-                Visualiza tu plan formativo con código de colores: <span className="text-success fw-bold">Aprobadas</span>, <span className="text-danger fw-bold">Reprobadas (con n° de veces)</span>, <span className="text-warning fw-bold">En Curso</span> y prerrequisitos.
+                Visualiza tu plan formativo con código de colores: <span className="text-success fw-bold">Aprobadas</span>, <span className="text-danger fw-bold">Reprobadas</span>, <span className="text-warning fw-bold">En Curso</span> y prerrequisitos.
               </p>
               <div className="pt-2 border-top">
                 <Link to="/student/curriculum" className="btn btn-outline-success fw-semibold px-4 py-2 rounded-3">
@@ -147,7 +147,7 @@ const HomeStudent = () => {
               </div>
               <h4 className="fw-bold text-dark mb-2">Mi Historial Académico</h4>
               <p className="text-muted small mb-4 flex-grow-1">
-                Accede a tu registro histórico consolidado <strong>dividido por períodos académicos</strong>, con notas finales (1.0 a 7.0), condición de aprobación y promedio acumulado.
+                Accede a tu registro histórico consolidado, con calificaciones finales y promedio acumulado.
               </p>
               <div className="pt-2 border-top">
                 <Link to="/student/academic-history" className="btn fw-semibold px-4 py-2 rounded-3 text-white" style={{ backgroundColor: '#4f46e5' }}>
@@ -176,7 +176,7 @@ const HomeStudent = () => {
               </div>
               <h4 className="fw-bold text-dark mb-2">Mi Perfil y Seguridad</h4>
               <p className="text-muted small mb-4 flex-grow-1">
-                Consulta tus datos personales institucionales, situación de matrícula y actualiza tu contraseña de acceso a Keycloak.
+                Consulta tus datos personales institucionales, situación de matrícula y actualiza tu contraseña de acceso.
               </p>
               <div className="pt-2 border-top">
                 <Link to="/profile" className="btn btn-outline-secondary fw-semibold px-4 py-2 rounded-3">

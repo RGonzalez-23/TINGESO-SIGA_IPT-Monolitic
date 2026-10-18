@@ -300,9 +300,8 @@ const TeacherListPage = () => {
         >
           <div className="d-flex align-items-center gap-2">
             <i
-              className={`bi ${
-                alert.type === 'success' ? 'bi-check-circle-fill text-success' : 'bi-exclamation-triangle-fill text-danger'
-              } fs-5`}
+              className={`bi ${alert.type === 'success' ? 'bi-check-circle-fill text-success' : 'bi-exclamation-triangle-fill text-danger'
+                } fs-5`}
             ></i>
             <span>{alert.message}</span>
           </div>
@@ -538,9 +537,8 @@ const TeacherListPage = () => {
                       </label>
                       <input
                         type="text"
-                        className={`form-control font-monospace ${
-                          runValid === true ? 'is-valid' : runValid === false ? 'is-invalid' : ''
-                        }`}
+                        className={`form-control font-monospace ${runValid === true ? 'is-valid' : runValid === false ? 'is-invalid' : ''
+                          }`}
                         placeholder="Ej: 11111111-1"
                         maxLength="12"
                         value={createForm.run}
@@ -644,16 +642,10 @@ const TeacherListPage = () => {
                             <i className="bi bi-envelope-check me-1 text-primary"></i>
                             Correo Institucional Autogenerado:
                           </span>
-                          <span className="badge bg-info bg-opacity-10 text-dark border small">
-                            Resolución de colisiones activa
-                          </span>
                         </div>
                         <div className="font-monospace fw-bold text-primary fs-6">
                           {previewEmail || 'nombre.apellido@sigaipt.cl'}
                         </div>
-                        <small className="text-muted d-block mt-1">
-                          Si ya existe un correo idéntico entre estudiantes o profesores, el sistema añadirá automáticamente iniciales del apellido materno (.x) y sufijos progresivos.
-                        </small>
                       </div>
                     </div>
 
@@ -662,7 +654,7 @@ const TeacherListPage = () => {
                       <div className="alert alert-info py-2 px-3 small mb-0 d-flex align-items-center gap-2">
                         <i className="bi bi-shield-lock-fill fs-5 text-info"></i>
                         <span>
-                          Al guardar, el docente se creará en estado <strong>ACTIVO</strong> y se aprovisionará automáticamente en <strong>Keycloak</strong> con el rol <code>TEACHER</code> y la clave temporal <code>Siga2026!</code>.
+                          Al guardar, el docente se creará en estado <strong>ACTIVO</strong> y se aprovisionará automáticamente la clave temporal <code>Siga2026!</code>.
                         </span>
                       </div>
                     </div>

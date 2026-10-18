@@ -396,8 +396,8 @@ const StudyPlanDetailPage = () => {
           {isStudent
             ? 'Vista de Estudiante (Solo Lectura)'
             : isTeacher
-              ? 'Vista Docente (Consulta)'
-              : 'Panel de Administración (Control Total)'}
+              ? 'Vista Docente'
+              : 'Panel de Administración'}
         </span>
       </div>
 
@@ -801,8 +801,8 @@ const StudyPlanDetailPage = () => {
                                 <div key={candidate.id} className="col-md-6">
                                   <div
                                     className={`p-2 rounded-2 border d-flex align-items-center gap-2 cursor-pointer ${courseForm.prerequisiteCodes.includes(candidate.code)
-                                        ? 'border-primary bg-primary bg-opacity-10'
-                                        : 'bg-light'
+                                      ? 'border-primary bg-primary bg-opacity-10'
+                                      : 'bg-light'
                                       }`}
                                     onClick={() => handleTogglePrerequisite(candidate.code, false)}
                                     style={{ cursor: 'pointer' }}
@@ -1008,8 +1008,8 @@ const StudyPlanDetailPage = () => {
                               <div key={candidate.id} className="col-md-6">
                                 <div
                                   className={`p-2 rounded-2 border d-flex align-items-center gap-2 cursor-pointer ${editForm.prerequisiteCodes.includes(candidate.code)
-                                      ? 'border-primary bg-primary bg-opacity-10'
-                                      : 'bg-light'
+                                    ? 'border-primary bg-primary bg-opacity-10'
+                                    : 'bg-light'
                                     }`}
                                   onClick={() => handleTogglePrerequisite(candidate.code, true)}
                                   style={{ cursor: 'pointer' }}

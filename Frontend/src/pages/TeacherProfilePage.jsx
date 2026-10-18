@@ -115,10 +115,9 @@ const TeacherProfilePage = () => {
             <i className="bi bi-person-badge-fill me-2"></i> Mi Perfil Docente
           </h2>
           <p className="text-muted small mb-0">
-            Ficha académica del profesor autenticado, datos de contacto y administración de credenciales.
+            Ficha académica del profesor, datos de contacto y administración de credenciales.
           </p>
         </div>
-        <span className="badge bg-info text-dark px-3 py-2 fw-bold">ROL: DOCENTE</span>
       </div>
 
       <div className="row g-4">
@@ -204,7 +203,7 @@ const TeacherProfilePage = () => {
               <i className="bi bi-key-fill text-warning me-2"></i> Cambiar Mi Contraseña
             </h5>
             <p className="text-muted small mb-4">
-              Actualiza directamente tu contraseña de acceso institucional en <strong>Keycloak</strong>.
+              Actualiza directamente tu contraseña de acceso institucional.
             </p>
 
             {pwdSuccess && (
@@ -284,16 +283,10 @@ const TeacherProfilePage = () => {
                 )}
               </button>
             </form>
-
-            <div className="mt-4 pt-3 border-top text-center">
-              <small className="text-muted">
-                Tu usuario de autenticación corresponde a tu RUN (<code>{user?.preferred_username || currentUserRun}</code>).
-              </small>
-            </div>
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

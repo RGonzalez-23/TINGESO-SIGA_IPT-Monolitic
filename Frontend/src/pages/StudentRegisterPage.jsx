@@ -150,21 +150,17 @@ const StudentRegisterPage = () => {
                     </span>
                     <input
                       type="text"
-                      className={`form-control font-monospace ${
-                        formData.run.length > 7
-                          ? isRunValid()
-                            ? 'is-valid'
-                            : 'is-invalid'
-                          : ''
-                      }`}
+                      className={`form-control font-monospace ${formData.run.length > 7
+                        ? isRunValid()
+                          ? 'is-valid'
+                          : 'is-invalid'
+                        : ''
+                        }`}
                       placeholder="Ej: 12345678-5 (con guion y sin puntos)"
                       value={formData.run}
                       onChange={(e) => setFormData({ ...formData, run: e.target.value })}
                       required
                     />
-                  </div>
-                  <div className="form-text small">
-                    El sistema valida automáticamente el dígito verificador oficial (Módulo 11).
                   </div>
                 </div>
 
@@ -246,11 +242,11 @@ const StudentRegisterPage = () => {
                     </li>
                     <li className="mb-1">
                       <strong>Estado Académico Inicial: </strong>
-                      <span className="badge badge-status-regular">REGULAR</span> (Asignado automáticamente)
+                      <span className="badge badge-status-regular">REGULAR</span>
                     </li>
                     <li>
-                      <strong>Cuenta en Keycloak: </strong>
-                      Aprovisionamiento automático de credenciales con rol <code>STUDENT</code>.
+                      <strong>Cuenta: </strong>
+                      Contraseña por defecto <strong>'Siga2026!'</strong>
                     </li>
                   </ul>
                 </div>

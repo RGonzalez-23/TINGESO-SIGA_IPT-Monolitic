@@ -46,7 +46,7 @@ const StudentDetailPage = () => {
 
   const loadCareers = useCallback(async () => {
     try {
-      const response = await CareerDataService.getAll();
+      const response = await CareerDataService.getAllCareers();
       setCareers(response.data);
     } catch (err) {
       console.error('Error loading careers:', err);
@@ -400,11 +400,23 @@ const StudentDetailPage = () => {
 
                   <div className="row mb-3">
                     <div className="col-md-6">
-                      <label className="form-label small fw-semibold">Carrera</label>
+                      <label className="form-label small fw-semibold d-flex justify-content-between align-items-center">
+                        <span>Carrera</span>
+                        {student.hasAcademicHistory ? (
+                          <span className="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2 py-0">
+                            <i className="bi bi-lock-fill me-1"></i>Bloqueada
+                          </span>
+                        ) : (
+                          <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-0">
+                            <i className="bi bi-unlock-fill me-1"></i>Modificable
+                          </span>
+                        )}
+                      </label>
                       <select
-                        className="form-select"
+                        className={`form-select ${student.hasAcademicHistory ? 'bg-light text-muted' : ''}`}
                         value={editFormData.careerCode}
                         onChange={(e) => setEditFormData({ ...editFormData, careerCode: e.target.value })}
+                        disabled={Boolean(student.hasAcademicHistory)}
                       >
                         {careers.map((c) => (
                           <option key={c.code} value={c.code}>
@@ -412,9 +424,17 @@ const StudentDetailPage = () => {
                           </option>
                         ))}
                       </select>
-                      <div className="form-text small">
-                        * Solo modificable si no registra inscripciones ni historial.
-                      </div>
+                      {student.hasAcademicHistory ? (
+                        <div className="form-text small text-danger">
+                          <i className="bi bi-exclamation-circle me-1"></i>
+                          No es posible cambiar de carrera porque el estudiante ya registra asignaturas inscritas o historial académico.
+                        </div>
+                      ) : (
+                        <div className="form-text small text-muted">
+                          <i className="bi bi-info-circle me-1"></i>
+                          Habilitado: Sin inscripciones ni historial. Al cambiar de carrera se le asignará el plan vigente.
+                        </div>
+                      )}
                     </div>
                     <div className="col-md-6">
                       <label className="form-label small fw-semibold">Estado Académico (Admin)</label>

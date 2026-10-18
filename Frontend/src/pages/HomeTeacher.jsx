@@ -14,7 +14,7 @@ const HomeTeacher = () => {
         }}
       >
         <div style={{ maxWidth: '700px' }}>
-          <div className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-white bg-opacity-20 mb-3 text-white small fw-semibold">
+          <div className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-white bg-opacity-20 mb-3 text-dark small fw-semibold">
             <i className="bi bi-person-workspace"></i>
             <span>Portal Docente IPT</span>
           </div>

@@ -8,6 +8,7 @@ const StudentListPage = () => {
   const [students, setStudents] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [matriculationFilter, setMatriculationFilter] = useState('ALL');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
@@ -61,7 +62,7 @@ const StudentListPage = () => {
     }
   };
 
-  // Filter students based on search term and role access rules
+  // Filter students based on search term, status, matriculation and role access rules
   const filteredStudents = students.filter((st) => {
     // If Teacher: only access students in REGULAR status
     if (isTeacher && st.academicStatus !== 'REGULAR') {
@@ -75,7 +76,12 @@ const StudentListPage = () => {
 
     const matchesStatus = statusFilter === 'ALL' || st.academicStatus === statusFilter;
 
-    return matchesSearch && matchesStatus;
+    const matchesMatriculation =
+      matriculationFilter === 'ALL' ||
+      (matriculationFilter === 'ACTIVE' && st.isMatriculated === true) ||
+      (matriculationFilter === 'INACTIVE' && st.isMatriculated !== true);
+
+    return matchesSearch && matchesStatus && matchesMatriculation;
   });
 
   return (
@@ -118,7 +124,7 @@ const StudentListPage = () => {
       {/* Filters Bar */}
       <div className="siga-card mb-4 p-3">
         <div className="row g-2 align-items-center">
-          <div className="col-md-7">
+          <div className={isAdmin ? 'col-md-5 col-lg-5' : 'col-md-7 col-lg-8'}>
             <div className="input-group">
               <span className="input-group-text bg-white">
                 <i className="bi bi-search text-muted"></i>
@@ -133,9 +139,11 @@ const StudentListPage = () => {
             </div>
           </div>
           {isAdmin && (
-            <div className="col-md-5">
+            <div className="col-md-4 col-lg-4">
               <div className="d-flex align-items-center">
-                <label className="form-label text-nowrap me-2 mb-0 small text-muted">Estado:</label>
+                <label className="form-label text-nowrap me-2 mb-0 small text-muted">
+                  <i className="bi bi-person-badge me-1"></i>Estado:
+                </label>
                 <select
                   className="form-select"
                   value={statusFilter}
@@ -151,6 +159,22 @@ const StudentListPage = () => {
               </div>
             </div>
           )}
+          <div className={isAdmin ? 'col-md-3 col-lg-3' : 'col-md-5 col-lg-4'}>
+            <div className="d-flex align-items-center">
+              <label className="form-label text-nowrap me-2 mb-0 small text-muted">
+                <i className="bi bi-card-checklist me-1"></i>Matrícula:
+              </label>
+              <select
+                className="form-select"
+                value={matriculationFilter}
+                onChange={(e) => setMatriculationFilter(e.target.value)}
+              >
+                <option value="ALL">Todas</option>
+                <option value="ACTIVE">Activa</option>
+                <option value="INACTIVE">Inactiva</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -179,15 +203,15 @@ const StudentListPage = () => {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan="7" className="text-center py-4 text-muted">
+                  <td colSpan="8" className="text-center py-4 text-muted">
                     <div className="spinner-border spinner-border-sm me-2" role="status"></div>
                     Cargando estudiantes...
                   </td>
                 </tr>
               ) : filteredStudents.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="text-center py-4 text-muted">
-                    No se encontraron estudiantes registrados.
+                  <td colSpan="8" className="text-center py-4 text-muted">
+                    No se encontraron estudiantes con los criterios seleccionados.
                   </td>
                 </tr>
               ) : (
