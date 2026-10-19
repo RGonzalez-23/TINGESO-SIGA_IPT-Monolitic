@@ -181,6 +181,8 @@ Una vez implementadas y validadas las 7 épicas y alcanzado el umbral de cobertu
 | **Épica 6: Inscripción Académica** | 10 reglas de negocio, CRUD inscripciones, endpoints teacher/student | **> 90% líneas** (145/145 tests) | Inscripción estudiante (batch, filtros, grilla semanal interactiva), secciones docente con nómina, toggle matrícula Admin | **COMPLETADO Y VALIDADO** |
 | **Épica 7: Calificaciones y Cierre** | Calificaciones finales (1.0-7.0), auditoría y cierre formal, causal eliminación doble repitencia, graduación, historial cronológico y avance formativo | **> 90% líneas** (182/182 tests) | Acta docente con badges en vivo, modal auditoría y cierre formal Admin, vistas de estudiante (cursos en curso, malla semáforo, historial por períodos) y expediente completo para Admin | **COMPLETADO Y VALIDADO** |
 | **Pruebas de Integración (Fase 1)** | 18 casos formales (3 procesos: Inscripción, Cierre, Oferta con 3 éxitos y 3 rechazos c/u) | **93.96% líneas** (182/182 tests) | N/A (Backend `@SpringBootTest` + H2 PostgreSQL) | **COMPLETADO Y VALIDADO** |
+| **Dockerización Producción (Fase 2)** | Multi-stage Dockerfile (Temurin 21), 3 réplicas Backend, PostgreSQL persistente | N/A | Multi-stage Dockerfile (Node 22 + Nginx SPA) | **COMPLETADO Y VALIDADO** |
+| **Balanceador de Carga Nginx (Fase 2)** | Upstream Round-Robin a `backend-1`, `backend-2`, `backend-3` en puerto 8081 | N/A | Proxy a `frontend:80`, punto de entrada único puerto 80 | **COMPLETADO Y VALIDADO** |
 
 ### Resumen de lo Implementado en Épica 1 y Seguridad (Keycloak):
 - **Backend:**
@@ -500,7 +502,8 @@ Una vez implementadas y validadas las 7 épicas y alcanzado el umbral de cobertu
 - **Épica 5:** Oferta Académica y Secciones $\rightarrow$ **100% Completa y Validada**.
 - **Épica 6:** Inscripción Académica y Secciones Docentes $\rightarrow$ **100% Completa y Validada**.
 - **Épica 7:** Calificaciones Finales y Cierre de Semestre $\rightarrow$ **100% Completa y Validada**.
-- **Pruebas de Integración (Requisito 3.4 Pauta):** 18 casos implementados y validados (3 procesos $\times$ [3 éxitos + 3 rechazos]) $\rightarrow$ **100% Completo y Validado**.
+- **Pruebas de Integración (Requisito 3.4 Pauta - Fase 1):** 18 casos implementados y validados (3 procesos $\times$ [3 éxitos + 3 rechazos]) $\rightarrow$ **100% Completo y Validado**.
+- **Dockerización y Producción (Requisito 3.3 Pauta - Fase 2):** Docker Compose de producción, 3 réplicas explícitas de Backend, Nginx Load Balancer (Round-Robin), Frontend Nginx, PostgreSQL con volumen persistente y Keycloak IAM $\rightarrow$ **100% Completo y Validado**.
 - **Calidad y Tests:**
   - Backend: **182 / 182 pruebas unitarias y de integración pasando en verde** (164 unitarias + 18 de integración, `./mvnw test`), BUILD SUCCESS. Cobertura JaCoCo en capa service: **93.96% de líneas** y **90.65% de instrucciones** ($\ge 90\%$).
   - Frontend: **0 errores de linting** (`npm run lint`), compilación limpia (`npm run build`).
