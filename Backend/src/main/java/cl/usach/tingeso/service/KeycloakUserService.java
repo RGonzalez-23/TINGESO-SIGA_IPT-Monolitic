@@ -41,7 +41,7 @@ public class KeycloakUserService {
             @Value("${keycloak.realm:siga-ipt-realm}") String realm,
             @Value("${keycloak.client-id:siga-backend-service}") String clientId,
             @Value("${keycloak.client-secret}") String clientSecret,
-            @Value("${keycloak.default-password:Siga2026!}") String defaultPassword) {
+            @Value("${keycloak.default-password}") String defaultPassword) {
         this.restClient = restClientBuilder.build();
         this.serverUrl = serverUrl.replaceAll("/$", "");
         this.realm = realm;
