@@ -504,7 +504,10 @@ Una vez implementadas y validadas las 7 épicas y alcanzado el umbral de cobertu
 - **Épica 7:** Calificaciones Finales y Cierre de Semestre $\rightarrow$ **100% Completa y Validada**.
 - **Pruebas de Integración (Requisito 3.4 Pauta - Fase 1):** 18 casos implementados y validados (3 procesos $\times$ [3 éxitos + 3 rechazos]) $\rightarrow$ **100% Completo y Validado**.
 - **Dockerización y Producción (Requisito 3.3 Pauta - Fase 2):** Docker Compose de producción, 3 réplicas explícitas de Backend, Nginx Load Balancer (Round-Robin), Frontend Nginx, PostgreSQL con volumen persistente y Keycloak IAM $\rightarrow$ **100% Completo y Validado**.
+- **Persistencia y Migración de Datos:** Los datos históricos ingresados en desarrollo (25 estudiantes, 14 docentes y 42 cuentas Keycloak) fueron migrados de forma íntegra desde `siga_pgdata_dev` al volumen nombrado de producción `siga_pgdata`.
+- **Documentación Técnica del Repositorio:** Actualizados y profesionalizados los tres archivos README ([README.md](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/README.md), [Backend/README.md](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Backend/README.md) y [Frontend/README.md](file:///c:/Users/Raul/Desktop/USACH/Tingeso%202nd%20Try/Monol%C3%ADtico/TINGESO-SIGA_IPT-Monolitic/Frontend/README.md)).
 - **Calidad y Tests:**
   - Backend: **182 / 182 pruebas unitarias y de integración pasando en verde** (164 unitarias + 18 de integración, `./mvnw test`), BUILD SUCCESS. Cobertura JaCoCo en capa service: **93.96% de líneas** y **90.65% de instrucciones** ($\ge 90\%$).
   - Frontend: **0 errores de linting** (`npm run lint`), compilación limpia (`npm run build`).
+
 
