@@ -55,7 +55,7 @@ services:
   # 3. Tres Réplicas del Backend (Spring Boot)
   # =========================================================================
   backend-1:
-    image: ${DOCKER_HUB_BACKEND_IMAGE:-siga-backend:latest}
+    image: ${DOCKER_HUB_BACKEND_IMAGE:-rgonzalez23/siga-backend:latest}
     build:
       context: ./Backend
       dockerfile: Dockerfile
@@ -81,7 +81,7 @@ services:
         condition: service_started
 
   backend-2:
-    image: ${DOCKER_HUB_BACKEND_IMAGE:-siga-backend:latest}
+    image: ${DOCKER_HUB_BACKEND_IMAGE:-rgonzalez23/siga-backend:latest}
     build:
       context: ./Backend
       dockerfile: Dockerfile
@@ -107,7 +107,7 @@ services:
         condition: service_started
 
   backend-3:
-    image: ${DOCKER_HUB_BACKEND_IMAGE:-siga-backend:latest}
+    image: ${DOCKER_HUB_BACKEND_IMAGE:-rgonzalez23/siga-backend:latest}
     build:
       context: ./Backend
       dockerfile: Dockerfile
@@ -136,7 +136,7 @@ services:
   # 4. Única Instancia del Frontend (React + Vite)
   # =========================================================================
   frontend:
-    image: ${DOCKER_HUB_FRONTEND_IMAGE:-siga-frontend:latest}
+    image: ${DOCKER_HUB_FRONTEND_IMAGE:-rgonzalez23/siga-frontend:latest}
     build:
       context: ./Frontend
       dockerfile: Dockerfile

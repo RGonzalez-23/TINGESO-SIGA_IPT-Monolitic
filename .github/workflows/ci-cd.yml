@@ -1,0 +1,130 @@
+name: SIGA IPT CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  # =========================================================================
+  # 1. Backend Continuous Integration: Tests & Code Quality
+  # =========================================================================
+  backend-ci:
+    name: Backend CI (Unit & Integration Tests)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21 (Eclipse Temurin)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Grant execute permission to Maven Wrapper
+        run: chmod +x Backend/mvnw
+
+      - name: Run Backend Tests (182 Tests & JaCoCo Coverage)
+        run: |
+          cd Backend
+          ./mvnw clean test
+
+      - name: Upload JaCoCo Coverage Report as Artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: jacoco-coverage-report
+          path: Backend/target/site/jacoco/
+          retention-days: 7
+
+  # =========================================================================
+  # 2. Frontend Continuous Integration: Linting & Build
+  # =========================================================================
+  frontend-ci:
+    name: Frontend CI (Linting & Production Build)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: Frontend/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd Frontend
+          npm ci
+
+      - name: Run ESLint
+        run: |
+          cd Frontend
+          npm run lint
+
+      - name: Build Frontend SPA
+        run: |
+          cd Frontend
+          npm run build
+
+  # =========================================================================
+  # 3. Continuous Delivery: Build & Publish Multi-Stage Docker Images
+  #    Executes ONLY after both CI jobs succeed on the main branch
+  # =========================================================================
+  docker-cd:
+    name: Docker CD (Build & Push to Docker Hub)
+    needs: [backend-ci, frontend-ci]
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push Backend Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./Backend
+          file: ./Backend/Dockerfile
+          push: true
+          tags: |
+            rgonzalez23/siga-backend:latest
+            rgonzalez23/siga-backend:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and Push Frontend Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./Frontend
+          file: ./Frontend/Dockerfile
+          push: true
+          build-args: |
+            VITE_API_URL=/api
+            VITE_KEYCLOAK_URL=http://localhost:8080
+            VITE_KEYCLOAK_REALM=siga-ipt-realm
+            VITE_KEYCLOAK_CLIENT_ID=siga-frontend
+          tags: |
+            rgonzalez23/siga-frontend:latest
+            rgonzalez23/siga-frontend:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
