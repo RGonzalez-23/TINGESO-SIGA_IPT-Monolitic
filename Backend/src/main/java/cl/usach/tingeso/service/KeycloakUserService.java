@@ -37,7 +37,7 @@ public class KeycloakUserService {
 
     public KeycloakUserService(
             RestClient.Builder restClientBuilder,
-            @Value("${keycloak.url}") String serverUrl,
+            @Value("${keycloak.server-url:http://localhost:8080}") String serverUrl,
             @Value("${keycloak.realm:siga-ipt-realm}") String realm,
             @Value("${keycloak.client-id:siga-backend-service}") String clientId,
             @Value("${keycloak.client-secret}") String clientSecret,
