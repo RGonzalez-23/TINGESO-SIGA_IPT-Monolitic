@@ -52,6 +52,16 @@
       "name": "SIGA IPT Backend Resource Server",
       "enabled": true,
       "bearerOnly": true
+    },
+    {
+      "clientId": "siga-backend-service",
+      "name": "SIGA IPT Backend Service Account",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "8nHa3PI6wZmbASze6yrHprpJdEKT16Ug",
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false
     }
   ],
   "users": [
