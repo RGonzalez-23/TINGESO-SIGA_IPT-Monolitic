@@ -8,6 +8,7 @@
 # Docker & local data
 pgdata/
 siga_pgdata_dev/
+*.sql
 
 # Operating System files
 .DS_Store
